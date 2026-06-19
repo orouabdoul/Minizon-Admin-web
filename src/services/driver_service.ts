@@ -2,6 +2,7 @@ import { api } from './api';
 import type { ApiBodyResponse } from '../models/api_response.model';
 import type { ApiDriver, DriverMetrics } from '../models/driver.model';
 
+// Shape of body.data from GET /admin/drivers
 interface DriversListBody {
   data:         ApiDriver[];
   total:        number;
@@ -31,12 +32,12 @@ export const driverService = {
       },
     }),
 
-  getById: (uuid: string) =>
-    api.get<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${uuid}`),
+  getById: (id: string) =>
+    api.get<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${id}`),
 
-  validate: (uuid: string) =>
-    api.put<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${uuid}/validate`),
+  validate: (id: string) =>
+    api.put<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${id}/validate`),
 
-  reject: (uuid: string) =>
-    api.put<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${uuid}/reject`),
+  reject: (id: string) =>
+    api.put<ApiBodyResponse<ApiDriver>>(`/admin/drivers/${id}/reject`),
 };

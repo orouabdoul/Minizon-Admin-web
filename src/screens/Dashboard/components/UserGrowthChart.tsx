@@ -1,54 +1,59 @@
-const DAYS   = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
-const VALUES = [1000,   1300,  1600,  1900,  2200,  2000,  2350];
-const Y_LABELS = [0, 500, 1000, 1500, 2000, 2500];
-const MAX_Y = 2500;
+import type { DashboardUsers } from '../../../models/dashboard.model';
 
-// chart area: x=60..482, y=20..260 (w=422, h=240)
-const X0 = 60;  const X1 = 482;  const Y0 = 20;  const Y1 = 260;
-const W  = X1 - X0;  const H = Y1 - Y0;
+interface Props { users: DashboardUsers | null; }
 
-function xPos(i: number) { return X0 + (i / (DAYS.length - 1)) * W; }
-function yPos(v: number) { return Y1 - (v / MAX_Y) * H; }
-
-const points = VALUES.map((v, i) => `${xPos(i)},${yPos(v)}`).join(' ');
-const areaPath = `M ${xPos(0)},${yPos(VALUES[0])} ${VALUES.map((v, i) => `L ${xPos(i)},${yPos(v)}`).join(' ')} L ${X1},${Y1} L ${X0},${Y1} Z`;
-
-export function UserGrowthChart() {
+function ProportionalBar({ segments }: { segments: { pct: number; color: string }[] }) {
+  const used = segments.reduce((s, seg) => s + seg.pct, 0);
   return (
-    <svg viewBox="0 0 502 300" width="100%" height="300" aria-label="Croissance utilisateurs">
-      {/* Y-axis grid lines + labels */}
-      {Y_LABELS.map((val) => {
-        const y = yPos(val);
-        return (
-          <g key={val}>
-            <line x1={X0} y1={y} x2={X1} y2={y} stroke="#F3F4F6" strokeWidth={1} />
-            <text x={X0 - 8} y={y + 4} textAnchor="end" fill="#9CA3AF" fontSize={11}>
-              {val === 0 ? '0' : `${val / 1000}k`}
-            </text>
-          </g>
-        );
-      })}
+    <div style={{ display: 'flex', height: 10, borderRadius: 6, overflow: 'hidden', marginBottom: 20 }}>
+      {segments.map((seg, i) =>
+        seg.pct > 0
+          ? <div key={i} style={{ width: `${seg.pct}%`, background: seg.color }} />
+          : null,
+      )}
+      {used < 100 && <div style={{ flex: 1, background: '#F3F4F6' }} />}
+    </div>
+  );
+}
 
-      {/* Area fill */}
-      <path d={areaPath} fill="rgba(0,168,107,0.10)" />
+function StatRow({ label, value, color, dot = true }: { label: string; value: number; color: string; dot?: boolean }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '9px 0', borderBottom: '1px solid #F9FAFB',
+    }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        {dot && <div style={{ width: 8, height: 8, borderRadius: '50%', background: color, flexShrink: 0 }} />}
+        <span style={{ fontSize: 13, color: '#6B7280' }}>{label}</span>
+      </div>
+      <span style={{ fontSize: 13, fontWeight: 700, color }}>{value}</span>
+    </div>
+  );
+}
 
-      {/* Line */}
-      <polyline points={points} fill="none" stroke="#00A86B" strokeWidth={3} strokeLinecap="round" strokeLinejoin="round" />
+export function UserGrowthChart({ users }: Props) {
+  if (!users) {
+    return (
+      <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: '#9CA3AF', fontSize: 13 }}>Chargement…</span>
+      </div>
+    );
+  }
 
-      {/* Dots */}
-      {VALUES.map((v, i) => (
-        <circle key={i} cx={xPos(i)} cy={yPos(v)} r={4} fill="#00A86B" />
-      ))}
-
-      {/* X-axis labels */}
-      {DAYS.map((d, i) => (
-        <text key={d} x={xPos(i)} y={Y1 + 18} textAnchor="middle" fill="#9CA3AF" fontSize={12}>
-          {d}
-        </text>
-      ))}
-
-      {/* Bottom axis line */}
-      <line x1={X0} y1={Y1} x2={X1} y2={Y1} stroke="#E5E7EB" strokeWidth={1} />
-    </svg>
+  const t = users.total || 1;
+  return (
+    <div style={{ padding: '4px 0' }}>
+      <ProportionalBar segments={[
+        { pct: (users.drivers    / t) * 100, color: '#00A86B' },
+        { pct: (users.passengers / t) * 100, color: '#2563EB' },
+        { pct: (users.blocked    / t) * 100, color: '#E53935' },
+      ]} />
+      <StatRow label="Total inscrits"    value={users.total}          color="#374151" dot={false} />
+      <StatRow label="Conducteurs"       value={users.drivers}        color="#00A86B" />
+      <StatRow label="Passagers"         value={users.passengers}     color="#2563EB" />
+      <StatRow label="Nouveaux ce mois"  value={users.new_this_month} color="#A855F7" />
+      <StatRow label="KYC en attente"    value={users.pending_kyc}    color="#F59E0B" />
+      <StatRow label="Comptes bloqués"   value={users.blocked}        color="#E53935" />
+    </div>
   );
 }

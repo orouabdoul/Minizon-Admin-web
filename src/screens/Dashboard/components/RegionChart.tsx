@@ -1,45 +1,59 @@
-// Treemap — 5 regions displayed as proportional nested rectangles
-// Chart area: x=60..472, y=20..260 (w=412, h=240)
-const REGIONS = [
-  { label: 'Porto-Novo', pct: '25%', color: '#2563EB', x:  60,    y:  20,   w: 226.6, h: 109.1 },
-  { label: 'Parakou',    pct: '15%', color: '#FB8C00', x:  60,    y: 129.1, w: 113.3, h: 130.9 },
-  { label: 'Abomey',     pct: '8%',  color: '#7C3AED', x: 173.3,  y: 129.1, w: 113.3, h:  69.8 },
-  { label: 'Autres',     pct: '7%',  color: '#E53935', x: 173.3,  y: 198.9, w: 113.3, h:  61.1 },
-  { label: 'Cotonou',    pct: '45%', color: '#00A86B', x: 286.6,  y:  20,   w: 185.4, h: 240   },
-];
+import type { DashboardTrips, DashboardBookings } from '../../../models/dashboard.model';
 
-// Legend at y=285
-const LEGEND_X = [34, 124, 210, 285, 355];
+interface Props {
+  trips:    DashboardTrips    | null;
+  bookings: DashboardBookings | null;
+}
 
-export function RegionChart() {
+function SectionTitle({ children }: { children: string }) {
   return (
-    <svg viewBox="0 0 502 300" width="100%" height="300" aria-label="Répartition par région">
-      {REGIONS.map((r) => (
-        <g key={r.label}>
-          <rect x={r.x} y={r.y} width={r.w} height={r.h} fill={r.color} />
-          {/* Percentage text centered in block */}
-          <text
-            x={r.x + r.w / 2}
-            y={r.y + r.h / 2 + 5}
-            textAnchor="middle"
-            fill="white"
-            fontSize={r.h > 50 ? 13 : 10}
-            fontWeight={600}
-          >
-            {r.pct}
-          </text>
-        </g>
-      ))}
+    <p style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, marginTop: 16 }}>
+      {children}
+    </p>
+  );
+}
 
-      {/* Legend */}
-      {REGIONS.map((r, i) => (
-        <g key={`legend-${r.label}`}>
-          <rect x={LEGEND_X[i]} y={272} width={10} height={10} fill={r.color} rx={2} />
-          <text x={LEGEND_X[i] + 14} y={281} fill="#6B7280" fontSize={10}>
-            {r.label}
-          </text>
-        </g>
-      ))}
-    </svg>
+function BarRow({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+  const pct = max > 0 ? Math.round((value / max) * 100) : 0;
+  return (
+    <div style={{ marginBottom: 10 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontSize: 12, color: '#6B7280' }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color }}>{value}</span>
+      </div>
+      <div style={{ height: 6, background: '#F3F4F6', borderRadius: 3, overflow: 'hidden' }}>
+        <div style={{ height: '100%', width: `${pct}%`, background: color, borderRadius: 3, transition: 'width .4s ease' }} />
+      </div>
+    </div>
+  );
+}
+
+export function RegionChart({ trips, bookings }: Props) {
+  if (!trips || !bookings) {
+    return (
+      <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: '#9CA3AF', fontSize: 13 }}>Chargement…</span>
+      </div>
+    );
+  }
+
+  const maxTrips    = Math.max(trips.total, 1);
+  const maxBookings = Math.max(bookings.total, 1);
+
+  return (
+    <div style={{ padding: '4px 0' }}>
+      <SectionTitle>Trajets</SectionTitle>
+      <BarRow label="Total"        value={trips.total}      max={maxTrips} color="#9333EA" />
+      <BarRow label="Actifs"       value={trips.active}     max={maxTrips} color="#00A86B" />
+      <BarRow label="Terminés"     value={trips.completed}  max={maxTrips} color="#2563EB" />
+      <BarRow label="Annulés"      value={trips.cancelled}  max={maxTrips} color="#E53935" />
+      <BarRow label="Ce mois"      value={trips.this_month} max={maxTrips} color="#F59E0B" />
+
+      <SectionTitle>Réservations</SectionTitle>
+      <BarRow label="Total"        value={bookings.total}     max={maxBookings} color="#0D9488" />
+      <BarRow label="En attente"   value={bookings.pending}   max={maxBookings} color="#F59E0B" />
+      <BarRow label="Acceptées"    value={bookings.accepted}  max={maxBookings} color="#00A86B" />
+      <BarRow label="Annulées"     value={bookings.cancelled} max={maxBookings} color="#E53935" />
+    </div>
   );
 }

@@ -67,7 +67,8 @@ export function DriversTable() {
     drivers, total, pageSize, currentPage, setCurrentPage,
     setSearch, statusFilter, setStatusFilter,
     loadingId, validate, reject,
-    setSelectedId, selectedDriver,
+    setSelectedId, selectedDriver, detailLoading,
+    fetchError,
   } = useDrivers();
 
   const [confirmRejectId, setConfirmRejectId] = useState<string | null>(null);
@@ -75,7 +76,14 @@ export function DriversTable() {
   return (
     <>
       {selectedDriver && (
-        <DriverDetailModal driver={selectedDriver} onClose={() => setSelectedId(null)} />
+        <DriverDetailModal
+          driver={selectedDriver}
+          detailLoading={detailLoading}
+          onClose={() => setSelectedId(null)}
+          onValidate={validate}
+          onReject={reject}
+          loadingId={loadingId}
+        />
       )}
       {confirmRejectId && (
         <ConfirmDialog
@@ -118,6 +126,15 @@ export function DriversTable() {
             </button>
           </div>
         </div>
+
+        {fetchError && (
+          <div style={{
+            background: '#FEF2F2', border: '1px solid #FECACA', borderRadius: 8,
+            padding: '10px 14px', marginBottom: 12, fontSize: 13, color: '#B91C1C',
+          }}>
+            {fetchError} — Ouvrez la console navigateur (F12) pour voir le détail de l'erreur.
+          </div>
+        )}
 
         <Table>
           <TableHead>

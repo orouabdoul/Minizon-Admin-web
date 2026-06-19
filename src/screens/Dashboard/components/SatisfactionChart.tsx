@@ -1,55 +1,60 @@
-// Exact Figma bar positions in 502×300 SVG (bottom at y=260)
-const BARS = [
-  { star: '5★', x:  68.44, h: 228,  color: '#00A86B' },
-  { star: '4★', x: 152.84, h:  73.76, color: '#22C55E' },
-  { star: '3★', x: 237.24, h:  23.47, color: '#86EFAC' },
-  { star: '2★', x: 321.64, h:   6.71, color: '#FCA5A5' },
-  { star: '1★', x: 406.04, h:   3.35, color: '#EF4444' },
-];
-const BAR_W = 67.52;
-const BOTTOM = 260;
-const Y_LABELS = [0, 25, 50, 75, 100];
+import type { DashboardPayments, DashboardWithdrawals } from '../../../models/dashboard.model';
 
-function yPos(pct: number) { return BOTTOM - (pct / 100) * 228; }
+interface Props {
+  payments:    DashboardPayments    | null;
+  withdrawals: DashboardWithdrawals | null;
+}
 
-export function SatisfactionChart() {
+function formatFcfa(v: number): string {
+  if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M FCFA`;
+  if (v >= 1_000)     return `${(v / 1_000).toFixed(0)}K FCFA`;
+  return `${v} FCFA`;
+}
+
+function PaymentRow({ label, value, color, sub }: { label: string; value: string; color: string; sub?: string }) {
   return (
-    <svg viewBox="0 0 502 300" width="100%" height="300" aria-label="Taux de satisfaction">
-      {/* Y-axis grid + labels */}
-      {Y_LABELS.map((val) => {
-        const y = yPos(val);
-        return (
-          <g key={val}>
-            <line x1={60} y1={y} x2={482} y2={y} stroke="#F3F4F6" strokeWidth={1} />
-            <text x={52} y={y + 4} textAnchor="end" fill="#9CA3AF" fontSize={11}>
-              {val}%
-            </text>
-          </g>
-        );
-      })}
+    <div style={{
+      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+      padding: '10px 0', borderBottom: '1px solid #F9FAFB',
+    }}>
+      <div>
+        <div style={{ fontSize: 13, color: '#6B7280' }}>{label}</div>
+        {sub && <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 1 }}>{sub}</div>}
+      </div>
+      <span style={{ fontSize: 14, fontWeight: 700, color }}>{value}</span>
+    </div>
+  );
+}
 
-      {/* Bars */}
-      {BARS.map((bar) => (
-        <rect
-          key={bar.star}
-          x={bar.x}
-          y={BOTTOM - bar.h}
-          width={BAR_W}
-          height={bar.h}
-          fill={bar.color}
-          rx={4}
-        />
-      ))}
+function SectionTitle({ children }: { children: string }) {
+  return (
+    <p style={{ fontSize: 11, fontWeight: 600, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 4, marginTop: 14 }}>
+      {children}
+    </p>
+  );
+}
 
-      {/* X-axis labels */}
-      {BARS.map((bar) => (
-        <text key={`lbl-${bar.star}`} x={bar.x + BAR_W / 2} y={278} textAnchor="middle" fill="#9CA3AF" fontSize={12}>
-          {bar.star}
-        </text>
-      ))}
+export function SatisfactionChart({ payments, withdrawals }: Props) {
+  if (!payments || !withdrawals) {
+    return (
+      <div style={{ height: 260, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <span style={{ color: '#9CA3AF', fontSize: 13 }}>Chargement…</span>
+      </div>
+    );
+  }
 
-      {/* Bottom axis */}
-      <line x1={60} y1={BOTTOM} x2={482} y2={BOTTOM} stroke="#E5E7EB" strokeWidth={1} />
-    </svg>
+  return (
+    <div style={{ padding: '4px 0' }}>
+      <SectionTitle>Paiements</SectionTitle>
+      <PaymentRow label="Volume total"          value={formatFcfa(payments.total_volume_fcfa)}      color="#374151" sub="Toutes transactions" />
+      <PaymentRow label="Revenus plateforme"    value={formatFcfa(payments.platform_revenue_fcfa)}  color="#00A86B" />
+      <PaymentRow label="Fonds en escrow"       value={formatFcfa(payments.escrow_locked_fcfa)}     color="#2563EB" sub="Bloqués en attente" />
+      <PaymentRow label="Remboursements"        value={formatFcfa(payments.refunded_fcfa)}          color="#E53935" />
+      <PaymentRow label="Ce mois"               value={formatFcfa(payments.this_month_fcfa)}        color="#F59E0B" />
+
+      <SectionTitle>Retraits</SectionTitle>
+      <PaymentRow label="En attente (nombre)"   value={String(withdrawals.pending_count)}           color="#9333EA" />
+      <PaymentRow label="En attente (montant)"  value={formatFcfa(withdrawals.pending_amount)}      color="#FB8C00" />
+    </div>
   );
 }
