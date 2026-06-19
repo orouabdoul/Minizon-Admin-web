@@ -1,0 +1,134 @@
+/* ═══════════════════════════════════════════════════════
+   CONFIRM DIALOG — centered overlay
+═══════════════════════════════════════════════════════ */
+.confirm-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(17, 24, 39, 0.55);
+  z-index: 400;
+}
+.confirm-dialog {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 401; background: #fff;
+  border-radius: 16px; padding: 32px 28px;
+  width: 400px; max-width: calc(100vw - 32px);
+  display: flex; flex-direction: column;
+  align-items: center; gap: 16px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+.confirm-dialog__icon {
+  width: 60px; height: 60px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.confirm-dialog__title  { font-size: 18px; font-weight: 700; color: #111827; text-align: center; margin: 0; }
+.confirm-dialog__message { font-size: 14px; color: #6B7280; text-align: center; line-height: 22px; margin: 0; }
+.confirm-dialog__actions { display: flex; gap: 12px; width: 100%; margin-top: 4px; }
+.confirm-dialog__btn {
+  flex: 1; padding: 11px 16px; border-radius: 8px;
+  font-size: 14px; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: opacity 0.15s;
+}
+.confirm-dialog__btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.confirm-dialog__btn--cancel { background: #F3F4F6; border: 1px solid #E5E7EB; color: #374151; }
+.confirm-dialog__btn--cancel:hover:not(:disabled) { background: #E5E7EB; }
+.confirm-dialog__btn--ok { border: none; color: #fff; }
+.confirm-dialog__btn--ok:hover:not(:disabled) { opacity: 0.88; }
+
+/* ═══════════════════════════════════════════════════════
+   MODAL FORM — shared styles inside DetailModal
+═══════════════════════════════════════════════════════ */
+.modal-form { display: flex; flex-direction: column; gap: 16px; }
+.modal-form-group { display: flex; flex-direction: column; gap: 6px; }
+.modal-form-label { font-size: 13px; font-weight: 500; color: #374151; }
+.modal-form-footer { display: flex; gap: 12px; padding-top: 8px; }
+
+.modal-btn-save {
+  flex: 1; padding: 12px 16px; background: #00A86B; border: none;
+  border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: opacity 0.15s;
+}
+.modal-btn-save:hover:not(:disabled) { opacity: 0.88; }
+.modal-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+.modal-btn-save--blue { background: #2563EB; }
+
+.modal-btn-cancel {
+  padding: 12px 16px; background: #F3F4F6; border: 1px solid #E5E7EB;
+  border-radius: 8px; color: #374151; font-size: 14px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: background 0.15s;
+}
+.modal-btn-cancel:hover { background: #E5E7EB; }
+
+.modal-icon-bubble {
+  width: 48px; height: 48px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   PROFILE PANEL — avatar dropdown in header
+═══════════════════════════════════════════════════════ */
+.profile-panel-wrapper { position: relative; }
+
+.profile-panel-trigger {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; background: none; border: none;
+  padding: 4px 8px; border-radius: 8px; transition: background 0.15s;
+}
+.profile-panel-trigger:hover { background: rgba(0,0,0,0.04); }
+
+.profile-panel {
+  position: absolute; top: calc(100% + 8px); right: 0;
+  width: 272px; background: #fff; border-radius: 14px;
+  border: 1px solid #E5E7EB; box-shadow: 0 8px 32px rgba(0,0,0,0.13);
+  z-index: 100; overflow: hidden;
+}
+.profile-panel__header {
+  padding: 18px 16px;
+  background: linear-gradient(135deg, rgba(0,168,107,0.06), rgba(37,99,235,0.04));
+  border-bottom: 1px solid #F3F4F6;
+  display: flex; align-items: center; gap: 12px;
+}
+.profile-panel__avatar {
+  width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
+  border: 2px solid rgba(0,168,107,0.25); flex-shrink: 0;
+}
+.profile-panel__name  { font-size: 14px; font-weight: 700; color: #111827; margin: 0; line-height: 20px; }
+.profile-panel__role  { font-size: 12px; color: #00A86B; font-weight: 600; margin: 0; line-height: 18px; }
+.profile-panel__email { font-size: 11px; color: #9CA3AF; margin: 0; line-height: 16px; }
+.profile-panel__menu  { padding: 6px; display: flex; flex-direction: column; gap: 1px; }
+.profile-panel__item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 8px;
+  background: none; border: none; font-size: 14px; font-weight: 500;
+  color: #374151; font-family: inherit; cursor: pointer;
+  text-align: left; width: 100%; transition: background 0.13s;
+}
+.profile-panel__item:hover { background: #F9FAFB; }
+.profile-panel__item--danger { color: #DC2626; }
+.profile-panel__item--danger:hover { background: #FEF2F2; }
+.profile-panel__divider { height: 1px; background: #F3F4F6; margin: 4px 8px; }
+
+/* ═══════════════════════════════════════════════════════
+   USERS TABLE — add button in toolbar
+═══════════════════════════════════════════════════════ */
+.users-table-add-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 8px 14px; background: #00A86B; border: none;
+  border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: opacity 0.15s;
+  white-space: nowrap; flex-shrink: 0;
+}
+.users-table-add-btn:hover { opacity: 0.88; }
+
+/* ═══════════════════════════════════════════════════════
+   SETTINGS ADMINS — title row + add button
+═══════════════════════════════════════════════════════ */
+.settings-card__title-row {
+  display: flex; align-items: center; justify-content: space-between;
+}
+.settings-add-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; background: #00A86B; border: none;
+  border-radius: 8px; color: #fff; font-size: 12px; font-weight: 600;
+  font-family: inherit; cursor: pointer; transition: opacity 0.15s;
+}
+.settings-add-btn:hover { opacity: 0.88; }
