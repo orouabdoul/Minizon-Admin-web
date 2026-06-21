@@ -40,7 +40,8 @@ export function UserGrowthChart({ users }: Props) {
     );
   }
 
-  const t = users.total || 1;
+  const platformTotal = users.drivers + users.passengers;
+  const t = platformTotal || 1;
   return (
     <div style={{ padding: '4px 0' }}>
       <ProportionalBar segments={[
@@ -48,7 +49,7 @@ export function UserGrowthChart({ users }: Props) {
         { pct: (users.passengers / t) * 100, color: '#2563EB' },
         { pct: (users.blocked    / t) * 100, color: '#E53935' },
       ]} />
-      <StatRow label="Total inscrits"    value={users.total}          color="#374151" dot={false} />
+      <StatRow label="Total inscrits"    value={platformTotal}        color="#374151" dot={false} />
       <StatRow label="Conducteurs"       value={users.drivers}        color="#00A86B" />
       <StatRow label="Passagers"         value={users.passengers}     color="#2563EB" />
       <StatRow label="Nouveaux ce mois"  value={users.new_this_month} color="#A855F7" />

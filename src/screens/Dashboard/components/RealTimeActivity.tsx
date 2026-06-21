@@ -58,7 +58,7 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
                 icon={<AppIcon icon={UserPlus} size={15} color="#00A86B" />}
                 bg="#DCFCE7"
                 label="Total inscrits"
-                value={users.total}
+                value={users.drivers + users.passengers}
                 color="#00A86B"
               />
               <StatItem

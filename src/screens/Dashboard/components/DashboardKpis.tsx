@@ -25,7 +25,7 @@ export function DashboardKpis({ data, loading }: Props) {
     {
       id: 'total-users', iconId: 'users',
       label: 'Utilisateurs Totaux',
-      value: data ? String(data.users.total) : ph,
+      value: data ? String(data.users.drivers + data.users.passengers) : ph,
       badge: data ? `+${data.users.new_this_month} ce mois` : ph,
       badgeVariant: 'success' as const,
       iconBg: '#DBEAFE', iconColor: '#2563EB',
