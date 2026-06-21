@@ -96,7 +96,7 @@ export function useDrivers() {
     try {
       const { data } = await driverService.getById(id);
       const body = ((data as Record<string, unknown>).body ?? data) as Parameters<typeof mapApiDriverToDriver>[0];
-      console.log('[Driver getById] raw documents:', (body as Record<string, unknown>).documents);
+      console.log('[Driver getById] raw body:', JSON.stringify(body, null, 2));
       const detail = mapApiDriverToDriver(body);
       console.log('[Driver getById] mapped urls:', {
         selfies: detail.selfies,
@@ -112,9 +112,11 @@ export function useDrivers() {
         idCard:  detail.idCard  ?? basic?.idCard,
         documents: {
           ...detail.documents,
-          permisUrl:     detail.documents.permisUrl     ?? basic?.documents.permisUrl,
-          carteGriseUrl: detail.documents.carteGriseUrl ?? basic?.documents.carteGriseUrl,
-          assuranceUrl:  detail.documents.assuranceUrl  ?? basic?.documents.assuranceUrl,
+          permisUrl:           detail.documents.permisUrl           ?? basic?.documents.permisUrl,
+          carteGriseUrl:       detail.documents.carteGriseUrl       ?? basic?.documents.carteGriseUrl,
+          assuranceUrl:        detail.documents.assuranceUrl        ?? basic?.documents.assuranceUrl,
+          tvmDocUrl:           detail.documents.tvmDocUrl           ?? basic?.documents.tvmDocUrl,
+          technicalControlUrl: detail.documents.technicalControlUrl ?? basic?.documents.technicalControlUrl,
         },
       });
     } catch (err) {

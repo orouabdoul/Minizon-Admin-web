@@ -21,9 +21,12 @@ export function PassengersScreen() {
     verifFilter,  setVerifFilter,
     suspend,
     unsuspend,
+    approveKyc,
+    rejectKyc,
     resetFilters,
     setSelectedId,
     selectedPassenger,
+    detailLoading,
   } = usePassengers();
 
   const [confirmId, setConfirmId] = useState<string | null>(null);
@@ -70,6 +73,9 @@ export function PassengersScreen() {
           onView={setSelectedId}
           onCloseDetail={() => setSelectedId(null)}
           selectedPassenger={selectedPassenger}
+          detailLoading={detailLoading}
+          onApproveKyc={approveKyc}
+          onRejectKyc={rejectKyc}
         />
       </div>
     </DashboardLayout>

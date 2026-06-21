@@ -1,5 +1,5 @@
 import {
-  Eye, UserX, UserCheck, Phone, Mail, MapPin, TrendingUp, Star,
+  Eye, UserX, UserCheck, Phone, Mail, MapPin, TrendingUp,
 } from 'lucide-react';
 import { AppIcon }              from '../../../components/Common/AppIcon';
 import { Badge }                from '../../../components/DataDisplay/Badge/Badge';
@@ -8,7 +8,6 @@ import {
 } from '../../../components/DataDisplay/Table/Table';
 import { PassengerDetailModal } from './PassengerDetailModal';
 import type { BadgeVariant }    from '../../../components/DataDisplay/Badge/Badge';
-import { trustTrack, trustFill } from '../styles';
 import type { Passenger, PassengerStatus, RiskLevel } from '../../../models/passenger.model';
 
 interface PassengersTableProps {
@@ -23,6 +22,9 @@ interface PassengersTableProps {
   onView:            (id: string) => void;
   onCloseDetail:     () => void;
   selectedPassenger: Passenger | null;
+  detailLoading?:    boolean;
+  onApproveKyc?:     (id: string) => void;
+  onRejectKyc?:      (id: string) => void;
 }
 
 function Pagination({
@@ -70,12 +72,20 @@ function riskVariant(r: RiskLevel): BadgeVariant {
 
 export function PassengersTable({
   passengers, total, pageSize, currentPage, onPageChange,
-  loadingId, onSuspend, onUnsuspend, onView, onCloseDetail, selectedPassenger,
+  loadingId, onSuspend, onUnsuspend, onView, onCloseDetail,
+  selectedPassenger, detailLoading, onApproveKyc, onRejectKyc,
 }: PassengersTableProps) {
   return (
     <>
     {selectedPassenger && (
-      <PassengerDetailModal passenger={selectedPassenger} onClose={onCloseDetail} />
+      <PassengerDetailModal
+        passenger={selectedPassenger}
+        detailLoading={detailLoading}
+        onClose={onCloseDetail}
+        onApproveKyc={onApproveKyc}
+        onRejectKyc={onRejectKyc}
+        loadingId={loadingId}
+      />
     )}
     <div className="passengers-table-card">
       <div className="passengers-table-header">
@@ -94,10 +104,7 @@ export function PassengersTable({
             <Th width="110px">Ville</Th>
             <Th width="120px">Réservations</Th>
             <Th width="140px">Dépenses</Th>
-            <Th width="80px">Note</Th>
-            <Th width="130px">Confiance</Th>
             <Th width="130px">Inscription</Th>
-            <Th width="140px">Activité</Th>
             <Th width="90px">Statut</Th>
             <Th width="90px">Risque</Th>
             <Th width="100px">Actions</Th>
@@ -121,7 +128,7 @@ export function PassengersTable({
                   {/* Passager */}
                   <Td>
                     <div className="passenger-identity">
-                      <img src="https://placehold.co/40x40" alt={p.name} className="passenger-avatar" />
+                      <img src={p.avatar ?? 'https://placehold.co/40x40'} alt={p.name} className="passenger-avatar" />
                       <div>
                         <p className="passenger-name">{p.name}</p>
                         <p className="passenger-id">{p.passengerId}</p>
@@ -166,26 +173,7 @@ export function PassengersTable({
                   {/* Dépenses */}
                   <Td><span className="passenger-spending">{p.spending}</span></Td>
 
-                  {/* Note */}
-                  <Td>
-                    {p.rating != null ? (
-                      <span className="passenger-rating">
-                        <AppIcon icon={Star} size={14} color="#F4B400" />
-                        {p.rating}
-                      </span>
-                    ) : <span className="data-table__user-phone">—</span>}
-                  </Td>
-
-                  {/* Confiance */}
-                  <Td>
-                    <div className="passenger-trust">
-                      <div style={trustTrack}>
-                        <div style={trustFill(p.trustScore)} />
-                      </div>
-                      <span className="passenger-trust__label">{p.trustScore}%</span>
-                    </div>
-                  </Td>
-
+                   
                   {/* Inscription */}
                   <Td>
                     <div className="passenger-date">
@@ -194,16 +182,7 @@ export function PassengersTable({
                     </div>
                   </Td>
 
-                  {/* Activité */}
-                  <Td>
-                    <div className="passenger-activity">
-                      <span>{p.lastActivity}</span>
-                      <span className={`passenger-activity__status passenger-activity__status--${p.activityStatus === 'En ligne' ? 'online' : 'offline'}`}>
-                        <span className="passenger-activity__dot" />
-                        {p.activityStatus}
-                      </span>
-                    </div>
-                  </Td>
+                  
 
                   {/* Statut */}
                   <Td><Badge label={p.status} variant={statusVariant(p.status)} /></Td>

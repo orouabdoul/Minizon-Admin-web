@@ -1,9 +1,9 @@
 import { api } from './api';
 import type { ApiBodyResponse } from '../models/api_response.model';
-import type { Passenger, PassengerMetrics } from '../models/passenger.model';
+import type { ApiPassenger, PassengerMetrics } from '../models/passenger.model';
 
 interface PassengersListBody {
-  data:         Passenger[];
+  data:         ApiPassenger[];
   total:        number;
   per_page:     number;
   current_page: number;
@@ -26,11 +26,11 @@ export const passengerService = {
     }),
 
   getById: (uuid: string) =>
-    api.get<ApiBodyResponse<Passenger>>(`/admin/passengers/${uuid}`),
+    api.get<ApiBodyResponse<ApiPassenger>>(`/admin/passengers/${uuid}`),
 
   suspend: (uuid: string) =>
-    api.put<ApiBodyResponse<Passenger>>(`/admin/passengers/${uuid}/suspend`),
+    api.put<ApiBodyResponse<ApiPassenger>>(`/admin/passengers/${uuid}/suspend`),
 
   unsuspend: (uuid: string) =>
-    api.put<ApiBodyResponse<Passenger>>(`/admin/passengers/${uuid}/unsuspend`),
+    api.put<ApiBodyResponse<ApiPassenger>>(`/admin/passengers/${uuid}/unsuspend`),
 };

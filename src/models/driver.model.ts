@@ -4,12 +4,16 @@ export type DriverStatus   = 'En attente' | 'Vérifié' | 'Rejeté' | 'Suspendu'
 export type DocumentStatus = 'ok' | 'pending' | 'rejected';
 
 export interface DriverDocuments {
-  permis:         DocumentStatus;
-  carteGrise:     DocumentStatus;
-  assurance:      DocumentStatus;
-  permisUrl?:     string;   // full URL — may be image (jpg/png) or pdf
-  carteGriseUrl?: string;
-  assuranceUrl?:  string;
+  permis:              DocumentStatus;
+  carteGrise:          DocumentStatus;
+  assurance:           DocumentStatus;
+  tvmDoc:              DocumentStatus;
+  technicalControl:    DocumentStatus;
+  permisUrl?:          string;
+  carteGriseUrl?:      string;
+  assuranceUrl?:       string;
+  tvmDocUrl?:          string;
+  technicalControlUrl?: string;
 }
 
 export interface Driver {
@@ -20,14 +24,14 @@ export interface Driver {
   email:     string;
   vehicle:   string;
   plate:     string;
-  avatar:    string;          // full URL to front selfie
+  avatar:    string;
   selfies?: {
-    front?: string;           // full URL
+    front?: string;
     left?:  string;
     right?: string;
   };
   idCard?: {
-    front?: string;           // full URL
+    front?: string;
     back?:  string;
   };
   documents: DriverDocuments;
@@ -43,39 +47,66 @@ export interface DriverMetrics {
   validation_rate:    number;
 }
 
-// ── API shape (GET /admin/drivers and GET /admin/drivers/{id}) ─────────────
-
-// A document field can be:
-//   • old shape:  "ok"                         (DocumentStatus string)
-//   • new shape:  { status: "ok", url: "/storage/..." }
+// ── API shape ──────────────────────────────────────────────────────────────────
+// Backend may return documents as:
+//   • old flat string: "ok"
+//   • new object:      { status: "ok", url: "https://..." | "/storage/..." | "kyc/..." }
 type ApiDocumentField = DocumentStatus | { status: DocumentStatus; url?: string | null };
 
 export interface ApiDriver {
   id:       string;
   name:     string;
-  avatar:   string;        // "/storage/kyc/selfies/xxx.jpg" — starts with "/"
+  avatar:   string | null;
   driverId: string;
   phone:    string;
   email:    string;
   vehicle:  string;
   plate:    string;
-  selfies?: { front?: string; left?: string; right?: string };
-  idCard?:  { front?: string; back?:  string };
+  // Shape 1 — nested profile (matches auth/register response)
+  profile?: {
+    selfie_front?:  string | null;
+    selfie_left?:   string | null;
+    selfie_right?:  string | null;
+    id_card_front?: string | null;
+    id_card_back?:  string | null;
+    driving_license_photo?: string | null;
+  };
+  // Shape 2 — flat top-level fields
+  selfie_front?:  string | null;
+  selfie_left?:   string | null;
+  selfie_right?:  string | null;
+  id_card_front?: string | null;
+  id_card_back?:  string | null;
+  // Shape 3 — nested objects (backend transforms)
+  selfies?: { front?: string | null; left?: string | null; right?: string | null };
+  idCard?:  { front?: string | null; back?: string | null };
   documents: {
-    permis:     ApiDocumentField;
-    carteGrise: ApiDocumentField;
-    assurance:  ApiDocumentField;
+    permis:               ApiDocumentField;
+    carteGrise:           ApiDocumentField;
+    assurance:            ApiDocumentField;
+    tvm_doc?:             ApiDocumentField;
+    technical_control_doc?: ApiDocumentField;
   };
   score:  number;
   status: DriverStatus;
 }
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+// ── Helpers ────────────────────────────────────────────────────────────────────
 
-/** Convert a /storage/... relative path to a full URL */
+/**
+ * Normalise any path/URL the backend might return into a full absolute URL.
+ *
+ * After the backend fix (Storage::disk('public')->url()), values may be:
+ *   • Full URL   "https://minizon-api.onrender.com/storage/kyc/..."  → pass through
+ *   • Abs path   "/storage/kyc/selfies/xxx.jpg"                       → prepend baseUrl
+ *   • Rel path   "kyc/selfies/xxx.jpg"                                → prepend storageUrl
+ */
 function toUrl(path?: string | null): string | undefined {
   if (!path) return undefined;
-  return `${env.baseUrl}${path.startsWith('/') ? path : `/${path}`}`;
+  if (/^https?:\/\//.test(path)) return path;
+  if (path.startsWith('/'))        return `${env.baseUrl}${path}`;
+  if (path.startsWith('storage/')) return `${env.baseUrl}/${path}`;
+  return `${env.storageUrl}/${path}`;
 }
 
 function docStatus(field: ApiDocumentField | undefined): DocumentStatus {
@@ -89,9 +120,20 @@ function docUrl(field: ApiDocumentField | undefined): string | undefined {
   return toUrl(field.url);
 }
 
-// ── Mapper ─────────────────────────────────────────────────────────────────
+// ── Mapper ─────────────────────────────────────────────────────────────────────
 
 export function mapApiDriverToDriver(d: ApiDriver): Driver {
+  // Resolve KYC fields: nested objects > flat top-level > nested profile
+  const p = d.profile;
+  const sf = d.selfies?.front ?? d.selfie_front ?? p?.selfie_front;
+  const sl = d.selfies?.left  ?? d.selfie_left  ?? p?.selfie_left;
+  const sr = d.selfies?.right ?? d.selfie_right ?? p?.selfie_right;
+  const icf = d.idCard?.front ?? d.id_card_front ?? p?.id_card_front;
+  const icb = d.idCard?.back  ?? d.id_card_back  ?? p?.id_card_back;
+
+  const hasSelfies = !!(sf || sl || sr);
+  const hasIdCard  = !!(icf || icb);
+
   return {
     id:       d.id,
     name:     d.name,
@@ -100,26 +142,32 @@ export function mapApiDriverToDriver(d: ApiDriver): Driver {
     email:    d.email,
     vehicle:  d.vehicle ?? '',
     plate:    d.plate   ?? '',
-    avatar:   d.avatar
-      ? `${env.baseUrl}${d.avatar.startsWith('/') ? d.avatar : `/${d.avatar}`}`
-      : 'https://placehold.co/40x40',
-    selfies: d.selfies ? {
-      front: toUrl(d.selfies.front),
-      left:  toUrl(d.selfies.left),
-      right: toUrl(d.selfies.right),
+    avatar:   toUrl(d.avatar) ?? toUrl(sf) ?? 'https://placehold.co/40x40',
+
+    selfies: hasSelfies ? {
+      front: toUrl(sf),
+      left:  toUrl(sl),
+      right: toUrl(sr),
     } : undefined,
-    idCard: d.idCard ? {
-      front: toUrl(d.idCard.front),
-      back:  toUrl(d.idCard.back),
+
+    idCard: hasIdCard ? {
+      front: toUrl(icf),
+      back:  toUrl(icb),
     } : undefined,
+
     documents: {
-      permis:         docStatus(d.documents?.permis),
-      carteGrise:     docStatus(d.documents?.carteGrise),
-      assurance:      docStatus(d.documents?.assurance),
-      permisUrl:      docUrl(d.documents?.permis),
-      carteGriseUrl:  docUrl(d.documents?.carteGrise),
-      assuranceUrl:   docUrl(d.documents?.assurance),
+      permis:              docStatus(d.documents?.permis),
+      carteGrise:          docStatus(d.documents?.carteGrise),
+      assurance:           docStatus(d.documents?.assurance),
+      tvmDoc:              docStatus(d.documents?.tvm_doc),
+      technicalControl:    docStatus(d.documents?.technical_control_doc),
+      permisUrl:           docUrl(d.documents?.permis),
+      carteGriseUrl:       docUrl(d.documents?.carteGrise),
+      assuranceUrl:        docUrl(d.documents?.assurance),
+      tvmDocUrl:           docUrl(d.documents?.tvm_doc),
+      technicalControlUrl: docUrl(d.documents?.technical_control_doc),
     },
+
     score:  d.score  ?? 0,
     status: d.status ?? 'En attente',
   };

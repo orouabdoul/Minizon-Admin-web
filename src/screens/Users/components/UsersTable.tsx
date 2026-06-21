@@ -8,6 +8,7 @@ import {
 } from '../../../components/DataDisplay/Table/Table';
 import { useUsers }           from '../../../hooks/useUsers';
 import { UserDetailModal }    from './UserDetailModal';
+import { DriverDetailModal }  from '../../Drivers/components/DriverDetailModal';
 import { AddUserModal }       from './AddUserModal';
 import { EditUserModal }      from './EditUserModal';
 import { ConfirmDialog }      from '../../../components/Overlay/ConfirmDialog/ConfirmDialog';
@@ -98,7 +99,8 @@ export function UsersTable() {
     search, setSearch, statusFilter, setStatusFilter,
     roleFilter, setRoleFilter,
     loadingId, approveKyc, rejectKyc, suspend, unsuspend,
-    setSelectedId, selectedUser,
+    setSelectedId, selectedUser, detailLoading,
+    selectedDriver, driverLoading, validateDriver, rejectDriverFromUsers,
     setEditingId, editingUser, editUser,
     isAdding, setIsAdding, addUser,
     confirmAction, setConfirmAction, deleteUser,
@@ -116,9 +118,25 @@ export function UsersTable() {
 
   return (
     <>
-      {selectedUser && (
-        <UserDetailModal user={selectedUser} onClose={() => setSelectedId(null)} />
-      )}
+      {selectedDriver ? (
+        <DriverDetailModal
+          driver={selectedDriver}
+          detailLoading={driverLoading}
+          onClose={() => setSelectedId(null)}
+          onValidate={validateDriver}
+          onReject={rejectDriverFromUsers}
+          loadingId={loadingId}
+        />
+      ) : selectedUser ? (
+        <UserDetailModal
+          user={selectedUser}
+          detailLoading={detailLoading}
+          onClose={() => setSelectedId(null)}
+          onApproveKyc={approveKyc}
+          onRejectKyc={rejectKyc}
+          loadingId={loadingId}
+        />
+      ) : null}
       {isAdding && (
         <AddUserModal onClose={() => setIsAdding(false)} onSave={addUser} />
       )}

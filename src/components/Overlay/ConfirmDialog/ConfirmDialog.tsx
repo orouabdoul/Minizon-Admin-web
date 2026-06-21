@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { AppIcon } from '../../Common/AppIcon';
@@ -39,7 +40,7 @@ export function ConfirmDialog({
   if (!isOpen) return null;
   const vs = VS[variant];
 
-  return (
+  return createPortal(
     <>
       <div className="confirm-backdrop" onClick={onClose} />
       <div className="confirm-dialog" role="dialog" aria-modal="true">
@@ -68,6 +69,7 @@ export function ConfirmDialog({
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }

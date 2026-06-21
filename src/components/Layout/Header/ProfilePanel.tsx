@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { User, LogOut, Settings, ChevronDown } from 'lucide-react';
 import { AppIcon } from '../../Common/AppIcon';
 import { ADMIN_USER } from '../../../config/constants';
@@ -89,7 +90,10 @@ export function ProfilePanel() {
 
   return (
     <>
-      {editOpen && <EditProfileModal onClose={() => setEditOpen(false)} />}
+      {editOpen && createPortal(
+        <EditProfileModal onClose={() => setEditOpen(false)} />,
+        document.body,
+      )}
 
       <ConfirmDialog
         isOpen={confirmOpen}

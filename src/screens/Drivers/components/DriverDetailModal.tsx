@@ -6,9 +6,9 @@ import {
 import {
   DetailModal, DetailSection, DetailRow, DetailBar, DetailTimeline,
 } from '../../../components/Overlay/DetailModal/DetailModal';
-import { Badge }       from '../../../components/DataDisplay/Badge/Badge';
-import { AppIcon }     from '../../../components/Common/AppIcon';
-import { tokenStore }  from '../../../services/token_store';
+import { Badge }        from '../../../components/DataDisplay/Badge/Badge';
+import { AppIcon }      from '../../../components/Common/AppIcon';
+import { useAuthImage } from '../../../hooks/useAuthImage';
 import type { Driver, DriverStatus, DocumentStatus } from '../../../models/driver.model';
 import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
 
@@ -32,57 +32,6 @@ const ELIGIBILITY_ITEMS = [
 ];
 
 const isPdf = (url?: string) => !!url && url.toLowerCase().endsWith('.pdf');
-
-// ── Auth image hook ───────────────────────────────────────────────────────────
-// Storage URLs require a Bearer token — <img> tags can't send auth headers,
-// so we fetch the bytes with fetch(), create a blob URL, and use that instead.
-
-function useAuthImage(url?: string) {
-  const [blobUrl,    setBlobUrl]    = useState<string | null>(null);
-  const [loadingImg, setLoadingImg] = useState(!!url);
-  const [failed,     setFailed]     = useState(false);
-
-  useEffect(() => {
-    if (!url) { setLoadingImg(false); setBlobUrl(null); setFailed(false); return; }
-
-    let cancelled = false;
-    let objUrl    = '';
-    setLoadingImg(true);
-    setBlobUrl(null);
-    setFailed(false);
-
-    // In dev mode, strip the origin so the request goes through the Vite proxy
-    // (proxy config in vite.config.ts: /storage → https://minizon-api.onrender.com)
-    // This avoids the CORS preflight that blocks Authorization headers on /storage paths.
-    const fetchUrl = import.meta.env.DEV
-      ? url.replace(/^https?:\/\/[^/]+/, '')   // "/storage/..." — proxied
-      : url;                                    // full URL in production
-
-    const token = tokenStore.get();
-    fetch(fetchUrl, { headers: token ? { Authorization: `Bearer ${token}` } : {} })
-      .then(r => { if (!r.ok) throw new Error(`${r.status}`); return r.blob(); })
-      .then(blob => {
-        if (cancelled) return;
-        objUrl = URL.createObjectURL(blob);
-        setBlobUrl(objUrl);
-        setLoadingImg(false);
-      })
-      .catch((err: unknown) => {
-        if (!cancelled) {
-          console.error('[AuthImage] failed:', fetchUrl, err);
-          setFailed(true);
-          setLoadingImg(false);
-        }
-      });
-
-    return () => {
-      cancelled = true;
-      if (objUrl) URL.revokeObjectURL(objUrl);
-    };
-  }, [url]);
-
-  return { blobUrl, loadingImg, failed };
-}
 
 // ── Lightbox ──────────────────────────────────────────────────────────────────
 
@@ -190,7 +139,7 @@ function Lightbox({ images, index, onClose, onNav }: {
 function PhotoCard({
   url, label, icon, onOpen,
 }: { url?: string; label: string; icon: typeof User; onOpen?: (url: string) => void }) {
-  const { blobUrl, loadingImg, failed } = useAuthImage(url);
+  const { blobUrl, loadingImg, failed, errorCode } = useAuthImage(url);
   const hasImg = !!blobUrl;
 
   return (
@@ -223,7 +172,7 @@ function PhotoCard({
           <div style={{ textAlign: 'center' }}>
             <AppIcon icon={failed ? FileWarning : icon} size={28} color="#D1D5DB" />
             <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 5 }}>
-              {url ? (failed ? 'Inaccessible' : 'Non disponible') : 'Non fourni'}
+              {url ? (failed ? (errorCode ?? 'Inaccessible') : 'Non disponible') : 'Non fourni'}
             </p>
           </div>
         )}
@@ -245,7 +194,7 @@ function DocumentCard({
 }) {
   const isFilePdf = isPdf(url);
   // Only fetch with auth if it's NOT a PDF (PDFs open directly via link)
-  const { blobUrl, loadingImg, failed } = useAuthImage(!isFilePdf ? url : undefined);
+  const { blobUrl, loadingImg, failed, errorCode } = useAuthImage(!isFilePdf ? url : undefined);
   const hasImg = !!blobUrl && !isFilePdf;
 
   return (
@@ -301,7 +250,7 @@ function DocumentCard({
           <div style={{ textAlign: 'center' }}>
             <AppIcon icon={failed ? FileWarning : icon} size={28} color="#D1D5DB" />
             <p style={{ fontSize: 11, color: '#9CA3AF', marginTop: 5 }}>
-              {url ? (failed ? 'Inaccessible' : 'Non disponible') : 'Non fourni'}
+              {url ? (failed ? (errorCode ?? 'Inaccessible') : 'Non disponible') : 'Non fourni'}
             </p>
           </div>
         )}
@@ -371,6 +320,10 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
     driver.idCard?.back    && { url: driver.idCard.back,    label: "Carte d'identité (verso)" },
     driver.documents.permisUrl && !isPdf(driver.documents.permisUrl)
       && { url: driver.documents.permisUrl, label: 'Permis de conduire' },
+    driver.documents.tvmDocUrl && !isPdf(driver.documents.tvmDocUrl)
+      && { url: driver.documents.tvmDocUrl, label: 'Vignette TVM' },
+    driver.documents.technicalControlUrl && !isPdf(driver.documents.technicalControlUrl)
+      && { url: driver.documents.technicalControlUrl, label: 'Contrôle technique' },
   ].filter(Boolean) as LightboxEntry[];
 
   const openLightbox = useCallback((url: string, label: string) => {
@@ -452,8 +405,6 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
               loading={detailLoading}
               onOpen={url => openLightbox(url, 'Carte grise')}
             />
-          </div>
-          <div style={{ marginTop: 8 }}>
             <DocumentCard
               url={driver.documents.assuranceUrl}
               label="Assurance véhicule"
@@ -461,6 +412,24 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
               icon={Shield}
               loading={detailLoading}
               onOpen={url => openLightbox(url, 'Assurance')}
+            />
+            <DocumentCard
+              url={driver.documents.tvmDocUrl}
+              label="Vignette TVM"
+              status={driver.documents.tvmDoc}
+              icon={FileText}
+              loading={detailLoading}
+              onOpen={url => openLightbox(url, 'Vignette TVM')}
+            />
+          </div>
+          <div style={{ marginTop: 8 }}>
+            <DocumentCard
+              url={driver.documents.technicalControlUrl}
+              label="Contrôle technique"
+              status={driver.documents.technicalControl}
+              icon={Car}
+              loading={detailLoading}
+              onOpen={url => openLightbox(url, 'Contrôle technique')}
             />
           </div>
         </DetailSection>
