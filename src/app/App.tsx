@@ -3,6 +3,7 @@ import { LoginScreen }         from '../screens/Auth/LoginScreen/LoginScreen';
 import { DashboardScreen }     from '../screens/Dashboard/DashboardScreen';
 import { UsersScreen }         from '../screens/Users/UsersScreen';
 import { DriversScreen }       from '../screens/Drivers/DriversScreen';
+import { VehiclesScreen }      from '../screens/Vehicles/VehiclesScreen';
 import { PassengersScreen }    from '../screens/Passengers/PassengersScreen';
 import { TripsScreen }         from '../screens/Trips/TripsScreen';
 import { ReservationsScreen }  from '../screens/Reservations/ReservationsScreen';
@@ -34,6 +35,7 @@ export function App() {
       <Route path={ROUTES.DASHBOARD}     element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
       <Route path={ROUTES.USERS}         element={<ProtectedRoute><UsersScreen /></ProtectedRoute>} />
       <Route path={ROUTES.DRIVERS}       element={<ProtectedRoute><DriversScreen /></ProtectedRoute>} />
+      <Route path={ROUTES.VEHICLES}      element={<ProtectedRoute><VehiclesScreen /></ProtectedRoute>} />
       <Route path={ROUTES.PASSENGERS}    element={<ProtectedRoute><PassengersScreen /></ProtectedRoute>} />
       <Route path={ROUTES.TRIPS}         element={<ProtectedRoute><TripsScreen /></ProtectedRoute>} />
       <Route path={ROUTES.RESERVATIONS}  element={<ProtectedRoute><ReservationsScreen /></ProtectedRoute>} />

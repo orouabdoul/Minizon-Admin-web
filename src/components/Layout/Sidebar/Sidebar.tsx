@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  LayoutDashboard, Users, Car, UserCheck, Navigation,
+  LayoutDashboard, Users, Car, Truck, UserCheck, Navigation,
   Calendar, CreditCard, AlertCircle, HeadphonesIcon,
   Bell, Settings, LogOut, Building2, X,
 } from 'lucide-react';
@@ -21,6 +21,7 @@ const NAV_ICONS: Record<NavItemId, LucideIcon> = {
   dashboard:     LayoutDashboard,
   users:         Users,
   drivers:       Car,
+  vehicles:      Truck,
   passengers:    UserCheck,
   trips:         Navigation,
   reservations:  Calendar,

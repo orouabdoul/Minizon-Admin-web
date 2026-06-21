@@ -3,6 +3,7 @@ export const ROUTES = {
   DASHBOARD:     '/dashboard',
   USERS:         '/users',
   DRIVERS:       '/drivers',
+  VEHICLES:      '/vehicles',
   PASSENGERS:    '/passengers',
   TRIPS:         '/trips',
   RESERVATIONS:  '/reservations',

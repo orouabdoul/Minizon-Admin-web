@@ -74,6 +74,34 @@
 .dispute-notes-modal__confirm--pay     { background: #00A86B; color: #fff; }
 .dispute-notes-modal__confirm--pay:hover:not(:disabled) { background: #00875A; }
 
+/* Vehicles page */
+.vehicles-metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+
+.vehicles-filter-bar {
+  display: flex; align-items: center; gap: 10px;
+  padding: 14px 16px; border-bottom: 1px solid #F3F4F6; flex-wrap: wrap;
+}
+.vehicles-filter-search {
+  position: relative; flex: 1; min-width: 200px;
+}
+.vehicles-filter-search__icon {
+  position: absolute; left: 10px; top: 50%; transform: translateY(-50%);
+  pointer-events: none; display: flex; align-items: center;
+}
+.vehicles-filter-search__input {
+  width: 100%; height: 36px; padding: 0 12px 0 32px;
+  border: 1px solid #E5E7EB; border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: #111827;
+  outline: none; background: #F9FAFB; box-sizing: border-box;
+}
+.vehicles-filter-search__input:focus { border-color: #7C3AED; background: #fff; }
+.vehicles-filter-select {
+  height: 36px; padding: 0 10px; border: 1px solid #E5E7EB; border-radius: 8px;
+  font-size: 13px; font-family: inherit; color: #374151;
+  background: #F9FAFB; cursor: pointer; outline: none;
+}
+.vehicles-filter-select:focus { border-color: #7C3AED; }
+
 /* Settings page — save button */
 .settings-save-btn {
   display: flex; align-items: center; gap: 5px;
@@ -159,3 +187,47 @@
 }
 .support-modal__submit:hover:not(:disabled) { background: #00875A; }
 .support-modal__submit:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* ═══════════════════════════════════════════════════════
+   RESPONSIVE OVERRIDES
+   Ces media queries doivent rester dans CE fichier
+   (chargé en dernier) pour surpasser les règles de base
+   définies ci-dessus et dans trips-page.css.
+═══════════════════════════════════════════════════════ */
+
+/* ── disputes-metrics (base : 3 col) ── */
+@media (max-width: 768px) { .disputes-metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+@media (max-width: 480px) { .disputes-metrics { grid-template-columns: 1fr; } }
+
+/* ── payments-metrics (base : 6 col) ── */
+@media (max-width: 1400px) { .payments-metrics { grid-template-columns: repeat(4, 1fr); } }
+@media (max-width: 1024px) { .payments-metrics { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 768px)  { .payments-metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+@media (max-width: 480px)  { .payments-metrics { grid-template-columns: 1fr; } }
+
+/* ── support-metrics (base : 6 col) ── */
+@media (max-width: 1280px) { .support-metrics { grid-template-columns: repeat(3, 1fr); } }
+@media (max-width: 1024px) { .support-metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px)  { .support-metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+@media (max-width: 480px)  { .support-metrics { grid-template-columns: 1fr; } }
+
+/* ── vehicles-metrics (base : 4 col) ── */
+@media (max-width: 1024px) { .vehicles-metrics { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 768px)  { .vehicles-metrics { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+@media (max-width: 480px)  { .vehicles-metrics { grid-template-columns: 1fr; } }
+
+/* ── vehicles filter bar ── */
+@media (max-width: 768px) {
+  .vehicles-filter-bar    { gap: 8px; }
+  .vehicles-filter-select { min-width: 120px; }
+}
+@media (max-width: 480px) {
+  .vehicles-filter-bar    { flex-direction: column; align-items: stretch; }
+  .vehicles-filter-search { min-width: auto; }
+  .vehicles-filter-select { width: 100%; }
+}
+
+/* ── support modal : champs côte à côte → colonne sur mobile ── */
+@media (max-width: 480px) {
+  .support-modal__row { flex-direction: column; gap: 12px; }
+}

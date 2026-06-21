@@ -35,7 +35,7 @@ export const ADMIN_USER = {
 
 // ── Sidebar navigation ───────────────────────────────────
 export type NavItemId =
-  | 'dashboard' | 'users' | 'drivers' | 'passengers' | 'trips'
+  | 'dashboard' | 'users' | 'drivers' | 'vehicles' | 'passengers' | 'trips'
   | 'reservations' | 'payments' | 'disputes' | 'support'
   | 'notifications' | 'settings';
 
@@ -49,6 +49,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard',     label: 'Dashboard',      path: '/dashboard' },
   { id: 'users',         label: 'Utilisateurs',   path: '/users' },
   { id: 'drivers',       label: 'Conducteurs',    path: '/drivers' },
+  { id: 'vehicles',      label: 'Véhicules',      path: '/vehicles' },
   { id: 'passengers',    label: 'Passagers',      path: '/passengers' },
   { id: 'trips',         label: 'Trajets',        path: '/trips' },
   { id: 'reservations',  label: 'Réservations',   path: '/reservations' },
