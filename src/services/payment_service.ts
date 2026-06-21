@@ -1,17 +1,39 @@
 import { api } from './api';
-import type { ApiResponse } from '../models/api_response.model';
-import type { Payment } from '../models/payment.model';
+import type { ApiBodyResponse } from '../models/api_response.model';
+import type { ApiPayment, PaymentMetrics } from '../models/payment.model';
+
+interface PaymentsListBody {
+  data:         ApiPayment[];
+  total:        number;
+  per_page:     number;
+  current_page: number;
+  last_page:    number;
+}
 
 export const paymentService = {
-  getAll: (page = 1, limit = 10, params?: {
-    status?:  string;
-    method?:  string;
-    date?:    string;
-    search?:  string;
+  getMetrics: () =>
+    api.get<ApiBodyResponse<PaymentMetrics>>('/admin/payments/metrics'),
+
+  getAll: (page = 1, perPage = 15, params?: {
+    search?: string;
+    status?: string;
+    method?: string;
+    date?:   string;
   }) =>
-    api.get<{ data: Payment[]; total: number }>('/payments', {
-      params: { page, limit, ...params },
+    api.get<ApiBodyResponse<PaymentsListBody>>('/admin/payments', {
+      params: {
+        page,
+        per_page: perPage,
+        ...(params?.search ? { search: params.search } : {}),
+        ...(params?.status ? { status: params.status } : {}),
+        ...(params?.method ? { method: params.method } : {}),
+        ...(params?.date   ? { date:   params.date }   : {}),
+      },
     }),
-  getById:  (id: string) => api.get<ApiResponse<Payment>>(`/payments/${id}`),
-  refund:   (id: string) => api.post<ApiResponse<Payment>>(`/payments/${id}/refund`),
+
+  getById: (uuid: string) =>
+    api.get<ApiBodyResponse<ApiPayment>>(`/admin/payments/${uuid}`),
+
+  refund: (uuid: string) =>
+    api.post<ApiBodyResponse<Record<string, never>>>(`/admin/payments/${uuid}/refund`),
 };

@@ -1,42 +1,36 @@
 import { api } from './api';
-import type { ApiResponse } from '../models/api_response.model';
-import type { Trip } from '../models/trip.model';
+import type { ApiBodyResponse } from '../models/api_response.model';
+import type { ApiTrip, TripMetrics } from '../models/trip.model';
 
-// GET    /trips                 → liste paginée (page, limit, from, to, status, date, search)
-// GET    /trips/:id             → détail
-// POST   /trips                 → créer un trajet
-// PATCH  /trips/:id             → modifier un trajet
-// POST   /trips/:id/cancel      → annuler
-// POST   /trips/:id/flag        → signaler
-// DELETE /trips/:id             → supprimer
+interface TripsListBody {
+  data:         ApiTrip[];
+  total:        number;
+  per_page:     number;
+  current_page: number;
+  last_page:    number;
+}
 
 export const tripService = {
-  getAll: (page = 1, limit = 10, params?: {
-    from?:   string;
-    to?:     string;
-    status?: string;
-    date?:   string;
-    search?: string;
+  getMetrics: () =>
+    api.get<ApiBodyResponse<TripMetrics>>('/admin/trips/metrics'),
+
+  getAll: (page = 1, perPage = 15, params?: {
+    departure?:   string;
+    destination?: string;
+    status?:      string;
+    date?:        string;
   }) =>
-    api.get<{ data: Trip[]; total: number }>('/trips', {
-      params: { page, limit, ...params },
+    api.get<ApiBodyResponse<TripsListBody>>('/admin/trips', {
+      params: {
+        page,
+        per_page: perPage,
+        ...(params?.departure   ? { departure:   params.departure }   : {}),
+        ...(params?.destination ? { destination: params.destination } : {}),
+        ...(params?.status      ? { status:      params.status }      : {}),
+        ...(params?.date        ? { date:        params.date }        : {}),
+      },
     }),
 
-  getById: (id: string) =>
-    api.get<ApiResponse<Trip>>(`/trips/${id}`),
-
-  create: (payload: Partial<Trip>) =>
-    api.post<ApiResponse<Trip>>('/trips', payload),
-
-  update: (id: string, payload: Partial<Trip>) =>
-    api.patch<ApiResponse<Trip>>(`/trips/${id}`, payload),
-
-  cancel: (id: string) =>
-    api.post<ApiResponse<Trip>>(`/trips/${id}/cancel`),
-
-  flag: (id: string) =>
-    api.post<ApiResponse<Trip>>(`/trips/${id}/flag`),
-
-  delete: (id: string) =>
-    api.delete(`/trips/${id}`),
+  getById: (uuid: string) =>
+    api.get<ApiBodyResponse<ApiTrip>>(`/admin/trips/${uuid}`),
 };

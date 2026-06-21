@@ -14,6 +14,9 @@ interface SupportTableProps {
   setCurrentPage:(p: number) => void;
   search:        string;
   setSearch:     (v: string) => void;
+  applyFilters:  () => void;
+  loading:       boolean;
+  fetchError:    string | null;
   loadingId:     string | null;
   onResolve:     (id: string) => void;
 }
@@ -50,7 +53,7 @@ const CHANNEL_COLOR: Record<TicketChannel, string> = {
 function Pagination({ total, pageSize, currentPage, onChange }: {
   total: number; pageSize: number; currentPage: number; onChange: (p: number) => void;
 }) {
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const from = (currentPage - 1) * pageSize + 1;
   const to   = Math.min(currentPage * pageSize, total);
   const pages: number[] = [];
@@ -58,7 +61,7 @@ function Pagination({ total, pageSize, currentPage, onChange }: {
   for (let p = start; p <= Math.min(totalPages, start + 4); p++) pages.push(p);
   return (
     <div className="support-pagination">
-      <span className="support-pagination__info">Affichage de {from} à {to} sur {total} tickets</span>
+      <span className="support-pagination__info">Affichage de {from} à {to} sur {total.toLocaleString('fr-FR')} tickets</span>
       <div className="support-pagination__pages">
         <button type="button" className="support-pagination__btn" disabled={currentPage === 1} onClick={() => onChange(currentPage - 1)}>Précédent</button>
         {pages.map((p) => (
@@ -72,7 +75,9 @@ function Pagination({ total, pageSize, currentPage, onChange }: {
 
 export function SupportTable({
   tickets, total, pageSize, currentPage, setCurrentPage,
-  search, setSearch, loadingId, onResolve,
+  search, setSearch, applyFilters,
+  loading, fetchError,
+  loadingId, onResolve,
 }: SupportTableProps) {
   return (
     <div className="support-table-card">
@@ -86,6 +91,7 @@ export function SupportTable({
             placeholder="Rechercher un ticket, utilisateur..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
             className="support-table-search__input"
           />
         </div>
@@ -108,15 +114,24 @@ export function SupportTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {tickets.length === 0 ? (
+          {loading ? (
+            <TableRow>
+              <Td colSpan={10}><div className="data-table__empty">Chargement…</div></Td>
+            </TableRow>
+          ) : fetchError ? (
+            <TableRow>
+              <Td colSpan={10}><div className="data-table__empty" style={{ color: '#E53935' }}>{fetchError}</div></Td>
+            </TableRow>
+          ) : tickets.length === 0 ? (
             <TableRow>
               <Td colSpan={10}><div className="data-table__empty">Aucun ticket trouvé</div></Td>
             </TableRow>
           ) : (
             tickets.map((t) => {
-              const busy = loadingId === t.id;
+              const busy   = loadingId === t.id;
               const isOpen = t.status === 'Nouveau' || t.status === 'En cours';
               const ChannelIcon = CHANNEL_ICON[t.channel] ?? HelpCircle;
+              const channelColor = CHANNEL_COLOR[t.channel] ?? '#6B7280';
               return (
                 <TableRow key={t.id}>
                   <Td>
@@ -140,7 +155,7 @@ export function SupportTable({
                   <Td><Badge label={t.priority} variant={PRIORITY_VARIANT[t.priority]} /></Td>
                   <Td>
                     <div className="support-channel-cell">
-                      <AppIcon icon={ChannelIcon} size={14} color={CHANNEL_COLOR[t.channel]} />
+                      <AppIcon icon={ChannelIcon} size={14} color={channelColor} />
                       <span className="support-channel-cell__label">{t.channel}</span>
                     </div>
                   </Td>
@@ -154,7 +169,9 @@ export function SupportTable({
                   <Td>
                     {t.agentName ? (
                       <div className="support-agent-cell">
-                        <img src={t.agentAvatar!} alt={t.agentName} className="support-agent-cell__avatar" />
+                        {t.agentAvatar && (
+                          <img src={t.agentAvatar} alt={t.agentName} className="support-agent-cell__avatar" />
+                        )}
                         <span className="support-agent-cell__name">{t.agentName}</span>
                       </div>
                     ) : (

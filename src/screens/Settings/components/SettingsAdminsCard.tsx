@@ -1,41 +1,64 @@
-import { useState }        from 'react';
+import { useState }              from 'react';
 import { Pencil, Trash2, UserPlus } from 'lucide-react';
-import { AppIcon }         from '../../../components/Common/AppIcon';
-import { Badge }           from '../../../components/DataDisplay/Badge/Badge';
+import { AppIcon }              from '../../../components/Common/AppIcon';
+import { Badge }                from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
 import { DetailModal, DetailSection } from '../../../components/Overlay/DetailModal/DetailModal';
-import { ConfirmDialog }   from '../../../components/Overlay/ConfirmDialog/ConfirmDialog';
-import { SETTINGS_ADMINS } from '../../../config/constants';
+import { ConfirmDialog }        from '../../../components/Overlay/ConfirmDialog/ConfirmDialog';
+import type { SettingsAdmin }   from '../../../models/settings.model';
 
-type Admin = {
-  id:        string;
-  name:      string;
-  avatar:    string;
-  email:     string;
-  role:      string;
-  lastLogin: string;
-  status:    string;
-};
+interface Props {
+  admins:     SettingsAdmin[];
+  loading:    boolean;
+  onAdd:      (data: { name: string; email: string; phone: string; role: string }) => Promise<void>;
+  onUpdate:   (id: string, data: { name: string; email: string; role: string }) => void;
+  onRevoke:   (id: string) => void;
+}
 
 const ROLE_OPTIONS = ['Super Admin', 'Administrateur', 'Modérateur', 'Observateur'];
-
-const INITIAL_ADMINS: Admin[] = SETTINGS_ADMINS.map((a) => ({ ...a }));
+const AVATAR_FALLBACK = 'https://placehold.co/32x32';
 
 function AdminFormModal({
   admin,
   onClose,
-  onSave,
+  onAdd,
+  onUpdate,
 }: {
-  admin:   Admin | null;
-  onClose: () => void;
-  onSave:  (data: Omit<Admin, 'id' | 'avatar' | 'lastLogin' | 'status'>) => void;
+  admin:    SettingsAdmin | null;
+  onClose:  () => void;
+  onAdd:    Props['onAdd'];
+  onUpdate: Props['onUpdate'];
 }) {
   const isEdit = admin !== null;
   const [form, setForm] = useState({
     name:  admin?.name  ?? '',
     email: admin?.email ?? '',
+    phone: '',
     role:  admin?.role  ?? 'Administrateur',
   });
+  const [localSaving, setLocalSaving] = useState(false);
+  const [localError,  setLocalError]  = useState<string | null>(null);
+
+  const handleSubmit = async () => {
+    if (isEdit) {
+      onUpdate(admin!.id, { name: form.name, email: form.email, role: form.role });
+      onClose();
+      return;
+    }
+    setLocalSaving(true);
+    setLocalError(null);
+    try {
+      await onAdd({ name: form.name, email: form.email, phone: form.phone, role: form.role });
+      onClose();
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } };
+      setLocalError(err?.response?.data?.message ?? "Erreur lors de la création");
+    } finally {
+      setLocalSaving(false);
+    }
+  };
+
+  const canSubmit = form.name.trim() && form.email.trim() && (isEdit || form.phone.trim());
 
   return (
     <DetailModal
@@ -45,7 +68,7 @@ function AdminFormModal({
     >
       {isEdit && admin && (
         <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
-          <img src={admin.avatar} alt={admin.name} className="detail-hero__avatar" />
+          <img src={admin.avatar ?? AVATAR_FALLBACK} alt={admin.name} className="detail-hero__avatar" />
           <div>
             <p className="detail-hero__name">{admin.name}</p>
             <p className="detail-hero__sub">{admin.email}</p>
@@ -86,6 +109,18 @@ function AdminFormModal({
               onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
             />
           </div>
+          {!isEdit && (
+            <div className="modal-form-group">
+              <label className="modal-form-label">Téléphone *</label>
+              <input
+                className="settings-input"
+                type="tel"
+                placeholder="+22997000001"
+                value={form.phone}
+                onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))}
+              />
+            </div>
+          )}
           <div className="modal-form-group">
             <label className="modal-form-label">Rôle</label>
             <select
@@ -98,6 +133,14 @@ function AdminFormModal({
               ))}
             </select>
           </div>
+          {localError && (
+            <div style={{
+              fontSize: 13, color: '#DC2626', background: '#FEF2F2',
+              border: '1px solid #FECACA', borderRadius: 8, padding: '10px 12px',
+            }}>
+              {localError}
+            </div>
+          )}
         </div>
       </DetailSection>
 
@@ -105,10 +148,10 @@ function AdminFormModal({
         <button
           type="button"
           className={`modal-btn-save${isEdit ? ' modal-btn-save--blue' : ''}`}
-          disabled={!form.name.trim() || !form.email.trim()}
-          onClick={() => { onSave(form); onClose(); }}
+          disabled={!canSubmit || localSaving}
+          onClick={handleSubmit}
         >
-          {isEdit ? 'Enregistrer les modifications' : "Ajouter l'administrateur"}
+          {localSaving ? 'Enregistrement…' : isEdit ? 'Enregistrer les modifications' : "Ajouter l'administrateur"}
         </button>
         <button type="button" className="modal-btn-cancel" onClick={onClose}>
           Annuler
@@ -118,34 +161,10 @@ function AdminFormModal({
   );
 }
 
-export function SettingsAdminsCard() {
-  const [admins,    setAdmins]    = useState<Admin[]>(INITIAL_ADMINS);
-  const [editAdmin, setEditAdmin] = useState<Admin | null>(null);
+export function SettingsAdminsCard({ admins, loading, onAdd, onUpdate, onRevoke }: Props) {
+  const [editAdmin, setEditAdmin] = useState<SettingsAdmin | null>(null);
   const [isAdding,  setIsAdding]  = useState(false);
-  const [deleteId,  setDeleteId]  = useState<string | null>(null);
-
-  const handleSave = (data: Omit<Admin, 'id' | 'avatar' | 'lastLogin' | 'status'>) => {
-    if (editAdmin) {
-      setAdmins((prev) => prev.map((a) => a.id === editAdmin.id ? { ...a, ...data } : a));
-    } else {
-      setAdmins((prev) => [
-        ...prev,
-        {
-          id:        `adm-${Date.now()}`,
-          avatar:    'https://placehold.co/32x32',
-          lastLogin: "À l'instant",
-          status:    'Actif',
-          ...data,
-        },
-      ]);
-    }
-  };
-
-  const handleDelete = () => {
-    if (!deleteId) return;
-    setAdmins((prev) => prev.filter((a) => a.id !== deleteId));
-    setDeleteId(null);
-  };
+  const [revokeId,  setRevokeId]  = useState<string | null>(null);
 
   return (
     <>
@@ -153,17 +172,18 @@ export function SettingsAdminsCard() {
         <AdminFormModal
           admin={isAdding ? null : editAdmin}
           onClose={() => { setIsAdding(false); setEditAdmin(null); }}
-          onSave={handleSave}
+          onAdd={onAdd}
+          onUpdate={onUpdate}
         />
       )}
-      {deleteId && (
+      {revokeId && (
         <ConfirmDialog
           isOpen
-          onClose={() => setDeleteId(null)}
-          onConfirm={handleDelete}
-          title="Supprimer l'administrateur ?"
-          message="Cet administrateur perdra immédiatement tous ses accès à la plateforme."
-          confirmLabel="Supprimer"
+          onClose={() => setRevokeId(null)}
+          onConfirm={() => { onRevoke(revokeId); setRevokeId(null); }}
+          title="Révoquer l'administrateur ?"
+          message="Cet administrateur perdra immédiatement tous ses accès à la plateforme. Son compte utilisateur sera conservé."
+          confirmLabel="Révoquer"
           variant="danger"
           icon={Trash2}
         />
@@ -193,11 +213,25 @@ export function SettingsAdminsCard() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {admins.map((admin) => (
+            {loading ? (
+              <TableRow>
+                <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Chargement…</span></Td>
+                <Td /><Td /><Td /><Td /><Td />
+              </TableRow>
+            ) : admins.length === 0 ? (
+              <TableRow>
+                <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Aucun administrateur</span></Td>
+                <Td /><Td /><Td /><Td /><Td />
+              </TableRow>
+            ) : admins.map((admin) => (
               <TableRow key={admin.id}>
                 <Td>
                   <div className="data-table__user-cell">
-                    <img src={admin.avatar} alt={admin.name} className="data-table__avatar" />
+                    <img
+                      src={admin.avatar ?? AVATAR_FALLBACK}
+                      alt={admin.name}
+                      className="data-table__avatar"
+                    />
                     <span className="data-table__user-name">{admin.name}</span>
                   </div>
                 </Td>
@@ -218,8 +252,8 @@ export function SettingsAdminsCard() {
                     <button
                       type="button"
                       className="trip-action-btn"
-                      title="Supprimer"
-                      onClick={() => setDeleteId(admin.id)}
+                      title="Révoquer"
+                      onClick={() => setRevokeId(admin.id)}
                     >
                       <AppIcon icon={Trash2} size={14} color="#DC2626" />
                     </button>

@@ -12,9 +12,9 @@ const STATUS_VARIANT: Record<TripStatus, BadgeVariant> = {
   Signalé:  'warning',
 };
 
-interface Props { trip: Trip; onClose: () => void; }
+interface Props { trip: Trip; onClose: () => void; detailLoading?: boolean; }
 
-export function TripDetailModal({ trip: t, onClose }: Props) {
+export function TripDetailModal({ trip: t, onClose, detailLoading }: Props) {
   const isDone     = t.status === 'Terminé';
   const isCanceled = t.status === 'Annulé';
 
@@ -29,6 +29,9 @@ export function TripDetailModal({ trip: t, onClose }: Props) {
 
   return (
     <DetailModal title="Détail Trajet" onClose={onClose} accentColor="#F97316">
+      {detailLoading && (
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>Chargement…</p>
+      )}
       {/* Route hero */}
       <div className="detail-route" style={{ background: 'rgba(249,115,22,0.04)', border: '1px solid rgba(249,115,22,0.15)' }}>
         <span className="detail-route__city">{t.from}</span>

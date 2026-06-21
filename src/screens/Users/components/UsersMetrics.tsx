@@ -1,48 +1,42 @@
 import { Users, Navigation, TrendingUp, AlertTriangle } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { AppIcon }        from '../../../components/Common/AppIcon';
-import { UserStatCard }   from '../../../components/DataDisplay/UserStatCard/UserStatCard';
-import { useUserMetrics } from '../../../hooks/useUserMetrics';
+import { PassengerKpiCard } from '../../../components/DataDisplay/PassengerKpiCard/PassengerKpiCard';
+import { useUserMetrics }   from '../../../hooks/useUserMetrics';
 import type { UserMetrics } from '../../../models/user.model';
 
 const CARDS: {
   key:        keyof UserMetrics;
-  id:         string;
   label:      string;
   Icon:       LucideIcon;
   iconBg:     string;
   iconColor:  string;
-  iconId:     string;
-  trend:      (m: UserMetrics) => string;
-  trendColor: string;
+  badge:      (m: UserMetrics) => string;
+  badgeBg?:   string;
+  badgeColor?:string;
 }[] = [
   {
-    key: 'total_users', id: 'total-users', label: 'Total Utilisateurs',
-    Icon: Users, iconId: 'users',
-    iconBg: 'rgba(0,168,107,0.10)', iconColor: '#00A86B',
-    trend: () => 'Conducteurs & passagers',
-    trendColor: '#00A86B',
+    key: 'total_users', label: 'Total Utilisateurs',
+    Icon: Users, iconBg: 'rgba(0,168,107,0.10)', iconColor: '#00A86B',
+    badge: () => 'Tous',
+    badgeBg: 'rgba(0,168,107,0.10)', badgeColor: '#00A86B',
   },
   {
-    key: 'total_trips', id: 'total-trips', label: 'Total Trajets',
-    Icon: Navigation, iconId: 'route',
-    iconBg: 'rgba(37,99,235,0.10)', iconColor: '#2563EB',
-    trend: () => 'Trajets effectués',
-    trendColor: '#2563EB',
+    key: 'total_trips', label: 'Total Trajets',
+    Icon: Navigation, iconBg: 'rgba(37,99,235,0.10)', iconColor: '#2563EB',
+    badge: () => 'Effectués',
+    badgeBg: 'rgba(37,99,235,0.10)', badgeColor: '#2563EB',
   },
   {
-    key: 'verification_rate', id: 'verif-rate', label: 'Taux de Vérification',
-    Icon: TrendingUp, iconId: 'trending',
-    iconBg: '#DCFCE7', iconColor: '#16A34A',
-    trend: (m) => `${m.verification_rate}% des comptes vérifiés`,
-    trendColor: '#16A34A',
+    key: 'verification_rate', label: 'Taux de Vérification',
+    Icon: TrendingUp, iconBg: '#DCFCE7', iconColor: '#16A34A',
+    badge: (m) => `${m.verification_rate}%`,
+    badgeBg: '#DCFCE7', badgeColor: '#16A34A',
   },
   {
-    key: 'blocked_or_rejected', id: 'blocked', label: 'Bloqués / Rejetés',
-    Icon: AlertTriangle, iconId: 'alert',
-    iconBg: '#FEE2E2', iconColor: '#E53935',
-    trend: () => 'Comptes restreints',
-    trendColor: '#E53935',
+    key: 'blocked_or_rejected', label: 'Bloqués / Rejetés',
+    Icon: AlertTriangle, iconBg: '#FEE2E2', iconColor: '#E53935',
+    badge: () => 'Restreints',
+    badgeBg: '#FEE2E2', badgeColor: '#E53935',
   },
 ];
 
@@ -52,17 +46,16 @@ export function UsersMetrics() {
   return (
     <div className="users-metrics-grid">
       {CARDS.map((c) => (
-        <UserStatCard
+        <PassengerKpiCard
           key={c.key}
-          id={c.id}
           label={c.label}
           value={metrics ? String(metrics[c.key]) : '—'}
-          trend={metrics ? c.trend(metrics) : '…'}
-          trendColor={c.trendColor}
+          badge={metrics ? c.badge(metrics) : '…'}
           iconBg={c.iconBg}
           iconColor={c.iconColor}
-          iconId={c.iconId}
-          icon={<AppIcon icon={c.Icon} size={24} color={c.iconColor} />}
+          icon={c.Icon}
+          badgeBg={c.badgeBg}
+          badgeColor={c.badgeColor}
         />
       ))}
     </div>

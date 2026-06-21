@@ -6,21 +6,22 @@ import { useNotifications }     from '../../hooks/useNotifications';
 
 export function NotificationsScreen() {
   const {
-    notifications,
+    metrics, metricsLoading,
+    notifications, loading, fetchError,
     tabFilter, setTabFilter, tabCounts,
-    search, setSearch,
+    search,     setSearch,
     typeFilter, setTypeFilter,
-    loadingId,
-    markAsRead, markAllRead, markAsHandled, deleteNotif,
     selectedId, setSelectedId,
     selectedNotification,
+    loadingId,
+    markAsRead, markAllRead, markAsHandled, deleteNotif,
   } = useNotifications();
 
   return (
     <DashboardLayout title="Notifications">
       <div className="notif-screen">
 
-        <NotificationsMetrics />
+        <NotificationsMetrics metrics={metrics} loading={metricsLoading} />
 
         <div className="notif-layout">
           <NotificationsFeed
@@ -33,6 +34,8 @@ export function NotificationsScreen() {
             onMarkRead={markAsRead}
             onMarkAllRead={markAllRead}
             onDelete={deleteNotif}
+            loading={loading}
+            fetchError={fetchError}
           />
 
           <NotificationDetail

@@ -1,6 +1,6 @@
 import {
   AlertTriangle, UserCheck, CreditCard, AlertCircle, Car,
-  Search, X, Check,
+  Search, X, Check, Loader2,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { AppIcon }          from '../../../components/Common/AppIcon';
@@ -21,6 +21,8 @@ interface NotificationsFeedProps {
   onMarkRead:     (id: string) => void;
   onMarkAllRead:  () => void;
   onDelete:       (id: string) => void;
+  loading:        boolean;
+  fetchError:     string | null;
 }
 
 const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: string; label: string }> = {
@@ -41,16 +43,17 @@ const PRIORITY_BORDER: Record<NotifPriority, string> = {
 const DATE_ORDER: NotifDateGroup[] = ["Aujourd'hui", 'Hier', 'Cette semaine'];
 
 const TABS: { key: NotifTab; label: string }[] = [
-  { key: 'all',    label: 'Toutes'    },
-  { key: 'unread', label: 'Non lues'  },
-  { key: 'urgent', label: 'Urgentes'  },
-  { key: 'system', label: 'Système'   },
+  { key: 'all',    label: 'Toutes'   },
+  { key: 'unread', label: 'Non lues' },
+  { key: 'urgent', label: 'Urgentes' },
+  { key: 'system', label: 'Système'  },
 ];
 
 export function NotificationsFeed({
   notifications, tabFilter, setTabFilter, tabCounts,
   search, setSearch, typeFilter, setTypeFilter,
   selectedId, setSelectedId, onMarkRead, onMarkAllRead, onDelete,
+  loading, fetchError,
 }: NotificationsFeedProps) {
   const groups = DATE_ORDER.map((g) => ({
     label: g,
@@ -101,14 +104,24 @@ export function NotificationsFeed({
         </select>
       </div>
 
-      {/* ── Feed ── */}
-      {notifications.length === 0 ? (
+      {/* ── Feed content ── */}
+      {loading ? (
+        <div className="notif-feed__empty">
+          <AppIcon icon={Loader2} size={28} color="#D1D5DB" />
+          <p>Chargement…</p>
+        </div>
+      ) : fetchError ? (
+        <div className="notif-feed__empty" style={{ color: '#E53935' }}>
+          <AppIcon icon={AlertCircle} size={28} color="#E53935" />
+          <p>{fetchError}</p>
+        </div>
+      ) : notifications.length === 0 ? (
         <div className="notif-feed__empty">
           <AppIcon icon={AlertCircle} size={28} color="#D1D5DB" />
           <p>Aucune notification trouvée</p>
         </div>
       ) : (
-        groups.map(({ label, items }) => (
+        groups.length > 0 ? groups.map(({ label, items }) => (
           <div key={label}>
             <div className="notif-group-header">
               <span>{label}</span>
@@ -116,7 +129,7 @@ export function NotificationsFeed({
             </div>
 
             {items.map((n) => {
-              const tc     = TYPE_CONFIG[n.type];
+              const tc       = TYPE_CONFIG[n.type];
               const TypeIcon = tc.icon;
               const isActive = n.id === selectedId;
               const isUnread = n.status === 'Non lue';
@@ -131,12 +144,10 @@ export function NotificationsFeed({
                     if (isUnread) onMarkRead(n.id);
                   }}
                 >
-                  {/* Icon bubble */}
                   <div className="notif-item__bubble" style={{ background: tc.bg }}>
                     <AppIcon icon={TypeIcon} size={16} color={tc.color} />
                   </div>
 
-                  {/* Content */}
                   <div className="notif-item__body">
                     <div className="notif-item__top">
                       <span className={`notif-item__title${isUnread ? ' notif-item__title--unread' : ''}`}>
@@ -188,7 +199,12 @@ export function NotificationsFeed({
               );
             })}
           </div>
-        ))
+        )) : (
+          <div className="notif-feed__empty">
+            <AppIcon icon={AlertCircle} size={28} color="#D1D5DB" />
+            <p>Aucune notification dans cette catégorie</p>
+          </div>
+        )
       )}
     </div>
   );

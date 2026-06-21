@@ -509,9 +509,7 @@ export const DISPUTE_PRIORITY_OPTIONS = [
 ] as const;
 
 // ── Disputes page — mock disputes ────────────────────────
-import type { Dispute } from '../models/dispute.model';
-
-export const MOCK_DISPUTES: Dispute[] = [
+export const MOCK_DISPUTES = [
   {
     id: '1', disputeId: 'LIT-001', reservationId: 'RES-2024-002',
     passengerName: 'Pierre Moreau',  passengerAvatar: 'https://placehold.co/40x40',
@@ -641,9 +639,7 @@ export const SUPPORT_AGENT_OPTIONS = [
 ] as const;
 
 // ── Support page — mock tickets ──────────────────────────
-import type { SupportTicket } from '../models/support.model';
-
-export const MOCK_TICKETS: SupportTicket[] = [
+export const MOCK_TICKETS = [
   {
     id: '1', ticketId: '#TK-001234',
     userName: 'Aïcha Traoré', userEmail: 'aicha.traore@email.com', userAvatar: 'https://placehold.co/32x32',
@@ -705,9 +701,7 @@ export const NOTIF_TYPE_OPTIONS = [
 ] as const;
 
 // ── Notifications page — mock notifications ───────────────
-import type { Notification } from '../models/notification.model';
-
-export const MOCK_NOTIFICATIONS: Notification[] = [
+export const MOCK_NOTIFICATIONS = [
   {
     id: '1', notifId: 'NOTIF-0001',
     type: 'system', priority: 'Urgente', status: 'Non lue',

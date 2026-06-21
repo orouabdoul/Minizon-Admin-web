@@ -1,8 +1,13 @@
-import { Eye } from 'lucide-react';
-import { AppIcon }  from '../../../components/Common/AppIcon';
-import { Badge }    from '../../../components/DataDisplay/Badge/Badge';
+import { Eye }       from 'lucide-react';
+import { AppIcon }   from '../../../components/Common/AppIcon';
+import { Badge }     from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
-import { SETTINGS_SECURITY_LOGS } from '../../../config/constants';
+import type { SecurityLog } from '../../../models/settings.model';
+
+interface Props {
+  logs:    SecurityLog[];
+  loading: boolean;
+}
 
 const RISK_VARIANT: Record<string, 'emerald' | 'amber' | 'error'> = {
   Faible: 'emerald',
@@ -10,7 +15,7 @@ const RISK_VARIANT: Record<string, 'emerald' | 'amber' | 'error'> = {
   Élevé:  'error',
 };
 
-export function SettingsSecurityCard() {
+export function SettingsSecurityCard({ logs, loading }: Props) {
   return (
     <div className="settings-card">
       <p className="settings-card__title">Paramètres Sécurité</p>
@@ -26,7 +31,17 @@ export function SettingsSecurityCard() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {SETTINGS_SECURITY_LOGS.map((log) => (
+          {loading ? (
+            <TableRow>
+              <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Chargement…</span></Td>
+              <Td /><Td /><Td /><Td /><Td />
+            </TableRow>
+          ) : logs.length === 0 ? (
+            <TableRow>
+              <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Aucun événement de sécurité</span></Td>
+              <Td /><Td /><Td /><Td /><Td />
+            </TableRow>
+          ) : logs.map((log) => (
             <TableRow key={log.id}>
               <Td><span className="settings-table-text settings-table-text--bold">{log.time}</span></Td>
               <Td><span className="settings-table-text">{log.user}</span></Td>

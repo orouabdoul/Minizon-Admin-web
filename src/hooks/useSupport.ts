@@ -1,61 +1,140 @@
-import { useState, useMemo, useCallback } from 'react';
-import { MOCK_TICKETS }     from '../config/constants';
-import { supportService }   from '../services/support_service';
-import type { SupportTicket, TicketStatus } from '../models/support.model';
+import { useState, useEffect, useCallback } from 'react';
+import { supportService }  from '../services/support_service';
+import type { SupportTicket, SupportMetrics, SupportAgent } from '../models/support.model';
 
-const TOTAL     = 84;
 const PAGE_SIZE = 10;
 
 export function useSupport() {
-  const [tickets,        setTickets]       = useState<SupportTicket[]>(MOCK_TICKETS);
-  const [search,         setSearch]        = useState('');
-  const [statusFilter,   setStatusFilter]  = useState<string>('all');
-  const [priorityFilter, setPriorityFilter]= useState<string>('all');
-  const [agentFilter,    setAgentFilter]   = useState<string>('all');
-  const [currentPage,    setCurrentPage]   = useState(1);
-  const [loadingId,      setLoadingId]     = useState<string | null>(null);
+  // ── Metrics ──────────────────────────────────────────
+  const [metrics,        setMetrics]        = useState<SupportMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
-  const filtered = useMemo(() =>
-    tickets.filter((t) => {
-      const matchSearch   = !search ||
-        t.ticketId.toLowerCase().includes(search.toLowerCase()) ||
-        t.userName.toLowerCase().includes(search.toLowerCase()) ||
-        t.subject.toLowerCase().includes(search.toLowerCase());
-      const matchStatus   = statusFilter   === 'all' || t.status   === statusFilter;
-      const matchPriority = priorityFilter === 'all' || t.priority === priorityFilter;
-      const matchAgent    = agentFilter    === 'all' || (t.agentName ?? 'Non assigné') === agentFilter;
-      return matchSearch && matchStatus && matchPriority && matchAgent;
-    }), [tickets, search, statusFilter, priorityFilter, agentFilter]);
-
-  const patchLocal = useCallback((id: string, patch: Partial<SupportTicket>) => {
-    setTickets((prev) => prev.map((t) => (t.id === id ? { ...t, ...patch } : t)));
+  useEffect(() => {
+    supportService.getMetrics()
+      .then((res) => setMetrics(res.data.body))
+      .catch(() => {})
+      .finally(() => setMetricsLoading(false));
   }, []);
+
+  // ── Agents (for filter dropdown) ──────────────────────
+  const [agents, setAgents] = useState<SupportAgent[]>([]);
+
+  useEffect(() => {
+    supportService.getAgents()
+      .then((res) => setAgents(res.data.body))
+      .catch(() => {});
+  }, []);
+
+  // ── Pending filters ───────────────────────────────────
+  const [search,         setSearch]         = useState('');
+  const [statusFilter,   setStatusFilter]   = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
+  const [agentFilter,    setAgentFilter]    = useState('');
+  const [dateFilter,     setDateFilter]     = useState('');
+
+  // ── Applied filters ───────────────────────────────────
+  const [appliedSearch,   setAppliedSearch]   = useState('');
+  const [appliedStatus,   setAppliedStatus]   = useState('');
+  const [appliedPriority, setAppliedPriority] = useState('');
+  const [appliedAgent,    setAppliedAgent]    = useState('');
+  const [appliedDate,     setAppliedDate]     = useState('');
+
+  // ── List ─────────────────────────────────────────────
+  const [tickets,     setTickets]     = useState<SupportTicket[]>([]);
+  const [total,       setTotal]       = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading,     setLoading]     = useState(true);
+  const [fetchError,  setFetchError]  = useState<string | null>(null);
+
+  const fetchTickets = useCallback((
+    page: number,
+    search: string, status: string, priority: string, agent: string, date: string,
+  ) => {
+    setLoading(true);
+    setFetchError(null);
+    supportService.getAll(page, PAGE_SIZE, { search, status, priority, agent, date })
+      .then((res) => {
+        const body = res.data.body;
+        setTickets(body.data);
+        setTotal(body.total);
+      })
+      .catch((e) => setFetchError(e?.response?.data?.message ?? 'Erreur de chargement'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchTickets(currentPage, appliedSearch, appliedStatus, appliedPriority, appliedAgent, appliedDate);
+  }, [fetchTickets, currentPage, appliedSearch, appliedStatus, appliedPriority, appliedAgent, appliedDate]);
+
+  const applyFilters = useCallback(() => {
+    setAppliedSearch(search);
+    setAppliedStatus(statusFilter);
+    setAppliedPriority(priorityFilter);
+    setAppliedAgent(agentFilter);
+    setAppliedDate(dateFilter);
+    setCurrentPage(1);
+  }, [search, statusFilter, priorityFilter, agentFilter, dateFilter]);
+
+  const resetFilters = useCallback(() => {
+    setSearch(''); setStatusFilter(''); setPriorityFilter(''); setAgentFilter(''); setDateFilter('');
+    setAppliedSearch(''); setAppliedStatus(''); setAppliedPriority(''); setAppliedAgent(''); setAppliedDate('');
+    setCurrentPage(1);
+  }, []);
+
+  // ── Resolve ───────────────────────────────────────────
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const resolve = useCallback(async (id: string) => {
     setLoadingId(id);
-    try   { await supportService.resolve(id); patchLocal(id, { status: 'Résolu' as TicketStatus }); }
-    catch { patchLocal(id, { status: 'Résolu' as TicketStatus }); }
+    try {
+      await supportService.resolve(id);
+      setTickets((prev) => prev.map((t) => t.id === id ? { ...t, status: 'Résolu' as const } : t));
+    } catch { /* server error */ }
     finally { setLoadingId(null); }
-  }, [patchLocal]);
-
-  const close = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try   { await supportService.close(id); patchLocal(id, { status: 'Clôturé' as TicketStatus }); }
-    catch { patchLocal(id, { status: 'Clôturé' as TicketStatus }); }
-    finally { setLoadingId(null); }
-  }, [patchLocal]);
-
-  const resetFilters = useCallback(() => {
-    setStatusFilter('all'); setPriorityFilter('all'); setAgentFilter('all');
-    setSearch(''); setCurrentPage(1);
   }, []);
 
+  // ── Create ticket ─────────────────────────────────────
+  const [showNewTicket, setShowNewTicket] = useState(false);
+  const [creating,      setCreating]      = useState(false);
+  const [createError,   setCreateError]   = useState<string | null>(null);
+
+  const createTicket = useCallback(async (payload: {
+    user_uuid: string; subject: string; description: string; priority: string; channel: string;
+  }) => {
+    setCreating(true);
+    setCreateError(null);
+    try {
+      await supportService.create(payload);
+      setShowNewTicket(false);
+      setCurrentPage(1);
+      fetchTickets(1, appliedSearch, appliedStatus, appliedPriority, appliedAgent, appliedDate);
+    } catch (e: unknown) {
+      const err = e as { response?: { data?: { message?: string } } };
+      setCreateError(err?.response?.data?.message ?? 'Erreur lors de la création');
+    } finally {
+      setCreating(false);
+    }
+  }, [fetchTickets, appliedSearch, appliedStatus, appliedPriority, appliedAgent, appliedDate]);
+
   return {
-    tickets: filtered, total: TOTAL, pageSize: PAGE_SIZE, currentPage, setCurrentPage,
+    // metrics
+    metrics, metricsLoading,
+    // agents
+    agents,
+    // list
+    tickets, total, pageSize: PAGE_SIZE, currentPage, setCurrentPage,
+    loading, fetchError,
+    // filters
     search, setSearch,
     statusFilter,   setStatusFilter,
     priorityFilter, setPriorityFilter,
     agentFilter,    setAgentFilter,
-    loadingId, resolve, close, resetFilters,
+    dateFilter,     setDateFilter,
+    applyFilters, resetFilters,
+    // resolve
+    loadingId, resolve,
+    // create
+    showNewTicket, setShowNewTicket,
+    creating, createError, createTicket,
   };
 }

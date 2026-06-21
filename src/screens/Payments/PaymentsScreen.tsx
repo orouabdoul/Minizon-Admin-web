@@ -6,19 +6,22 @@ import { usePayments }      from '../../hooks/usePayments';
 
 export function PaymentsScreen() {
   const {
+    metrics, metricsLoading,
     payments, total, pageSize, currentPage, setCurrentPage,
+    loading, fetchError,
     search, setSearch,
     statusFilter, setStatusFilter,
     methodFilter, setMethodFilter,
     dateFilter,   setDateFilter,
-    loadingId, refund, resetFilters,
-    setSelectedId, selectedPayment,
+    applyFilters, resetFilters,
+    loadingId, refund,
+    setSelectedId, selectedPayment, detailLoading,
   } = usePayments();
 
   return (
     <DashboardLayout title="Gestion des Paiements">
       <div className="payments-screen">
-        <PaymentsMetrics />
+        <PaymentsMetrics metrics={metrics} loading={metricsLoading} />
 
         <PaymentsFilters
           statusFilter={statusFilter} methodFilter={methodFilter}
@@ -26,12 +29,15 @@ export function PaymentsScreen() {
           onStatus={setStatusFilter} onMethod={setMethodFilter}
           onDate={setDateFilter} onSearch={setSearch}
           onReset={resetFilters}
+          onFilter={applyFilters}
         />
 
         <PaymentsTable
           payments={payments} total={total} pageSize={pageSize}
           currentPage={currentPage} setCurrentPage={setCurrentPage}
+          loading={loading} fetchError={fetchError}
           loadingId={loadingId} onRefund={refund}
+          detailLoading={detailLoading}
           onView={setSelectedId}
           onCloseDetail={() => setSelectedId(null)}
           selectedPayment={selectedPayment}

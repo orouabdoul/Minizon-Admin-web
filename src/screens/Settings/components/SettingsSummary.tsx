@@ -1,7 +1,12 @@
 import { Settings, Link2, ShieldCheck, Banknote } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
-import { AppIcon }          from '../../../components/Common/AppIcon';
-import { SETTINGS_SUMMARY_DATA } from '../../../config/constants';
+import { AppIcon }         from '../../../components/Common/AppIcon';
+import type { SettingsSummaryItem } from '../../../models/settings.model';
+
+interface Props {
+  items:    SettingsSummaryItem[];
+  loading?: boolean;
+}
 
 const ICON_MAP: Record<string, LucideIcon> = {
   settings:    Settings,
@@ -10,10 +15,17 @@ const ICON_MAP: Record<string, LucideIcon> = {
   banknote:    Banknote,
 };
 
-export function SettingsSummary() {
+const PLACEHOLDER: SettingsSummaryItem[] = Array.from({ length: 4 }, (_, i) => ({
+  id: i, label: '…', value: '…', iconId: 'settings',
+  iconBg: '#F3F4F6', iconColor: '#D1D5DB', valueColor: null,
+}));
+
+export function SettingsSummary({ items, loading }: Props) {
+  const display = loading || items.length === 0 ? PLACEHOLDER : items;
+
   return (
     <div className="settings-summary">
-      {SETTINGS_SUMMARY_DATA.map((item) => {
+      {display.map((item) => {
         const Icon = ICON_MAP[item.iconId] ?? Settings;
         return (
           <div key={item.id} className="settings-summary-card">

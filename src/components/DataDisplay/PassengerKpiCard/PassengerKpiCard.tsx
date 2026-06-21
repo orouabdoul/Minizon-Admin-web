@@ -9,18 +9,18 @@ interface PassengerKpiCardProps {
   iconBg:      string;
   iconColor:   string;
   icon:        LucideIcon;
-  badgeBg?:    string; // overrides iconBg for the badge pill
-  badgeColor?: string; // overrides iconColor for the badge text
+  badgeBg?:    string;
+  badgeColor?: string;
 }
 
 const card: CSSProperties = {
-  padding:       24,
+  padding:       16,
   background:    '#fff',
-  borderRadius:  16,
+  borderRadius:  12,
   outline:       '1px solid #F3F4F6',
   display:       'flex',
   flexDirection: 'column',
-  gap:           16,
+  gap:           10,
 };
 
 const topRow: CSSProperties = {
@@ -30,9 +30,9 @@ const topRow: CSSProperties = {
 };
 
 const iconBox = (bg: string): CSSProperties => ({
-  width:          48,
-  height:         48,
-  borderRadius:   12,
+  width:          36,
+  height:         36,
+  borderRadius:   10,
   background:     bg,
   display:        'flex',
   alignItems:     'center',
@@ -41,28 +41,28 @@ const iconBox = (bg: string): CSSProperties => ({
 });
 
 const badgePill = (bg: string, color: string): CSSProperties => ({
-  padding:      '4px 10px',
+  padding:      '2px 8px',
   borderRadius: 9999,
   background:   bg,
   color,
-  fontSize:     12,
+  fontSize:     11,
   fontWeight:   600,
   lineHeight:   '16px',
   whiteSpace:   'nowrap',
 });
 
 const labelStyle: CSSProperties = {
-  fontSize:   14,
+  fontSize:   12,
   color:      '#6B7280',
   fontWeight: 400,
-  lineHeight: '20px',
+  lineHeight: '16px',
 };
 
 const valueStyle: CSSProperties = {
-  fontSize:   30,
+  fontSize:   20,
   color:      '#111111',
   fontWeight: 700,
-  lineHeight: '36px',
+  lineHeight: '26px',
 };
 
 export function PassengerKpiCard({
@@ -73,9 +73,11 @@ export function PassengerKpiCard({
     <div style={card}>
       <div style={topRow}>
         <div style={iconBox(iconBg)}>
-          <AppIcon icon={icon} size={22} color={iconColor} />
+          <AppIcon icon={icon} size={18} color={iconColor} />
         </div>
-        <span style={badgePill(badgeBg ?? iconBg, badgeColor ?? iconColor)}>{badge}</span>
+        {badge && (
+          <span style={badgePill(badgeBg ?? iconBg, badgeColor ?? iconColor)}>{badge}</span>
+        )}
       </div>
       <span style={labelStyle}>{label}</span>
       <span style={valueStyle}>{value}</span>

@@ -1,14 +1,17 @@
-import { Star, Paperclip } from 'lucide-react';
-import { AppIcon }          from '../../../components/Common/AppIcon';
-import { Badge }            from '../../../components/DataDisplay/Badge/Badge';
-import type { BadgeVariant }from '../../../components/DataDisplay/Badge/Badge';
+import { useState }           from 'react';
+import { Star, Paperclip, X } from 'lucide-react';
+import { AppIcon }             from '../../../components/Common/AppIcon';
+import { Badge }               from '../../../components/DataDisplay/Badge/Badge';
+import type { BadgeVariant }   from '../../../components/DataDisplay/Badge/Badge';
 import type { Dispute, DisputePriority, DisputeParty, DisputeInvestigationEvent } from '../../../models/dispute.model';
 
 interface Props {
   dispute:       Dispute | null;
   loadingId:     string | null;
-  onRefund:      (id: string) => void;
-  onPay:         (id: string) => void;
+  detailLoading: boolean;
+  onAssign:      (id: string) => void;
+  onRefund:      (id: string, notes: string) => void;
+  onPay:         (id: string, notes: string) => void;
 }
 
 const PRIORITY_VARIANT: Record<DisputePriority, BadgeVariant> = {
@@ -75,7 +78,12 @@ function Timeline({ events }: { events: DisputeInvestigationEvent[] }) {
   );
 }
 
-export function DisputeDetailPanel({ dispute, loadingId, onRefund, onPay }: Props) {
+type PendingAction = 'refund' | 'pay' | null;
+
+export function DisputeDetailPanel({ dispute, loadingId, detailLoading, onAssign, onRefund, onPay }: Props) {
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [notes,         setNotes]         = useState('');
+
   if (!dispute) {
     return (
       <div className="dispute-detail-panel dispute-detail-panel--empty">
@@ -84,7 +92,16 @@ export function DisputeDetailPanel({ dispute, loadingId, onRefund, onPay }: Prop
     );
   }
 
-  const busy = loadingId === dispute.id;
+  const busy     = loadingId === dispute.id;
+  const isOpen   = dispute.status === 'Ouvert';
+  const canAct   = dispute.status !== 'Résolu' && dispute.status !== 'Clôturé';
+
+  function confirmAction() {
+    if (pendingAction === 'refund') onRefund(dispute!.id, notes);
+    else if (pendingAction === 'pay') onPay(dispute!.id, notes);
+    setPendingAction(null);
+    setNotes('');
+  }
 
   return (
     <div className="dispute-detail-panel">
@@ -123,6 +140,10 @@ export function DisputeDetailPanel({ dispute, loadingId, onRefund, onPay }: Prop
             <span className="dispute-detail-panel__info-label">Montant bloqué</span>
             <span className="dispute-detail-panel__info-value dispute-detail-panel__info-value--amount">{dispute.amount}</span>
           </div>
+          <div className="dispute-detail-panel__info-row">
+            <span className="dispute-detail-panel__info-label">Statut</span>
+            <Badge label={dispute.status} variant={{ Ouvert: 'error', 'En cours': 'warning', Résolu: 'primary', Clôturé: 'neutral' }[dispute.status] as BadgeVariant} />
+          </div>
         </div>
       </div>
 
@@ -131,10 +152,16 @@ export function DisputeDetailPanel({ dispute, loadingId, onRefund, onPay }: Prop
       {/* ── Parties ── */}
       <div className="dispute-detail-panel__section">
         <p className="dispute-detail-panel__section-title">Parties impliquées</p>
-        <div className="dispute-detail-panel__parties">
-          <PartyCard party={dispute.conductor} />
-          <PartyCard party={dispute.passenger} />
-        </div>
+        {detailLoading ? (
+          <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '12px 0' }}>Chargement des parties…</p>
+        ) : dispute.conductor && dispute.passenger ? (
+          <div className="dispute-detail-panel__parties">
+            <PartyCard party={dispute.conductor} />
+            <PartyCard party={dispute.passenger} />
+          </div>
+        ) : (
+          <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '12px 0' }}>Informations non disponibles</p>
+        )}
       </div>
 
       <div className="dispute-detail-panel__divider" />
@@ -142,31 +169,82 @@ export function DisputeDetailPanel({ dispute, loadingId, onRefund, onPay }: Prop
       {/* ── Investigation timeline ── */}
       <div className="dispute-detail-panel__section">
         <p className="dispute-detail-panel__section-title">Chronologie de l'enquête</p>
-        <Timeline events={dispute.investigationEvents} />
+        {detailLoading ? (
+          <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '12px 0' }}>Chargement…</p>
+        ) : dispute.investigationEvents.length > 0 ? (
+          <Timeline events={dispute.investigationEvents} />
+        ) : (
+          <p style={{ fontSize: 13, color: '#9CA3AF', textAlign: 'center', padding: '12px 0' }}>Aucun événement</p>
+        )}
       </div>
 
       <div className="dispute-detail-panel__divider" />
 
       {/* ── Footer actions ── */}
-      <div className="dispute-detail-panel__footer">
-        <button
-          type="button"
-          className="dispute-action-btn dispute-action-btn--refund"
-          disabled={busy}
-          onClick={() => onRefund(dispute.id)}
-        >
-          Rembourser Passager
-        </button>
-        <button
-          type="button"
-          className="dispute-action-btn dispute-action-btn--pay"
-          disabled={busy}
-          onClick={() => onPay(dispute.id)}
-        >
-          Payer Conducteur
-        </button>
-      </div>
+      {canAct && (
+        <div className="dispute-detail-panel__footer">
+          {isOpen && (
+            <button
+              type="button"
+              className="dispute-action-btn dispute-action-btn--assign"
+              disabled={busy}
+              onClick={() => onAssign(dispute.id)}
+            >
+              {busy ? 'Traitement…' : 'Prendre en charge'}
+            </button>
+          )}
+          <button
+            type="button"
+            className="dispute-action-btn dispute-action-btn--refund"
+            disabled={busy}
+            onClick={() => { setPendingAction('refund'); setNotes(''); }}
+          >
+            Rembourser Passager
+          </button>
+          <button
+            type="button"
+            className="dispute-action-btn dispute-action-btn--pay"
+            disabled={busy}
+            onClick={() => { setPendingAction('pay'); setNotes(''); }}
+          >
+            Payer Conducteur
+          </button>
+        </div>
+      )}
 
+      {/* ── Notes modal ── */}
+      {pendingAction && (
+        <div className="dispute-notes-overlay" onClick={() => setPendingAction(null)}>
+          <div className="dispute-notes-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="dispute-notes-modal__header">
+              <p className="dispute-notes-modal__title">
+                {pendingAction === 'refund' ? 'Rembourser le passager' : 'Payer le conducteur'}
+              </p>
+              <button type="button" className="dispute-notes-modal__close" onClick={() => setPendingAction(null)}>
+                <AppIcon icon={X} size={16} color="#6B7280" />
+              </button>
+            </div>
+            <textarea
+              className="dispute-notes-modal__textarea"
+              placeholder="Motif de la décision (obligatoire)..."
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              rows={4}
+            />
+            <div className="dispute-notes-modal__footer">
+              <button type="button" className="dispute-notes-modal__cancel" onClick={() => setPendingAction(null)}>Annuler</button>
+              <button
+                type="button"
+                className={`dispute-notes-modal__confirm ${pendingAction === 'refund' ? 'dispute-notes-modal__confirm--refund' : 'dispute-notes-modal__confirm--pay'}`}
+                disabled={!notes.trim() || busy}
+                onClick={confirmAction}
+              >
+                {busy ? 'Traitement…' : pendingAction === 'refund' ? 'Confirmer le remboursement' : 'Confirmer le paiement'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

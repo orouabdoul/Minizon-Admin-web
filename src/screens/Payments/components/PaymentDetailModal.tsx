@@ -1,53 +1,91 @@
+import { RefreshCw } from 'lucide-react';
+import { AppIcon }   from '../../../components/Common/AppIcon';
 import { DetailModal, DetailSection, DetailRow, DetailTimeline } from '../../../components/Overlay/DetailModal/DetailModal';
-import { Badge }   from '../../../components/DataDisplay/Badge/Badge';
-import type { Payment, PaymentTxStatus, PaymentMethod } from '../../../models/payment.model';
-import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
+import { Badge }     from '../../../components/DataDisplay/Badge/Badge';
+import type { Payment, PaymentTxStatus } from '../../../models/payment.model';
+import type { BadgeVariant }             from '../../../components/DataDisplay/Badge/Badge';
 
 const STATUS_VARIANT: Record<PaymentTxStatus, BadgeVariant> = {
-  Succès:       'primary',
   'En attente': 'pending',
-  Échoué:       'error',
-  Remboursé:    'neutral',
-};
-const METHOD_COLOR: Record<PaymentMethod, string> = {
-  'Mobile Money':   '#00A86B',
-  'Carte bancaire': '#2563EB',
-  'Virement':       '#6B7280',
-  'Cash':           '#F4B400',
+  'Sécurisé':   'info',
+  'Libéré':     'primary',
+  'Échoué':     'error',
+  'Remboursé':  'neutral',
 };
 
-interface Props { payment: Payment; onClose: () => void; }
+interface Props {
+  payment:      Payment;
+  onClose:      () => void;
+  onRefund:     (id: string) => void;
+  loadingId:    string | null;
+  detailLoading?: boolean;
+}
 
-export function PaymentDetailModal({ payment: p, onClose }: Props) {
-  const timeline = [
-    { label: 'Transaction initiée', time: `${p.date} à ${p.time}`, done: true },
-    { label: 'Vérification opérateur', time: 'Traitement en cours', done: p.status !== 'En attente' },
-    { label: p.status === 'Remboursé' ? 'Remboursement effectué' : p.status === 'Succès' ? 'Paiement confirmé' : p.status === 'Échoué' ? 'Transaction échouée' : 'En attente', time: p.status === 'Succès' ? 'Confirmation reçue' : '—', done: p.status === 'Succès' || p.status === 'Remboursé' || p.status === 'Échoué' },
-  ];
+export function PaymentDetailModal({ payment: p, onClose, onRefund, loadingId, detailLoading }: Props) {
+  const busy = loadingId === p.id;
 
   return (
     <DetailModal title="Détail Transaction" onClose={onClose} accentColor="#2563EB">
+      {detailLoading && (
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>Chargement…</p>
+      )}
+
       {/* Hero montant */}
       <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)', borderRadius: 12, justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 28, fontWeight: 700, color: '#111827' }}>{p.amount}</span>
-        <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'monospace' }}>{p.transactionId}</span>
-        <div style={{ marginTop: 4 }}>
+        <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'monospace' }}>{p.paymentId}</span>
+        <div style={{ marginTop: 4, display: 'flex', gap: 8, alignItems: 'center' }}>
           <Badge label={p.status} variant={STATUS_VARIANT[p.status]} />
+          {p.canRefund && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => onRefund(p.id)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 12px', border: '1px solid #E53935',
+                borderRadius: 6, background: busy ? '#F9FAFB' : '#FEF2F2',
+                color: '#E53935', fontSize: 12, fontWeight: 600,
+                cursor: busy ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              <AppIcon icon={RefreshCw} size={12} color="#E53935" />
+              {busy ? 'Traitement…' : 'Rembourser'}
+            </button>
+          )}
+        </div>
+      </div>
+
+      {/* Route */}
+      <div className="detail-route" style={{ background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.15)' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', flex: 1 }}>
+          <span style={{ fontSize: 11, color: '#6B7280' }}>Départ</span>
+          <span className="detail-route__city">{p.from}</span>
+        </div>
+        <div className="detail-route__arrow"><div className="detail-route__line" /></div>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', flex: 1 }}>
+          <span style={{ fontSize: 11, color: '#6B7280' }}>Arrivée</span>
+          <span className="detail-route__city">{p.to}</span>
         </div>
       </div>
 
       {/* Informations */}
       <DetailSection title="Informations">
-        <DetailRow label="Référence">
+        <DetailRow label="Réf. paiement">
           <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{p.reference}</span>
         </DetailRow>
+        {p.providerReference && (
+          <DetailRow label="Réf. opérateur">
+            <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{p.providerReference}</span>
+          </DetailRow>
+        )}
         <DetailRow label="Réservation">
           <span style={{ fontFamily: 'monospace', fontSize: 13 }}>{p.reservationId}</span>
         </DetailRow>
         <DetailRow label="Méthode">
-          <span style={{ color: METHOD_COLOR[p.method], fontWeight: 600 }}>{p.method}</span>
+          <span style={{ fontWeight: 600 }}>{p.method}</span>
         </DetailRow>
-        <DetailRow label="Date"><span>{p.date} à {p.time}</span></DetailRow>
+        <DetailRow label="Date"><span>{p.createdAt}</span></DetailRow>
       </DetailSection>
 
       {/* Parties */}
@@ -55,7 +93,10 @@ export function PaymentDetailModal({ payment: p, onClose }: Props) {
         <DetailRow label="Passager">
           <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <img src={p.passengerAvatar} alt="" style={{ width: 20, height: 20, borderRadius: '50%' }} />
-            {p.passengerName}
+            <span>
+              {p.passengerName}
+              {p.passengerPhone && <span style={{ fontSize: 11, color: '#9CA3AF', marginLeft: 6 }}>{p.passengerPhone}</span>}
+            </span>
           </span>
         </DetailRow>
         <DetailRow label="Conducteur">
@@ -71,18 +112,20 @@ export function PaymentDetailModal({ payment: p, onClose }: Props) {
         <DetailRow label="Montant brut">
           <span style={{ fontWeight: 700 }}>{p.amount}</span>
         </DetailRow>
-        <DetailRow label="Frais plateforme">
-          <span style={{ color: '#E53935' }}>-{p.fee}</span>
+        <DetailRow label="Commission">
+          <span style={{ color: '#E53935' }}>-{p.commission}</span>
         </DetailRow>
         <DetailRow label="Net conducteur">
-          <span style={{ fontWeight: 700, color: '#00A86B' }}>{p.net}</span>
+          <span style={{ fontWeight: 700, color: '#00A86B' }}>{p.netAmount}</span>
         </DetailRow>
       </DetailSection>
 
       {/* Timeline */}
-      <DetailSection title="Suivi transaction">
-        <DetailTimeline events={timeline} />
-      </DetailSection>
+      {p.timelineEvents.length > 0 && (
+        <DetailSection title="Suivi transaction">
+          <DetailTimeline events={p.timelineEvents} />
+        </DetailSection>
+      )}
     </DetailModal>
   );
 }

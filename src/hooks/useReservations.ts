@@ -1,87 +1,123 @@
-import { useState, useMemo, useCallback } from 'react';
-import { MOCK_RESERVATIONS }    from '../config/constants';
-import { reservationService }   from '../services/reservation_service';
-import type { Reservation }     from '../models/reservation.model';
+import { useState, useCallback, useEffect } from 'react';
+import { reservationService }            from '../services/reservation_service';
+import { mapApiReservationToReservation } from '../models/reservation.model';
+import type { Reservation, ReservationMetrics } from '../models/reservation.model';
 
-const TOTAL     = 2847;
 const PAGE_SIZE = 10;
 
 export function useReservations() {
-  const [reservations,  setReservations]  = useState<Reservation[]>(MOCK_RESERVATIONS);
+  const [reservations, setReservations] = useState<Reservation[]>([]);
+  const [total,        setTotal]        = useState(0);
+  const [loading,      setLoading]      = useState(false);
+  const [fetchError,   setFetchError]   = useState<string | null>(null);
+
+  const [metrics,        setMetrics]        = useState<ReservationMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(false);
+
   const [search,        setSearch]        = useState('');
-  const [cityFilter,    setCityFilter]    = useState<string>('all');
-  const [statusFilter,  setStatusFilter]  = useState<string>('all');
-  const [paymentFilter, setPaymentFilter] = useState<string>('all');
-  const [dateFilter,    setDateFilter]    = useState<string>('');
-  const [currentPage,   setCurrentPage]   = useState(1);
-  const [loadingId,     setLoadingId]     = useState<string | null>(null);
-  const [selectedId,    setSelectedId]    = useState<string | null>(null);
+  const [cityFilter,    setCityFilter]    = useState('all');
+  const [statusFilter,  setStatusFilter]  = useState('all');
+  const [paymentFilter, setPaymentFilter] = useState('all');
+  const [dateFilter,    setDateFilter]    = useState('');
+  const [currentPage,   setCurrentPage]  = useState(1);
 
-  const filtered = useMemo(() =>
-    reservations.filter((r) => {
-      const matchSearch  = !search || r.reservationId.toLowerCase().includes(search.toLowerCase()) ||
-        r.passengerName.toLowerCase().includes(search.toLowerCase()) ||
-        r.driverName.toLowerCase().includes(search.toLowerCase());
-      const matchCity    = cityFilter    === 'all' || r.from === cityFilter || r.to === cityFilter;
-      const matchStatus  = statusFilter  === 'all' || r.status         === statusFilter;
-      const matchPayment = paymentFilter === 'all' || r.paymentStatus  === paymentFilter;
-      return matchSearch && matchCity && matchStatus && matchPayment;
-    }), [reservations, search, cityFilter, statusFilter, paymentFilter]);
+  const [selectedId,    setSelectedIdState] = useState<string | null>(null);
+  const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
+  const [detailLoading, setDetailLoading]   = useState(false);
 
-  const patchLocal = useCallback((id: string, patch: Partial<Reservation>) => {
-    setReservations((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+  // ── Metrics ────────────────────────────────────────────────────────────────
+  useEffect(() => {
+    setMetricsLoading(true);
+    reservationService.getMetrics()
+      .then(({ data }) => setMetrics(data.body))
+      .catch(() => null)
+      .finally(() => setMetricsLoading(false));
   }, []);
 
-  const withLoading = useCallback(async (
-    id: string,
-    action: () => Promise<unknown>,
-    patch: Partial<Reservation>,
+  // ── List ───────────────────────────────────────────────────────────────────
+  const fetchReservations = useCallback(async (
+    page: number, q: string, city: string, status: string, payment: string, date: string,
   ) => {
-    setLoadingId(id);
+    setLoading(true);
+    setFetchError(null);
     try {
-      await action();
-      patchLocal(id, patch);
+      const { data } = await reservationService.getAll(page, PAGE_SIZE, {
+        search:  q       || undefined,
+        city:    city    !== 'all' ? city    : undefined,
+        status:  status  !== 'all' ? status  : undefined,
+        payment: payment !== 'all' ? payment : undefined,
+        date:    date              ? date     : undefined,
+      });
+      const body = data.body;
+      const list = Array.isArray(body?.data) ? body.data : [];
+      setReservations(list.map(mapApiReservationToReservation));
+      setTotal(body?.total ?? 0);
     } catch {
-      patchLocal(id, patch);
+      setFetchError('Impossible de charger les réservations.');
+      setReservations([]);
+      setTotal(0);
     } finally {
-      setLoadingId(null);
+      setLoading(false);
     }
-  }, [patchLocal]);
+  }, []);
 
-  const cancel = useCallback((id: string) =>
-    withLoading(id, () => reservationService.cancel(id), { status: 'Annulée' }),
-  [withLoading]);
+  useEffect(() => {
+    fetchReservations(currentPage, search, cityFilter, statusFilter, paymentFilter, dateFilter);
+  }, [fetchReservations, currentPage, search, cityFilter, statusFilter, paymentFilter, dateFilter]);
+
+  const applyFilters = useCallback(() => {
+    setCurrentPage(1);
+    fetchReservations(1, search, cityFilter, statusFilter, paymentFilter, dateFilter);
+  }, [fetchReservations, search, cityFilter, statusFilter, paymentFilter, dateFilter]);
 
   const resetFilters = useCallback(() => {
+    setSearch('');
     setCityFilter('all');
     setStatusFilter('all');
     setPaymentFilter('all');
     setDateFilter('');
-    setSearch('');
     setCurrentPage(1);
   }, []);
 
-  const selectedReservation = selectedId
-    ? (filtered.find((r) => r.id === selectedId) ?? MOCK_RESERVATIONS.find((r) => r.id === selectedId) ?? null)
-    : null;
+  // ── Detail ─────────────────────────────────────────────────────────────────
+  const setSelectedId = useCallback(async (id: string | null) => {
+    setSelectedIdState(id);
+    if (!id) { setDetailReservation(null); return; }
+
+    const basic = reservations.find((r) => r.id === id) ?? null;
+    setDetailReservation(basic);
+    setDetailLoading(true);
+    try {
+      const { data } = await reservationService.getById(id);
+      const body = (data.body ?? data) as Parameters<typeof mapApiReservationToReservation>[0];
+      setDetailReservation(mapApiReservationToReservation(body));
+    } catch {
+      // keep basic list data
+    } finally {
+      setDetailLoading(false);
+    }
+  }, [reservations]);
 
   return {
-    reservations: filtered,
-    total: TOTAL,
+    reservations,
+    total,
     pageSize: PAGE_SIZE,
     currentPage,
     setCurrentPage,
-    search,
-    setSearch,
+    loading,
+    fetchError,
+    metrics,
+    metricsLoading,
+    search,        setSearch,
     cityFilter,    setCityFilter,
     statusFilter,  setStatusFilter,
     paymentFilter, setPaymentFilter,
     dateFilter,    setDateFilter,
-    loadingId,
-    cancel,
+    applyFilters,
     resetFilters,
     selectedId,
     setSelectedId,
-    selectedReservation,
+    selectedReservation: detailReservation,
+    detailLoading,
   };
 }

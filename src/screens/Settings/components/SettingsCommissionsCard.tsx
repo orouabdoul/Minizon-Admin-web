@@ -4,17 +4,13 @@ import { AppIcon }    from '../../../components/Common/AppIcon';
 import { Badge }      from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
 import { DetailModal, DetailSection } from '../../../components/Overlay/DetailModal/DetailModal';
-import { SETTINGS_COMMISSIONS } from '../../../config/constants';
+import type { Commission } from '../../../models/settings.model';
 
-type Commission = {
-  id:      string;
-  type:    string;
-  rate:    string;
-  revenue: string;
-  status:  string;
-};
-
-const INITIAL: Commission[] = SETTINGS_COMMISSIONS.map((c) => ({ ...c }));
+interface Props {
+  commissions:       Commission[];
+  loading:           boolean;
+  onSaveCommission:  (id: string, updates: { rate: string; status: string }) => void;
+}
 
 function EditCommissionModal({
   commission,
@@ -93,13 +89,12 @@ function EditCommissionModal({
   );
 }
 
-export function SettingsCommissionsCard() {
-  const [commissions, setCommissions] = useState<Commission[]>(INITIAL);
-  const [editing,     setEditing]     = useState<Commission | null>(null);
+export function SettingsCommissionsCard({ commissions, loading, onSaveCommission }: Props) {
+  const [editing, setEditing] = useState<Commission | null>(null);
 
   const handleSave = (updates: Pick<Commission, 'rate' | 'status'>) => {
     if (!editing) return;
-    setCommissions((prev) => prev.map((c) => c.id === editing.id ? { ...c, ...updates } : c));
+    onSaveCommission(editing.id, updates);
   };
 
   return (
@@ -124,7 +119,17 @@ export function SettingsCommissionsCard() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {commissions.map((row) => (
+            {loading ? (
+              <TableRow>
+                <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Chargement…</span></Td>
+                <Td /><Td /><Td /><Td />
+              </TableRow>
+            ) : commissions.length === 0 ? (
+              <TableRow>
+                <Td><span className="settings-table-text" style={{ color: '#9CA3AF' }}>Aucune commission</span></Td>
+                <Td /><Td /><Td /><Td />
+              </TableRow>
+            ) : commissions.map((row) => (
               <TableRow key={row.id}>
                 <Td><span className="settings-table-text">{row.type}</span></Td>
                 <Td><span className="settings-table-text settings-table-text--bold">{row.rate}</span></Td>

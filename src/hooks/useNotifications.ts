@@ -1,71 +1,125 @@
-import { useState, useMemo } from 'react';
-import { MOCK_NOTIFICATIONS } from '../config/constants';
-import type { NotifTab, Notification } from '../models/notification.model';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import { notificationService }  from '../services/notification_service';
+import { mapApiNotification }   from '../models/notification.model';
+import type { Notification, NotifMetrics, NotifTab } from '../models/notification.model';
 
 export function useNotifications() {
-  const [all,         setAll]         = useState<Notification[]>(MOCK_NOTIFICATIONS);
-  const [tabFilter,   setTabFilter]   = useState<NotifTab>('all');
-  const [search,      setSearch]      = useState('');
-  const [typeFilter,  setTypeFilter]  = useState('all');
-  const [loadingId,   setLoadingId]   = useState<string | null>(null);
-  const [selectedId,  setSelectedId]  = useState<string>(MOCK_NOTIFICATIONS[0].id);
+  // ── Metrics ──────────────────────────────────────────
+  const [metrics,        setMetrics]        = useState<NotifMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
-  const baseFiltered = useMemo(() => all.filter((n) => {
-    const q = search.toLowerCase();
-    const matchSearch = !q || n.title.toLowerCase().includes(q) ||
-      n.description.toLowerCase().includes(q) ||
-      (n.userName?.toLowerCase().includes(q) ?? false);
-    const matchType = typeFilter === 'all' || n.type === typeFilter;
-    return matchSearch && matchType;
-  }), [all, search, typeFilter]);
+  useEffect(() => {
+    notificationService.getMetrics()
+      .then((res) => {
+        // Handle both wrapped { body: ... } and direct { all, unread, ... } responses
+        const raw = res.data as { body?: NotifMetrics } & Partial<NotifMetrics>;
+        const m   = raw.body ?? (raw as unknown as NotifMetrics);
+        setMetrics(m);
+      })
+      .catch(() => {})
+      .finally(() => setMetricsLoading(false));
+  }, []);
 
-  const tabCounts = useMemo(() => ({
-    all:    baseFiltered.length,
-    unread: baseFiltered.filter((n) => n.status === 'Non lue').length,
-    urgent: baseFiltered.filter((n) => n.priority === 'Urgente').length,
-    system: baseFiltered.filter((n) => n.type === 'system').length,
-  }), [baseFiltered]);
+  // ── Filters ───────────────────────────────────────────
+  const [tabFilter,  setTabFilter]  = useState<NotifTab>('all');
+  const [search,     setSearch]     = useState('');
+  const [typeFilter, setTypeFilter] = useState('');
 
-  const notifications = useMemo(() => baseFiltered.filter((n) => {
-    if (tabFilter === 'unread') return n.status === 'Non lue';
-    if (tabFilter === 'urgent') return n.priority === 'Urgente';
-    if (tabFilter === 'system') return n.type === 'system';
-    return true;
-  }), [baseFiltered, tabFilter]);
+  // ── List ─────────────────────────────────────────────
+  const [all,        setAll]        = useState<Notification[]>([]);
+  const [loading,    setLoading]    = useState(true);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+
+  const fetchNotifications = useCallback((tab: NotifTab, type: string, search: string) => {
+    setLoading(true);
+    setFetchError(null);
+    notificationService.getAll({
+      per_page: 100,
+      ...(tab    && tab !== 'all' ? { tab }    : {}),
+      ...(type   ? { type }   : {}),
+      ...(search ? { search } : {}),
+    })
+      .then((res) => {
+        const raw = res.data as { body?: unknown[]; data?: unknown[] } | unknown[];
+        let items: unknown[];
+        if (Array.isArray(raw)) {
+          items = raw;
+        } else if (Array.isArray((raw as { body?: unknown[] }).body)) {
+          items = (raw as { body: unknown[] }).body;
+        } else if (Array.isArray((raw as { data?: unknown[] }).data)) {
+          items = (raw as { data: unknown[] }).data;
+        } else {
+          items = [];
+        }
+        setAll(items.map((d) => mapApiNotification(d as Parameters<typeof mapApiNotification>[0])));
+      })
+      .catch((e) => setFetchError(e?.response?.data?.message ?? 'Erreur de chargement'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchNotifications(tabFilter, typeFilter, search);
+  }, [fetchNotifications, tabFilter, typeFilter, search]);
+
+  // ── Tab counts from metrics ────────────────────────────
+  const tabCounts: Record<NotifTab, number> = useMemo(() => ({
+    all:    metrics?.all    ?? 0,
+    unread: metrics?.unread ?? 0,
+    urgent: metrics?.urgent ?? 0,
+    system: metrics?.system ?? 0,
+  }), [metrics]);
+
+  // ── Selection ─────────────────────────────────────────
+  const [selectedId, setSelectedId] = useState<string>('');
 
   const selectedNotification = useMemo(
-    () => notifications.find((n) => n.id === selectedId) ?? notifications[0] ?? null,
-    [notifications, selectedId]
+    () => all.find((n) => n.id === selectedId) ?? null,
+    [all, selectedId],
   );
 
-  function markAsRead(id: string) {
+  // ── Actions ───────────────────────────────────────────
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  const markAsRead = useCallback(async (id: string) => {
     setAll((prev) => prev.map((n) => n.id === id && n.status === 'Non lue' ? { ...n, status: 'Lue' as const } : n));
-  }
+    try { await notificationService.markRead(id); } catch { /* keep optimistic */ }
+  }, []);
 
-  function markAllRead() {
+  const markAllRead = useCallback(async () => {
     setAll((prev) => prev.map((n) => n.status === 'Non lue' ? { ...n, status: 'Lue' as const } : n));
-  }
+    setMetrics((prev) => prev ? { ...prev, unread: 0 } : prev);
+    try { await notificationService.markAllRead(); } catch { /* keep optimistic */ }
+  }, []);
 
-  function markAsHandled(id: string) {
+  const markAsHandled = useCallback(async (id: string) => {
     setLoadingId(id);
-    setTimeout(() => {
-      setAll((prev) => prev.map((n) => n.id === id ? { ...n, status: 'Traitée' as const } : n));
-      setLoadingId(null);
-    }, 600);
-  }
+    setAll((prev) => prev.map((n) => n.id === id ? { ...n, status: 'Traitée' as const } : n));
+    try { await notificationService.handle(id); } catch { /* keep optimistic */ }
+    finally { setLoadingId(null); }
+  }, []);
 
-  function deleteNotif(id: string) {
+  const deleteNotif = useCallback(async (id: string) => {
     setAll((prev) => prev.filter((n) => n.id !== id));
-  }
+    if (selectedId === id) setSelectedId('');
+    setMetrics((prev) => prev ? { ...prev, all: Math.max(0, prev.all - 1) } : prev);
+    try { await notificationService.remove(id); } catch { /* keep optimistic */ }
+  }, [selectedId]);
 
   return {
-    notifications,
+    // metrics
+    metrics, metricsLoading,
+    // list
+    notifications: all,
+    loading, fetchError,
+    // filters
     tabFilter, setTabFilter, tabCounts,
-    search, setSearch,
+    search,    setSearch,
     typeFilter, setTypeFilter,
-    loadingId,
-    markAsRead, markAllRead, markAsHandled, deleteNotif,
+    // selection
     selectedId, setSelectedId,
     selectedNotification,
+    // actions
+    loadingId,
+    markAsRead, markAllRead, markAsHandled, deleteNotif,
   };
 }

@@ -6,14 +6,18 @@ import { useDisputes }        from '../../hooks/useDisputes';
 
 export function DisputesScreen() {
   const {
+    metrics, metricsLoading,
     disputes, total, pageSize, currentPage, setCurrentPage,
+    loading, fetchError,
     search, setSearch,
-    tabFilter,      setTabFilter,      tabCounts,
+    tabFilter, switchTab, tabCounts,
     typeFilter,     setTypeFilter,
     statusFilter,   setStatusFilter,
     priorityFilter, setPriorityFilter,
-    loadingId, refundPassenger, payDriver, resetFilters,
-    selectedId, setSelectedId, selectedDispute,
+    applyFilters, resetFilters,
+    selectedId, selectedDispute, detailLoading,
+    openDispute,
+    loadingId, assign, refund, payDriver,
   } = useDisputes();
 
   return (
@@ -22,27 +26,30 @@ export function DisputesScreen() {
         <div className="disputes-layout">
 
           <div className="disputes-left">
-            <DisputesMetrics />
+            <DisputesMetrics metrics={metrics} loading={metricsLoading} />
 
             <DisputesTable
               disputes={disputes}
               tabCounts={tabCounts}
-              tabFilter={tabFilter}     setTabFilter={setTabFilter}
+              tabFilter={tabFilter}     switchTab={switchTab}
               search={search}           setSearch={setSearch}
               typeFilter={typeFilter}   setTypeFilter={setTypeFilter}
               statusFilter={statusFilter} setStatusFilter={setStatusFilter}
               priorityFilter={priorityFilter} setPriorityFilter={setPriorityFilter}
-              onReset={resetFilters}
-              total={total} pageSize={pageSize}
+              onReset={resetFilters}    applyFilters={applyFilters}
+              total={total}             pageSize={pageSize}
               currentPage={currentPage} setCurrentPage={setCurrentPage}
-              selectedId={selectedId}   setSelectedId={setSelectedId}
+              selectedId={selectedId}   openDispute={openDispute}
+              loading={loading}         fetchError={fetchError}
             />
           </div>
 
           <DisputeDetailPanel
             dispute={selectedDispute}
             loadingId={loadingId}
-            onRefund={refundPassenger}
+            detailLoading={detailLoading}
+            onAssign={assign}
+            onRefund={refund}
             onPay={payDriver}
           />
 

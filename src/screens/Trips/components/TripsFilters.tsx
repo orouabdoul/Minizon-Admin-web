@@ -16,11 +16,12 @@ interface TripsFiltersProps {
   onStatus:           (v: string) => void;
   onDate:             (v: string) => void;
   onFilter:           () => void;
+  onReset?:           () => void;
 }
 
 export function TripsFilters({
   departureFilter, destinationFilter, statusFilter, dateFilter,
-  onDeparture, onDestination, onStatus, onDate, onFilter,
+  onDeparture, onDestination, onStatus, onDate, onFilter, onReset,
 }: TripsFiltersProps) {
   return (
     <div className="trips-filters-card">
@@ -79,6 +80,12 @@ export function TripsFilters({
             <AppIcon icon={Search} size={16} color="#fff" />
             Filtrer
           </button>
+          {onReset && (
+            <button type="button" className="trips-filter-btn" onClick={onReset}
+              style={{ background: '#6B7280', marginLeft: 8 }}>
+              Réinitialiser
+            </button>
+          )}
         </div>
       </div>
     </div>

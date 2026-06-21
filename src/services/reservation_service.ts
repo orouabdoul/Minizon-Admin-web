@@ -1,28 +1,41 @@
 import { api } from './api';
-import type { ApiResponse } from '../models/api_response.model';
-import type { Reservation } from '../models/reservation.model';
+import type { ApiBodyResponse } from '../models/api_response.model';
+import type { ApiReservation, ReservationMetrics } from '../models/reservation.model';
+
+interface ReservationsListBody {
+  data:         ApiReservation[];
+  total:        number;
+  per_page:     number;
+  current_page: number;
+  last_page:    number;
+}
 
 export const reservationService = {
-  getAll: (page = 1, limit = 10, params?: {
-    status?:  string;
+  getMetrics: () =>
+    api.get<ApiBodyResponse<ReservationMetrics>>('/admin/reservations/metrics'),
+
+  getAll: (page = 1, perPage = 10, params?: {
+    search?:  string;
     city?:    string;
+    status?:  string;
     payment?: string;
     date?:    string;
-    search?:  string;
   }) =>
-    api.get<{ data: Reservation[]; total: number }>('/reservations', {
-      params: { page, limit, ...params },
+    api.get<ApiBodyResponse<ReservationsListBody>>('/admin/reservations', {
+      params: {
+        page,
+        per_page: perPage,
+        ...(params?.search  ? { search:  params.search }  : {}),
+        ...(params?.city    ? { city:    params.city }    : {}),
+        ...(params?.status  ? { status:  params.status }  : {}),
+        ...(params?.payment ? { payment: params.payment } : {}),
+        ...(params?.date    ? { date:    params.date }    : {}),
+      },
     }),
 
-  getById: (id: string) =>
-    api.get<ApiResponse<Reservation>>(`/reservations/${id}`),
+  getById: (uuid: string) =>
+    api.get<ApiBodyResponse<ApiReservation>>(`/admin/reservations/${uuid}`),
 
   cancel: (id: string) =>
-    api.post<ApiResponse<Reservation>>(`/reservations/${id}/cancel`),
-
-  refund: (id: string) =>
-    api.post<ApiResponse<Reservation>>(`/reservations/${id}/refund`),
-
-  suspend: (id: string) =>
-    api.post<ApiResponse<Reservation>>(`/reservations/${id}/suspend`),
+    api.post<ApiBodyResponse<ApiReservation>>(`/admin/reservations/${id}/cancel`),
 };

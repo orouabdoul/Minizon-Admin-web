@@ -1,36 +1,68 @@
-import {
-  Navigation, CheckCircle, AlertTriangle, TrendingUp,
-} from 'lucide-react';
-import type { LucideIcon } from 'lucide-react';
+import { Navigation, CheckCircle, AlertTriangle, TrendingUp } from 'lucide-react';
 import { PassengerKpiCard } from '../../../components/DataDisplay/PassengerKpiCard/PassengerKpiCard';
-import { TRIP_KPI_DATA }    from '../../../config/constants';
+import type { LucideIcon } from 'lucide-react';
+import type { TripMetrics } from '../../../models/trip.model';
 
-const ICON_MAP: Record<string, LucideIcon> = {
-  navigation:    Navigation,
-  checkCircle:   CheckCircle,
-  alertTriangle: AlertTriangle,
-  trendingUp:    TrendingUp,
-};
+interface Props {
+  metrics:  TripMetrics | null;
+  loading?: boolean;
+}
 
-export function TripsMetrics() {
+interface KpiDef {
+  id:         string;
+  label:      string;
+  value:      string;
+  badge:      string;
+  icon:       LucideIcon;
+  iconBg:     string;
+  iconColor:  string;
+  badgeBg?:   string;
+  badgeColor?:string;
+}
+
+export function TripsMetrics({ metrics, loading }: Props) {
+  const v = (n?: number) => loading ? '…' : (n ?? 0).toLocaleString('fr-FR');
+
+  const kpis: KpiDef[] = [
+    {
+      id: 'total', label: 'Total Trajets',
+      value: v(metrics?.total), badge: '',
+      icon: Navigation, iconBg: '#EFF6FF', iconColor: '#3B82F6',
+    },
+    {
+      id: 'completed', label: 'Trajets Terminés',
+      value: v(metrics?.completed), badge: '',
+      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#00A86B',
+    },
+    {
+      id: 'reported', label: 'Trajets Signalés',
+      value: v(metrics?.reported), badge: '',
+      icon: AlertTriangle, iconBg: '#FFFBEB', iconColor: '#F59E0B',
+      badgeBg: '#FFFBEB', badgeColor: '#F59E0B',
+    },
+    {
+      id: 'revenue', label: 'Revenus Générés',
+      value: loading ? '…' : `${(metrics?.total_revenue ?? 0).toLocaleString('fr-FR')} FCFA`,
+      badge: '',
+      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#00A86B',
+    },
+  ];
+
   return (
     <div className="trips-metrics">
-      {TRIP_KPI_DATA.map((kpi) => {
-        const Icon = ICON_MAP[kpi.iconId] ?? Navigation;
-        return (
-          <PassengerKpiCard
-            key={kpi.id}
-            label={kpi.label}
-            value={kpi.value}
-            badge={kpi.badge}
-            iconBg={kpi.iconBg}
-            iconColor={kpi.iconColor}
-            icon={Icon}
-            badgeBg={kpi.badgeBg}
-            badgeColor={kpi.badgeColor}
-          />
-        );
-      })}
+      {kpis.map((kpi) => (
+        <PassengerKpiCard
+          key={kpi.id}
+          label={kpi.label}
+          value={kpi.value}
+          badge={kpi.badge}
+          icon={kpi.icon}
+          iconBg={kpi.iconBg}
+          iconColor={kpi.iconColor}
+          badgeBg={kpi.badgeBg}
+          badgeColor={kpi.badgeColor}
+        />
+      ))}
     </div>
   );
 }

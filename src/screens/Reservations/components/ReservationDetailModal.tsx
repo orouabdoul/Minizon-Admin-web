@@ -18,11 +18,14 @@ const PAYMENT_VARIANT: Record<PaymentStatus, BadgeVariant> = {
   Remboursé:    'neutral',
 };
 
-interface Props { reservation: Reservation; onClose: () => void; }
+interface Props { reservation: Reservation; onClose: () => void; detailLoading?: boolean; }
 
-export function ReservationDetailModal({ reservation: r, onClose }: Props) {
+export function ReservationDetailModal({ reservation: r, onClose, detailLoading }: Props) {
   return (
     <DetailModal title="Détail Réservation" onClose={onClose} accentColor="#00A86B">
+      {detailLoading && (
+        <p style={{ textAlign: 'center', fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>Chargement…</p>
+      )}
       {/* Route hero */}
       <div className="detail-route" style={{ background: 'rgba(0,168,107,0.04)', border: '1px solid rgba(0,168,107,0.15)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', flex: 1 }}>

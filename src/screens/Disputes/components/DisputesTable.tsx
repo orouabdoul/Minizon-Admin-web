@@ -1,4 +1,4 @@
-import { Search, RotateCcw } from 'lucide-react';
+import { Search, RotateCcw, Filter } from 'lucide-react';
 import { AppIcon }  from '../../../components/Common/AppIcon';
 import { Badge }    from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
@@ -10,7 +10,7 @@ interface DisputesTableProps {
   disputes:          Dispute[];
   tabCounts:         { all: number; open: number; critical: number };
   tabFilter:         DisputeTab;
-  setTabFilter:      (t: DisputeTab) => void;
+  switchTab:         (t: DisputeTab) => void;
   search:            string;
   setSearch:         (v: string) => void;
   typeFilter:        string;
@@ -20,12 +20,15 @@ interface DisputesTableProps {
   priorityFilter:    string;
   setPriorityFilter: (v: string) => void;
   onReset:           () => void;
+  applyFilters:      () => void;
   total:             number;
   pageSize:          number;
   currentPage:       number;
   setCurrentPage:    (p: number) => void;
-  selectedId:        string;
-  setSelectedId:     (id: string) => void;
+  selectedId:        string | null;
+  openDispute:       (id: string) => void;
+  loading:           boolean;
+  fetchError:        string | null;
 }
 
 const STATUS_VARIANT: Record<DisputeStatus, BadgeVariant> = {
@@ -57,7 +60,7 @@ const TABS: { id: DisputeTab; label: string }[] = [
 function Pagination({ total, pageSize, currentPage, onChange }: {
   total: number; pageSize: number; currentPage: number; onChange: (p: number) => void;
 }) {
-  const totalPages = Math.ceil(total / pageSize);
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const from = (currentPage - 1) * pageSize + 1;
   const to   = Math.min(currentPage * pageSize, total);
   const pages: number[] = [];
@@ -66,7 +69,7 @@ function Pagination({ total, pageSize, currentPage, onChange }: {
   return (
     <div className="disputes-pagination">
       <span className="disputes-pagination__info">
-        Affichage de {from} à {to} sur {total} litiges
+        Affichage de {from} à {to} sur {total.toLocaleString('fr-FR')} litiges
       </span>
       <div className="disputes-pagination__pages">
         <button type="button" className="disputes-pagination__btn" disabled={currentPage === 1} onClick={() => onChange(currentPage - 1)}>Précédent</button>
@@ -80,11 +83,13 @@ function Pagination({ total, pageSize, currentPage, onChange }: {
 }
 
 export function DisputesTable({
-  disputes, tabCounts, tabFilter, setTabFilter,
+  disputes, tabCounts, tabFilter, switchTab,
   search, setSearch, typeFilter, setTypeFilter,
   statusFilter, setStatusFilter, priorityFilter, setPriorityFilter,
-  onReset, total, pageSize, currentPage, setCurrentPage,
-  selectedId, setSelectedId,
+  onReset, applyFilters,
+  total, pageSize, currentPage, setCurrentPage,
+  selectedId, openDispute,
+  loading, fetchError,
 }: DisputesTableProps) {
   return (
     <div className="disputes-table-card">
@@ -96,7 +101,7 @@ export function DisputesTable({
             key={tab.id}
             type="button"
             className={`disputes-tab${tabFilter === tab.id ? ' disputes-tab--active' : ''}`}
-            onClick={() => setTabFilter(tab.id)}
+            onClick={() => switchTab(tab.id)}
           >
             {tab.label}
             <span className="disputes-tab__count">{tabCounts[tab.id]}</span>
@@ -113,6 +118,7 @@ export function DisputesTable({
             placeholder="Rechercher un litige, utilisateur..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && applyFilters()}
             className="disputes-table-filterbar__input"
           />
         </div>
@@ -125,7 +131,10 @@ export function DisputesTable({
         <select className="disputes-filter-select" value={priorityFilter} onChange={(e) => setPriorityFilter(e.target.value)}>
           {DISPUTE_PRIORITY_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
         </select>
-        <button type="button" className="disputes-filter-reset" onClick={onReset}>
+        <button type="button" className="disputes-filter-apply" onClick={applyFilters} title="Appliquer les filtres">
+          <AppIcon icon={Filter} size={15} color="#fff" />
+        </button>
+        <button type="button" className="disputes-filter-reset" onClick={onReset} title="Réinitialiser">
           <AppIcon icon={RotateCcw} size={16} color="#6B7280" />
         </button>
       </div>
@@ -134,8 +143,8 @@ export function DisputesTable({
       <Table>
         <TableHead>
           <TableRow>
-            <Th width="100px">ID Litige</Th>
-            <Th>Utilisateurs</Th>
+            <Th width="130px">ID Litige</Th>
+            <Th>Trajet / Motif</Th>
             <Th width="120px">Type</Th>
             <Th width="110px">Priorité</Th>
             <Th width="110px">Statut</Th>
@@ -144,7 +153,15 @@ export function DisputesTable({
           </TableRow>
         </TableHead>
         <TableBody>
-          {disputes.length === 0 ? (
+          {loading ? (
+            <TableRow>
+              <Td colSpan={7}><div className="data-table__empty">Chargement…</div></Td>
+            </TableRow>
+          ) : fetchError ? (
+            <TableRow>
+              <Td colSpan={7}><div className="data-table__empty" style={{ color: '#E53935' }}>{fetchError}</div></Td>
+            </TableRow>
+          ) : disputes.length === 0 ? (
             <TableRow>
               <Td colSpan={7}><div className="data-table__empty">Aucun litige trouvé</div></Td>
             </TableRow>
@@ -152,7 +169,7 @@ export function DisputesTable({
             disputes.map((d) => (
               <TableRow
                 key={d.id}
-                onClick={() => setSelectedId(d.id)}
+                onClick={() => openDispute(d.id)}
                 className={d.id === selectedId ? 'disputes-row--active' : undefined}
               >
                 <Td>
@@ -162,22 +179,9 @@ export function DisputesTable({
                   </div>
                 </Td>
                 <Td>
-                  <div className="dispute-users-cell">
-                    <div className="dispute-users-cell__party">
-                      <img src={d.conductor.avatar} alt={d.conductor.shortName} className="dispute-users-cell__avatar" />
-                      <div className="dispute-users-cell__info">
-                        <span className="dispute-users-cell__name">{d.conductor.name}</span>
-                        <span className="dispute-users-cell__role">Conducteur</span>
-                      </div>
-                    </div>
-                    <span className="dispute-users-cell__vs">vs</span>
-                    <div className="dispute-users-cell__party">
-                      <img src={d.passenger.avatar} alt={d.passenger.shortName} className="dispute-users-cell__avatar" />
-                      <div className="dispute-users-cell__info">
-                        <span className="dispute-users-cell__name">{d.passenger.name}</span>
-                        <span className="dispute-users-cell__role">Passager</span>
-                      </div>
-                    </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{d.trajet}</span>
+                    <span style={{ fontSize: 12, color: '#6B7280', maxWidth: 220, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{d.motif}</span>
                   </div>
                 </Td>
                 <Td><Badge label={d.type} variant={TYPE_VARIANT[d.type]} /></Td>
@@ -195,7 +199,7 @@ export function DisputesTable({
                   <button
                     type="button"
                     className={`disputes-ouvrir-btn${d.id === selectedId ? ' disputes-ouvrir-btn--active' : ''}`}
-                    onClick={(e) => { e.stopPropagation(); setSelectedId(d.id); }}
+                    onClick={(e) => { e.stopPropagation(); openDispute(d.id); }}
                   >
                     Ouvrir
                   </button>

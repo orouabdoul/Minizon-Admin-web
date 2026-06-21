@@ -1,97 +1,167 @@
-import { useState, useMemo, useCallback } from 'react';
-import { MOCK_DISPUTES }     from '../config/constants';
-import { disputeService }    from '../services/dispute_service';
-import type { Dispute, DisputeTab } from '../models/dispute.model';
+import { useState, useEffect, useCallback } from 'react';
+import { disputeService }                  from '../services/dispute_service';
+import { mapApiListItemToDispute, mapApiDetailToDispute } from '../models/dispute.model';
+import type { Dispute, DisputeMetrics, DisputeTab } from '../models/dispute.model';
 
-const TOTAL     = 55;
 const PAGE_SIZE = 10;
 
 export function useDisputes() {
-  const [disputes,       setDisputes]      = useState<Dispute[]>(MOCK_DISPUTES);
-  const [search,         setSearch]        = useState('');
-  const [tabFilter,      setTabFilter]     = useState<DisputeTab>('all');
-  const [statusFilter,   setStatusFilter]  = useState<string>('all');
-  const [typeFilter,     setTypeFilter]    = useState<string>('all');
-  const [priorityFilter, setPriorityFilter]= useState<string>('all');
-  const [currentPage,    setCurrentPage]   = useState(1);
-  const [loadingId,      setLoadingId]     = useState<string | null>(null);
-  const [selectedId,     setSelectedId]    = useState<string>(MOCK_DISPUTES[0].id);
+  // ── Metrics ──────────────────────────────────────────
+  const [metrics,        setMetrics]        = useState<DisputeMetrics | null>(null);
+  const [metricsLoading, setMetricsLoading] = useState(true);
 
-  const baseFiltered = useMemo(() =>
-    disputes.filter((d) => {
-      const matchSearch   = !search ||
-        d.disputeId.toLowerCase().includes(search.toLowerCase()) ||
-        d.passengerName.toLowerCase().includes(search.toLowerCase()) ||
-        d.driverName.toLowerCase().includes(search.toLowerCase());
-      const matchStatus   = statusFilter   === 'all' || d.status   === statusFilter;
-      const matchType     = typeFilter     === 'all' || d.type     === typeFilter;
-      const matchPriority = priorityFilter === 'all' || d.priority === priorityFilter;
-      return matchSearch && matchStatus && matchType && matchPriority;
-    }), [disputes, search, statusFilter, typeFilter, priorityFilter]);
-
-  const tabCounts = useMemo(() => ({
-    all:      baseFiltered.length,
-    open:     baseFiltered.filter((d) => d.status === 'Ouvert' || d.status === 'En cours').length,
-    critical: baseFiltered.filter((d) => d.priority === 'Critique').length,
-  }), [baseFiltered]);
-
-  const filtered = useMemo(() =>
-    baseFiltered.filter((d) =>
-      tabFilter === 'all'      ? true
-      : tabFilter === 'open'   ? (d.status === 'Ouvert' || d.status === 'En cours')
-      :                          d.priority === 'Critique',
-    ), [baseFiltered, tabFilter]);
-
-  const patchLocal = useCallback((id: string, patch: Partial<Dispute>) => {
-    setDisputes((prev) => prev.map((d) => (d.id === id ? { ...d, ...patch } : d)));
+  useEffect(() => {
+    disputeService.getMetrics()
+      .then((res) => setMetrics(res.data.body))
+      .catch(() => {})
+      .finally(() => setMetricsLoading(false));
   }, []);
 
-  const resolve = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try   { await disputeService.resolve(id); patchLocal(id, { status: 'Résolu' }); }
-    catch { patchLocal(id, { status: 'Résolu' }); }
-    finally { setLoadingId(null); }
-  }, [patchLocal]);
+  // ── Pending filters ───────────────────────────────────
+  const [search,         setSearch]         = useState('');
+  const [tabFilter,      setTabFilter]      = useState<DisputeTab>('all');
+  const [typeFilter,     setTypeFilter]     = useState('');
+  const [statusFilter,   setStatusFilter]   = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
 
-  const close = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try   { await disputeService.close(id); patchLocal(id, { status: 'Clôturé' }); }
-    catch { patchLocal(id, { status: 'Clôturé' }); }
-    finally { setLoadingId(null); }
-  }, [patchLocal]);
+  // ── Applied filters ───────────────────────────────────
+  const [appliedTab,      setAppliedTab]      = useState<DisputeTab>('all');
+  const [appliedSearch,   setAppliedSearch]   = useState('');
+  const [appliedType,     setAppliedType]     = useState('');
+  const [appliedStatus,   setAppliedStatus]   = useState('');
+  const [appliedPriority, setAppliedPriority] = useState('');
+
+  // ── List ─────────────────────────────────────────────
+  const [disputes,    setDisputes]    = useState<Dispute[]>([]);
+  const [total,       setTotal]       = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading,     setLoading]     = useState(true);
+  const [fetchError,  setFetchError]  = useState<string | null>(null);
+
+  const fetchDisputes = useCallback((
+    page: number, tab: DisputeTab,
+    search: string, type: string, status: string, priority: string,
+  ) => {
+    setLoading(true);
+    setFetchError(null);
+    disputeService.getAll(page, PAGE_SIZE, {
+      tab, search, type, status, priority,
+    })
+      .then((res) => {
+        const body = res.data.body;
+        setDisputes(body.data.map(mapApiListItemToDispute));
+        setTotal(body.total);
+      })
+      .catch((e) => setFetchError(e?.response?.data?.message ?? 'Erreur de chargement'))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => {
+    fetchDisputes(currentPage, appliedTab, appliedSearch, appliedType, appliedStatus, appliedPriority);
+  }, [fetchDisputes, currentPage, appliedTab, appliedSearch, appliedType, appliedStatus, appliedPriority]);
+
+  // Tabs switch immediately
+  const switchTab = useCallback((tab: DisputeTab) => {
+    setTabFilter(tab);
+    setAppliedTab(tab);
+    setCurrentPage(1);
+  }, []);
+
+  const applyFilters = useCallback(() => {
+    setAppliedSearch(search);
+    setAppliedType(typeFilter);
+    setAppliedStatus(statusFilter);
+    setAppliedPriority(priorityFilter);
+    setCurrentPage(1);
+  }, [search, typeFilter, statusFilter, priorityFilter]);
 
   const resetFilters = useCallback(() => {
-    setTabFilter('all'); setStatusFilter('all'); setTypeFilter('all');
-    setPriorityFilter('all'); setSearch(''); setCurrentPage(1);
+    setSearch(''); setTypeFilter(''); setStatusFilter(''); setPriorityFilter('');
+    setAppliedSearch(''); setAppliedType(''); setAppliedStatus(''); setAppliedPriority('');
+    setTabFilter('all'); setAppliedTab('all');
+    setCurrentPage(1);
   }, []);
 
-  const selectedDispute = useMemo(() =>
-    disputes.find((d) => d.id === selectedId) ?? disputes[0] ?? null,
-    [disputes, selectedId],
-  );
+  // ── Detail ────────────────────────────────────────────
+  const [selectedId,      setSelectedId]      = useState<string | null>(null);
+  const [selectedDispute, setSelectedDispute] = useState<Dispute | null>(null);
+  const [detailLoading,   setDetailLoading]   = useState(false);
 
-  const refundPassenger = useCallback(async (id: string) => {
-    setLoadingId(id);
-    try   { await disputeService.resolve(id); patchLocal(id, { status: 'Résolu' }); }
-    catch { patchLocal(id, { status: 'Résolu' }); }
-    finally { setLoadingId(null); }
-  }, [patchLocal]);
+  const openDispute = useCallback(async (id: string) => {
+    const quick = disputes.find((d) => d.id === id) ?? null;
+    setSelectedId(id);
+    setSelectedDispute(quick);
+    setDetailLoading(true);
+    try {
+      const res = await disputeService.getById(id);
+      setSelectedDispute(mapApiDetailToDispute(res.data.body));
+    } catch { /* keep quick data */ }
+    finally { setDetailLoading(false); }
+  }, [disputes]);
 
-  const payDriver = useCallback(async (id: string) => {
+  const closeDetail = useCallback(() => {
+    setSelectedId(null);
+    setSelectedDispute(null);
+  }, []);
+
+  const patchDispute = useCallback((id: string, patch: Partial<Dispute>) => {
+    setDisputes((prev) => prev.map((d) => d.id === id ? { ...d, ...patch } : d));
+    setSelectedDispute((prev) => prev?.id === id ? { ...prev, ...patch } : prev);
+  }, []);
+
+  // ── Actions ───────────────────────────────────────────
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+
+  const assign = useCallback(async (id: string) => {
     setLoadingId(id);
-    try   { await disputeService.close(id); patchLocal(id, { status: 'Clôturé' }); }
-    catch { patchLocal(id, { status: 'Clôturé' }); }
+    try {
+      await disputeService.assign(id);
+      patchDispute(id, { status: 'En cours' });
+    } catch { /* server error */ }
     finally { setLoadingId(null); }
-  }, [patchLocal]);
+  }, [patchDispute]);
+
+  const refund = useCallback(async (id: string, notes: string) => {
+    setLoadingId(id);
+    try {
+      await disputeService.refund(id, notes);
+      patchDispute(id, { status: 'Résolu' });
+    } catch { /* server error */ }
+    finally { setLoadingId(null); }
+  }, [patchDispute]);
+
+  const payDriver = useCallback(async (id: string, notes: string) => {
+    setLoadingId(id);
+    try {
+      await disputeService.payDriver(id, notes);
+      patchDispute(id, { status: 'Clôturé' });
+    } catch { /* server error */ }
+    finally { setLoadingId(null); }
+  }, [patchDispute]);
+
+  const tabCounts = {
+    all:      metrics?.all      ?? 0,
+    open:     metrics?.open     ?? 0,
+    critical: metrics?.critical ?? 0,
+  };
 
   return {
-    disputes: filtered, total: TOTAL, pageSize: PAGE_SIZE, currentPage, setCurrentPage,
+    // metrics
+    metrics, metricsLoading,
+    // list
+    disputes, total, pageSize: PAGE_SIZE, currentPage, setCurrentPage,
+    loading, fetchError,
+    // filters
     search, setSearch,
-    tabFilter,      setTabFilter,      tabCounts,
-    statusFilter,   setStatusFilter,
+    tabFilter, switchTab, tabCounts,
     typeFilter,     setTypeFilter,
+    statusFilter,   setStatusFilter,
     priorityFilter, setPriorityFilter,
-    loadingId, resolve, close, refundPassenger, payDriver, resetFilters,
-    selectedId, setSelectedId, selectedDispute,
+    applyFilters, resetFilters,
+    // detail
+    selectedId, selectedDispute, detailLoading,
+    openDispute, closeDetail,
+    // actions
+    loadingId, assign, refund, payDriver,
   };
 }
