@@ -1,6 +1,8 @@
-import { Search, Eye, CheckCircle, XCircle, Trash2 } from 'lucide-react';
-import { AppIcon }   from '../../../components/Common/AppIcon';
-import { Badge }     from '../../../components/DataDisplay/Badge/Badge';
+import { useState } from 'react';
+import { Search, Eye, CheckCircle, Trash2 } from 'lucide-react';
+import { AppIcon }       from '../../../components/Common/AppIcon';
+import { Badge }         from '../../../components/DataDisplay/Badge/Badge';
+import { ConfirmDialog } from '../../../components/Overlay/ConfirmDialog/ConfirmDialog';
 import {
   Table, TableHead, TableBody, TableRow, Th, Td,
 } from '../../../components/DataDisplay/Table/Table';
@@ -14,6 +16,7 @@ interface Props {
   pageSize:        number;
   currentPage:     number;
   setCurrentPage:  (p: number) => void;
+  loading:         boolean;
   search:          string;
   setSearch:       (v: string) => void;
   statusFilter:    string;
@@ -22,10 +25,11 @@ interface Props {
   setTypeFilter:   (v: string) => void;
   selectedVehicle: Vehicle | null;
   setSelectedId:   (id: string | null) => void;
-  onSuspend:       (id: string) => void;
-  onActivate:      (id: string) => void;
-  onReject:        (id: string) => void;
-  onDelete:        (id: string) => void;
+  onApprove:   (id: string) => Promise<void>;
+  onReject:    (id: string, reason: string) => Promise<void>;
+  onSuspend:   (id: string, reason: string) => Promise<void>;
+  onReinstate: (id: string) => Promise<void>;
+  onDelete:    (id: string) => Promise<void>;
 }
 
 const STATUS_VARIANT: Record<VehicleStatus, BadgeVariant> = {
@@ -66,7 +70,7 @@ const TYPE_COLORS: Record<VehicleType, { bg: string; color: string }> = {
 };
 
 function TypeChip({ type }: { type: VehicleType }) {
-  const s = TYPE_COLORS[type];
+  const s = TYPE_COLORS[type] ?? { bg: '#F3F4F6', color: '#6B7280' };
   return (
     <span style={{
       display: 'inline-flex', padding: '2px 8px', borderRadius: 9999,
@@ -109,20 +113,36 @@ function Pagination({ total, pageSize, currentPage, onChange }: {
 }
 
 export function VehiclesTable({
-  vehicles, total, pageSize, currentPage, setCurrentPage,
+  vehicles, total, pageSize, currentPage, setCurrentPage, loading,
   search, setSearch, statusFilter, setStatusFilter, typeFilter, setTypeFilter,
-  selectedVehicle, setSelectedId, onSuspend, onActivate, onReject, onDelete,
+  selectedVehicle, setSelectedId,
+  onApprove, onReject, onSuspend, onReinstate, onDelete,
 }: Props) {
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+
   return (
     <>
       {selectedVehicle && (
         <VehicleDetailModal
           vehicle={selectedVehicle}
           onClose={() => setSelectedId(null)}
-          onSuspend={(id) => { onSuspend(id); setSelectedId(null); }}
-          onActivate={(id) => { onActivate(id); setSelectedId(null); }}
+          onApprove={async (id) => { await onApprove(id); setSelectedId(null); }}
+          onReject={async (id, reason) => { await onReject(id, reason); setSelectedId(null); }}
+          onSuspend={async (id, reason) => { await onSuspend(id, reason); setSelectedId(null); }}
+          onReinstate={async (id) => { await onReinstate(id); setSelectedId(null); }}
+          onDelete={async (id) => { await onDelete(id); setSelectedId(null); }}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={!!deleteId}
+        onClose={() => setDeleteId(null)}
+        onConfirm={async () => { if (deleteId) { await onDelete(deleteId); setDeleteId(null); } }}
+        title="Supprimer le véhicule ?"
+        message="Cette action est irréversible. Le véhicule sera définitivement supprimé."
+        confirmLabel="Supprimer"
+        variant="danger"
+      />
 
       <div className="users-table-card">
         {/* Header */}
@@ -174,11 +194,17 @@ export function VehiclesTable({
               <Th width="140px">Plaque & Type</Th>
               <Th width="240px">Documents</Th>
               <Th width="110px">Statut</Th>
-              <Th width="130px">Actions</Th>
+              <Th width="100px">Actions</Th>
             </TableRow>
           </TableHead>
           <TableBody>
-            {vehicles.length === 0 ? (
+            {loading ? (
+              <TableRow>
+                <Td colSpan={6}>
+                  <div className="data-table__empty">Chargement…</div>
+                </Td>
+              </TableRow>
+            ) : vehicles.length === 0 ? (
               <TableRow>
                 <Td colSpan={6}>
                   <div className="data-table__empty">Aucun véhicule trouvé</div>
@@ -207,15 +233,15 @@ export function VehiclesTable({
                 </Td>
                 <Td>
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-                    <Badge label={`Carte grise ${DOC_ICON[v.documents.carteGrise]}`} variant={DOC_VARIANT[v.documents.carteGrise]} />
-                    <Badge label={`Assurance ${DOC_ICON[v.documents.assurance]}`}    variant={DOC_VARIANT[v.documents.assurance]}  />
+                    <Badge label={`Carte grise ${DOC_ICON[v.documents.carteGrise] ?? '?'}`} variant={DOC_VARIANT[v.documents.carteGrise] ?? 'neutral'} />
+                    <Badge label={`Assurance ${DOC_ICON[v.documents.assurance] ?? '?'}`}    variant={DOC_VARIANT[v.documents.assurance]  ?? 'neutral'}  />
                     {v.type !== 'Moto' && v.documents.visite && (
-                      <Badge label={`Visite ${DOC_ICON[v.documents.visite]}`} variant={DOC_VARIANT[v.documents.visite]} />
+                      <Badge label={`Visite ${DOC_ICON[v.documents.visite] ?? '?'}`} variant={DOC_VARIANT[v.documents.visite] ?? 'neutral'} />
                     )}
                   </div>
                 </Td>
                 <Td>
-                  <Badge label={v.status} variant={STATUS_VARIANT[v.status]} />
+                  <Badge label={v.status} variant={STATUS_VARIANT[v.status] ?? 'neutral'} />
                 </Td>
                 <Td>
                   <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
@@ -233,25 +259,15 @@ export function VehiclesTable({
                       title="Approuver"
                       disabled={v.status === 'Actif'}
                       style={{ opacity: v.status === 'Actif' ? 0.3 : 1 }}
-                      onClick={() => onActivate(v.id)}
+                      onClick={() => onApprove(v.id)}
                     >
                       <AppIcon icon={CheckCircle} size={15} color="#00A86B" />
                     </button>
                     <button
                       type="button"
                       className="data-table__action-btn"
-                      title="Rejeter"
-                      disabled={v.status === 'Rejeté'}
-                      style={{ opacity: v.status === 'Rejeté' ? 0.3 : 1 }}
-                      onClick={() => onReject(v.id)}
-                    >
-                      <AppIcon icon={XCircle} size={15} color="#F59E0B" />
-                    </button>
-                    <button
-                      type="button"
-                      className="data-table__action-btn"
                       title="Supprimer"
-                      onClick={() => onDelete(v.id)}
+                      onClick={() => setDeleteId(v.id)}
                     >
                       <AppIcon icon={Trash2} size={15} color="#E53935" />
                     </button>

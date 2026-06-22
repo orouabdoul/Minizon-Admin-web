@@ -10,7 +10,7 @@ const PLACEHOLDER: AnalyticsItem[] = Array.from({ length: 4 }, (_, i) => ({
 }));
 
 export function SettingsAnalyticsCard({ analytics, loading }: Props) {
-  const display = loading || analytics.length === 0 ? PLACEHOLDER : analytics;
+  const display = loading || !analytics?.length ? PLACEHOLDER : analytics;
 
   return (
     <div className="settings-card">

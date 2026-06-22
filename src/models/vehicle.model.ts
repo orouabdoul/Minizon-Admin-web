@@ -19,27 +19,40 @@ export interface VehicleDocuments {
 }
 
 export interface Vehicle {
-  id:            string;
-  vehicleId:     string;
+  id:                 string;
+  vehicleId:          string;
   // Driver
-  driverName:    string;
-  driverAvatar:  string;
-  driverId:      string;
-  driverPhone:   string;
+  driverName:         string;
+  driverAvatar:       string;
+  driverId:           string;
+  driverUuid?:        string;
+  driverPhone:        string;
   // Vehicle
-  make:          string;
-  model:         string;
-  year:          number;
-  type:          VehicleType;
-  plate:         string;
-  color:         string;
-  seats:         number;
-  status:        VehicleStatus;
-  vehiclePhoto?: string;
+  make:               string;
+  model:              string;
+  year:               number;
+  type:               VehicleType;
+  typeSlug?:          string;
+  plate:              string;
+  color:              string;
+  seats:              number;
+  status:             VehicleStatus;
+  vehiclePhoto?:      string;
+  verificationStatus?: string;
+  rejectionReason?:   string;
+  verifiedAt?:        string;
   // Documents
-  documents: VehicleDocuments;
+  documents:          VehicleDocuments;
   // Stats
-  trips:        number;
-  rating:       number;
-  registeredAt: string;
+  trips:              number;
+  rating:             number;
+  registeredAt:       string;
+}
+
+export interface VehicleListBody {
+  data:         Vehicle[];
+  total:        number;
+  per_page:     number;
+  current_page: number;
+  last_page:    number;
 }

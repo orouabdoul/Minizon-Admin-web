@@ -6,12 +6,12 @@ import { useVehicles }     from '../../hooks/useVehicles';
 export function VehiclesScreen() {
   const {
     metrics,
-    vehicles, total, pageSize, currentPage, setCurrentPage,
+    vehicles, total, pageSize, currentPage, setCurrentPage, loading,
     search,       setSearch,
     statusFilter, setStatusFilter,
     typeFilter,   setTypeFilter,
     selectedVehicle, setSelectedId,
-    suspendVehicle, activateVehicle, rejectVehicle, deleteVehicle,
+    approveVehicle, rejectVehicle, suspendVehicle, reinstateVehicle, deleteVehicle,
   } = useVehicles();
 
   return (
@@ -26,14 +26,16 @@ export function VehiclesScreen() {
           pageSize={pageSize}
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
+          loading={loading}
           search={search}             setSearch={setSearch}
           statusFilter={statusFilter} setStatusFilter={setStatusFilter}
           typeFilter={typeFilter}     setTypeFilter={setTypeFilter}
           selectedVehicle={selectedVehicle}
           setSelectedId={setSelectedId}
-          onSuspend={suspendVehicle}
-          onActivate={activateVehicle}
+          onApprove={approveVehicle}
           onReject={rejectVehicle}
+          onSuspend={suspendVehicle}
+          onReinstate={reinstateVehicle}
           onDelete={deleteVehicle}
         />
 

@@ -21,7 +21,7 @@ export function useSupport() {
 
   useEffect(() => {
     supportService.getAgents()
-      .then((res) => setAgents(res.data.body))
+      .then((res) => setAgents(res.data.body ?? []))
       .catch(() => {});
   }, []);
 
@@ -55,8 +55,8 @@ export function useSupport() {
     supportService.getAll(page, PAGE_SIZE, { search, status, priority, agent, date })
       .then((res) => {
         const body = res.data.body;
-        setTickets(body.data);
-        setTotal(body.total);
+        setTickets(body?.data ?? []);
+        setTotal(body?.total ?? 0);
       })
       .catch((e) => setFetchError(e?.response?.data?.message ?? 'Erreur de chargement'))
       .finally(() => setLoading(false));

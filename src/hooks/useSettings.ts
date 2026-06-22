@@ -38,22 +38,22 @@ export function useSettings() {
 
   useEffect(() => {
     settingsService.getSummary()
-      .then((r) => setSummary(r.data.body))
+      .then((r) => setSummary(r.data.body ?? []))
       .catch(() => {})
       .finally(() => setSummaryLoading(false));
 
     settingsService.getGeneral()
-      .then((r) => setGeneral(r.data.body))
+      .then((r) => setGeneral(r.data.body ?? null))
       .catch(() => {})
       .finally(() => setGeneralLoading(false));
 
     settingsService.getCommissions()
-      .then((r) => setCommissions(r.data.body))
+      .then((r) => setCommissions(r.data.body ?? []))
       .catch(() => {})
       .finally(() => setCommissionsLoading(false));
 
     settingsService.getPayments()
-      .then((r) => setProviders(r.data.body))
+      .then((r) => setProviders(r.data.body ?? []))
       .catch(() => {})
       .finally(() => setProvidersLoading(false));
 
@@ -63,12 +63,12 @@ export function useSettings() {
       .finally(() => setSecurityLoading(false));
 
     settingsService.getAdmins()
-      .then((r) => setAdmins(r.data.body))
+      .then((r) => setAdmins(r.data.body ?? []))
       .catch(() => {})
       .finally(() => setAdminsLoading(false));
 
     settingsService.getAnalytics()
-      .then((r) => setAnalytics(r.data.body))
+      .then((r) => setAnalytics(r.data.body ?? []))
       .catch(() => {})
       .finally(() => setAnalyticsLoading(false));
   }, []);
@@ -93,7 +93,7 @@ export function useSettings() {
     try {
       await settingsService.addAdmin(data);
       const r = await settingsService.getAdmins();
-      setAdmins(r.data.body);
+      setAdmins(r.data.body ?? []);
     } finally {
       setAdminSaving(false);
     }

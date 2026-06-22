@@ -14,6 +14,7 @@ import { SettingsScreen }      from '../screens/Settings/SettingsScreen';
 import { NotificationsScreen } from '../screens/Notifications/NotificationsScreen';
 import { ROUTES }              from '../navigation/routes';
 import { useAuth }             from '../hooks/useAuth';
+import { ErrorBoundary }       from '../components/Common/ErrorBoundary';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAuth();
@@ -32,18 +33,18 @@ export function App() {
     <Routes>
       <Route path={ROUTES.LOGIN} element={<PublicRoute><LoginScreen /></PublicRoute>} />
 
-      <Route path={ROUTES.DASHBOARD}     element={<ProtectedRoute><DashboardScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.USERS}         element={<ProtectedRoute><UsersScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.DRIVERS}       element={<ProtectedRoute><DriversScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.VEHICLES}      element={<ProtectedRoute><VehiclesScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.PASSENGERS}    element={<ProtectedRoute><PassengersScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.TRIPS}         element={<ProtectedRoute><TripsScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.RESERVATIONS}  element={<ProtectedRoute><ReservationsScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.PAYMENTS}      element={<ProtectedRoute><PaymentsScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.DISPUTES}      element={<ProtectedRoute><DisputesScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.SUPPORT}       element={<ProtectedRoute><SupportScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><NotificationsScreen /></ProtectedRoute>} />
-      <Route path={ROUTES.SETTINGS}      element={<ProtectedRoute><SettingsScreen /></ProtectedRoute>} />
+      <Route path={ROUTES.DASHBOARD}     element={<ProtectedRoute><ErrorBoundary><DashboardScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.USERS}         element={<ProtectedRoute><ErrorBoundary><UsersScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.DRIVERS}       element={<ProtectedRoute><ErrorBoundary><DriversScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.VEHICLES}      element={<ProtectedRoute><ErrorBoundary><VehiclesScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.PASSENGERS}    element={<ProtectedRoute><ErrorBoundary><PassengersScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.TRIPS}         element={<ProtectedRoute><ErrorBoundary><TripsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.RESERVATIONS}  element={<ProtectedRoute><ErrorBoundary><ReservationsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.PAYMENTS}      element={<ProtectedRoute><ErrorBoundary><PaymentsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.DISPUTES}      element={<ProtectedRoute><ErrorBoundary><DisputesScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.SUPPORT}       element={<ProtectedRoute><ErrorBoundary><SupportScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><ErrorBoundary><NotificationsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.SETTINGS}      element={<ProtectedRoute><ErrorBoundary><SettingsScreen /></ErrorBoundary></ProtectedRoute>} />
 
       <Route path="/"                element={<Navigate to={ROUTES.LOGIN} replace />} />
       <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.LOGIN} replace />} />

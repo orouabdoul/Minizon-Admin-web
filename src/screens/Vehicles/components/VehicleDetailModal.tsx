@@ -3,10 +3,12 @@ import {
   Truck, X, ZoomIn, ChevronLeft, ChevronRight,
   Phone, Hash, FileText, Car, Shield,
   Star, Navigation, ShieldOff, CheckCircle, ImageOff,
+  RotateCcw, Trash2, XCircle,
 } from 'lucide-react';
 import { DetailModal, DetailSection, DetailRow } from '../../../components/Overlay/DetailModal/DetailModal';
-import { Badge }   from '../../../components/DataDisplay/Badge/Badge';
-import { AppIcon } from '../../../components/Common/AppIcon';
+import { Badge }          from '../../../components/DataDisplay/Badge/Badge';
+import { ConfirmDialog }  from '../../../components/Overlay/ConfirmDialog/ConfirmDialog';
+import { AppIcon }        from '../../../components/Common/AppIcon';
 import type { Vehicle, VehicleStatus, VehicleDocStatus } from '../../../models/vehicle.model';
 import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
 
@@ -198,7 +200,65 @@ function DocumentCard({
       </div>
       <div style={{ padding: '6px 10px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6 }}>
         <span style={{ fontSize: 11, color: '#374151', fontWeight: 500 }}>{label}</span>
-        <Badge label={DOC_LABEL[status]} variant={DOC_VARIANT[status]} />
+        <Badge label={DOC_LABEL[status] ?? status} variant={DOC_VARIANT[status] ?? 'neutral'} />
+      </div>
+    </div>
+  );
+}
+
+// ── Reason form (inline) ───────────────────────────────────────────────────────
+
+function ReasonForm({
+  label, placeholder, loading,
+  onConfirm, onCancel, confirmColor = '#E53935',
+}: {
+  label: string; placeholder: string; loading: boolean;
+  onConfirm: (reason: string) => void; onCancel: () => void;
+  confirmColor?: string;
+}) {
+  const [text, setText] = useState('');
+  return (
+    <div style={{
+      marginTop: 12, padding: 14, background: '#FEF2F2', borderRadius: 10,
+      border: '1px solid #FECACA',
+    }}>
+      <p style={{ fontSize: 12, fontWeight: 600, color: '#991B1B', marginBottom: 8 }}>{label}</p>
+      <textarea
+        value={text}
+        onChange={e => setText(e.target.value)}
+        placeholder={placeholder}
+        rows={3}
+        style={{
+          width: '100%', padding: '8px 10px', fontSize: 12,
+          border: '1px solid #FCA5A5', borderRadius: 8, resize: 'none',
+          fontFamily: 'inherit', outline: 'none', boxSizing: 'border-box',
+        }}
+      />
+      <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={loading}
+          style={{
+            flex: 1, height: 34, borderRadius: 7,
+            border: '1px solid #D1D5DB', background: '#fff',
+            fontSize: 12, fontWeight: 600, color: '#374151', cursor: 'pointer',
+          }}
+        >
+          Annuler
+        </button>
+        <button
+          type="button"
+          disabled={!text.trim() || loading}
+          onClick={() => onConfirm(text.trim())}
+          style={{
+            flex: 1, height: 34, borderRadius: 7,
+            border: 'none', background: text.trim() ? confirmColor : '#D1D5DB',
+            fontSize: 12, fontWeight: 600, color: '#fff', cursor: text.trim() ? 'pointer' : 'not-allowed',
+          }}
+        >
+          {loading ? 'En cours…' : 'Confirmer'}
+        </button>
       </div>
     </div>
   );
@@ -207,27 +267,30 @@ function DocumentCard({
 // ── Main Modal ─────────────────────────────────────────────────────────────────
 
 interface Props {
-  vehicle:    Vehicle;
-  onClose:    () => void;
-  onSuspend:  (id: string) => void;
-  onActivate: (id: string) => void;
+  vehicle:     Vehicle;
+  onClose:     () => void;
+  onApprove:   (id: string) => Promise<void>;
+  onReject:    (id: string, reason: string) => Promise<void>;
+  onSuspend:   (id: string, reason: string) => Promise<void>;
+  onReinstate: (id: string) => Promise<void>;
+  onDelete:    (id: string) => Promise<void>;
 }
 
-export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate }: Props) {
-  const [lightbox, setLightbox] = useState<{ images: LightboxEntry[]; index: number } | null>(null);
-
-  const canSuspend  = v.status === 'Actif';
-  const canActivate = v.status === 'Suspendu' || v.status === 'Rejeté';
+export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, onSuspend, onReinstate, onDelete }: Props) {
+  const [lightbox,       setLightbox]       = useState<{ images: LightboxEntry[]; index: number } | null>(null);
+  const [reasonAction,   setReasonAction]   = useState<'suspend' | 'reject' | null>(null);
+  const [deleteConfirm,  setDeleteConfirm]  = useState(false);
+  const [actionLoading,  setActionLoading]  = useState(false);
 
   const allDocsOk = v.documents.carteGrise === 'ok' &&
                     v.documents.assurance   === 'ok' &&
-                    v.documents.visite      === 'ok';
+                    (v.type === 'Moto' || v.documents.visite === 'ok');
 
   const allImages: LightboxEntry[] = [
-    v.vehiclePhoto && { url: v.vehiclePhoto, label: 'Photo du véhicule' },
-    v.documents.carteGriseUrl && { url: v.documents.carteGriseUrl, label: 'Carte grise' },
+    v.vehiclePhoto            && { url: v.vehiclePhoto,            label: 'Photo du véhicule'  },
+    v.documents.carteGriseUrl && { url: v.documents.carteGriseUrl, label: 'Carte grise'        },
     v.documents.assuranceUrl  && { url: v.documents.assuranceUrl,  label: 'Assurance véhicule' },
-    v.documents.visiteUrl     && { url: v.documents.visiteUrl,     label: 'Visite technique' },
+    v.documents.visiteUrl     && { url: v.documents.visiteUrl,     label: 'Visite technique'   },
   ].filter(Boolean) as LightboxEntry[];
 
   const openLightbox = useCallback((url: string, label: string) => {
@@ -235,6 +298,17 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
     if (idx >= 0) setLightbox({ images: allImages, index: idx });
     else setLightbox({ images: [{ url, label }], index: 0 });
   }, [allImages]);
+
+  const run = useCallback(async (fn: () => Promise<void>) => {
+    setActionLoading(true);
+    try { await fn(); } finally { setActionLoading(false); }
+  }, []);
+
+  // Action availability
+  const canApprove   = v.status === 'En inspection' || v.status === 'Suspendu' || v.status === 'Rejeté';
+  const canSuspend   = v.status === 'Actif';
+  const canReject    = v.status === 'Actif' || v.status === 'En inspection';
+  const canReinstate = v.status === 'Suspendu' || v.status === 'Rejeté';
 
   return (
     <>
@@ -246,6 +320,17 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
           onNav={i => setLightbox(lb => lb ? { ...lb, index: i } : null)}
         />
       )}
+
+      <ConfirmDialog
+        isOpen={deleteConfirm}
+        onClose={() => setDeleteConfirm(false)}
+        onConfirm={() => run(() => onDelete(v.id))}
+        title="Supprimer le véhicule ?"
+        message="Cette action est irréversible. Le véhicule sera définitivement supprimé."
+        confirmLabel="Supprimer"
+        variant="danger"
+        loading={actionLoading}
+      />
 
       <DetailModal title="Détail Véhicule" onClose={onClose} accentColor="#7C3AED">
 
@@ -262,7 +347,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
             <p className="detail-hero__name">{v.make} {v.model} {v.year}</p>
             <p className="detail-hero__sub">{v.plate} · {v.type} · {v.color}</p>
             <div className="detail-hero__badge">
-              <Badge label={v.status} variant={STATUS_VARIANT[v.status]} />
+              <Badge label={v.status} variant={STATUS_VARIANT[v.status] ?? 'neutral'} />
               {allDocsOk && (
                 <span style={{ marginLeft: 8, fontSize: 11, color: '#00A86B', fontWeight: 600 }}>
                   ✓ Documents valides
@@ -278,13 +363,11 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
             Cliquez sur une image pour l'agrandir · ← → pour naviguer
           </p>
 
-          {/* Vehicle photo full-width */}
           <VehiclePhotoCard
             url={v.vehiclePhoto}
             onOpen={url => openLightbox(url, 'Photo du véhicule')}
           />
 
-          {/* Documents — motos : 2 docs (carte grise + assurance), autres : 3 avec visite technique */}
           <div style={{
             display: 'grid',
             gridTemplateColumns: v.type === 'Moto' ? '1fr 1fr' : '1fr 1fr 1fr',
@@ -314,6 +397,17 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
               />
             )}
           </div>
+
+          {/* Rejection reason */}
+          {v.rejectionReason && (
+            <div style={{
+              marginTop: 10, padding: '10px 12px', background: '#FEF2F2',
+              borderRadius: 8, border: '1px solid #FECACA',
+            }}>
+              <p style={{ fontSize: 11, fontWeight: 700, color: '#991B1B', marginBottom: 3 }}>Motif de rejet</p>
+              <p style={{ fontSize: 12, color: '#B91C1C' }}>{v.rejectionReason}</p>
+            </div>
+          )}
         </DetailSection>
 
         {/* Informations véhicule */}
@@ -389,40 +483,114 @@ export function VehicleDetailModal({ vehicle: v, onClose, onSuspend, onActivate 
         </DetailSection>
 
         {/* Actions */}
-        {(canSuspend || canActivate) && (
-          <div style={{ display: 'flex', gap: 10, marginTop: 8, borderTop: '1px solid #F3F4F6', paddingTop: 16 }}>
-            {canSuspend && (
+        <div style={{ borderTop: '1px solid #F3F4F6', paddingTop: 16, marginTop: 8 }}>
+
+          {/* Inline reason form */}
+          {reasonAction === 'suspend' && (
+            <ReasonForm
+              label="Motif de suspension"
+              placeholder="Ex : Contrôle technique expiré, véhicule non conforme…"
+              loading={actionLoading}
+              confirmColor="#F59E0B"
+              onCancel={() => setReasonAction(null)}
+              onConfirm={(reason) => run(async () => { await onSuspend(v.id, reason); setReasonAction(null); })}
+            />
+          )}
+          {reasonAction === 'reject' && (
+            <ReasonForm
+              label="Motif de rejet"
+              placeholder="Ex : Documents d'assurance expirés, plaque non lisible…"
+              loading={actionLoading}
+              confirmColor="#E53935"
+              onCancel={() => setReasonAction(null)}
+              onConfirm={(reason) => run(async () => { await onReject(v.id, reason); setReasonAction(null); })}
+            />
+          )}
+
+          {/* Action buttons */}
+          {!reasonAction && (
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+              {canApprove && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => run(() => onApprove(v.id))}
+                  style={{
+                    flex: 1, minWidth: 130, height: 38, borderRadius: 8,
+                    border: 'none', background: '#00A86B', color: '#fff',
+                    fontWeight: 600, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  <AppIcon icon={CheckCircle} size={14} color="#fff" />
+                  Approuver
+                </button>
+              )}
+              {canReinstate && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => run(() => onReinstate(v.id))}
+                  style={{
+                    flex: 1, minWidth: 130, height: 38, borderRadius: 8,
+                    border: '1.5px solid #7C3AED', background: '#fff', color: '#7C3AED',
+                    fontWeight: 600, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  <AppIcon icon={RotateCcw} size={14} color="#7C3AED" />
+                  Remettre en attente
+                </button>
+              )}
+              {canSuspend && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => setReasonAction('suspend')}
+                  style={{
+                    flex: 1, minWidth: 130, height: 38, borderRadius: 8,
+                    border: '1.5px solid #F59E0B', background: '#fff', color: '#D97706',
+                    fontWeight: 600, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  <AppIcon icon={ShieldOff} size={14} color="#D97706" />
+                  Suspendre
+                </button>
+              )}
+              {canReject && (
+                <button
+                  type="button"
+                  disabled={actionLoading}
+                  onClick={() => setReasonAction('reject')}
+                  style={{
+                    flex: 1, minWidth: 130, height: 38, borderRadius: 8,
+                    border: '1.5px solid #E53935', background: '#fff', color: '#E53935',
+                    fontWeight: 600, fontSize: 12, cursor: 'pointer',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  }}
+                >
+                  <AppIcon icon={XCircle} size={14} color="#E53935" />
+                  Rejeter
+                </button>
+              )}
               <button
                 type="button"
-                onClick={() => { onSuspend(v.id); onClose(); }}
+                disabled={actionLoading}
+                onClick={() => setDeleteConfirm(true)}
                 style={{
-                  flex: 1, height: 40, borderRadius: 8,
-                  border: '1.5px solid #E53935', background: '#fff', color: '#E53935',
-                  fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
+                  height: 38, width: 38, borderRadius: 8,
+                  border: '1.5px solid #E5E7EB', background: '#fff', color: '#6B7280',
+                  cursor: 'pointer',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
                 }}
+                title="Supprimer le véhicule"
               >
-                <AppIcon icon={ShieldOff} size={14} color="#E53935" />
-                Suspendre le véhicule
+                <AppIcon icon={Trash2} size={15} color="#9CA3AF" />
               </button>
-            )}
-            {canActivate && (
-              <button
-                type="button"
-                onClick={() => { onActivate(v.id); onClose(); }}
-                style={{
-                  flex: 1, height: 40, borderRadius: 8,
-                  border: 'none', background: '#00A86B', color: '#fff',
-                  fontWeight: 600, fontSize: 13, cursor: 'pointer',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
-                }}
-              >
-                <AppIcon icon={CheckCircle} size={14} color="#fff" />
-                Réactiver le véhicule
-              </button>
-            )}
-          </div>
-        )}
+            </div>
+          )}
+        </div>
 
       </DetailModal>
     </>

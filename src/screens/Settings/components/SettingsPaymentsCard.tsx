@@ -18,7 +18,7 @@ export function SettingsPaymentsCard({ providers, loading }: Props) {
         id: `skel-${i}`, name: '…', status: 'En test',
         responseTime: '…', transactions: '…', failRate: '…',
       }))
-    : providers;
+    : (providers ?? []);
 
   return (
     <div className="settings-card">

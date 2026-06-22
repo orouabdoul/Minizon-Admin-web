@@ -21,7 +21,7 @@ const PLACEHOLDER: SettingsSummaryItem[] = Array.from({ length: 4 }, (_, i) => (
 }));
 
 export function SettingsSummary({ items, loading }: Props) {
-  const display = loading || items.length === 0 ? PLACEHOLDER : items;
+  const display = loading || !items?.length ? PLACEHOLDER : items;
 
   return (
     <div className="settings-summary">

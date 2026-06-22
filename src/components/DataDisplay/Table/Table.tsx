@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 
 interface ChildrenProps { children: ReactNode; }
 interface ThProps       { children: ReactNode; width?: string; }
-interface TdProps       { children: ReactNode; colSpan?: number; }
+interface TdProps       { children?: ReactNode; colSpan?: number; }
 interface TrProps       { children: ReactNode; onClick?: () => void; className?: string; }
 
 export function Table({ children }: ChildrenProps) {
