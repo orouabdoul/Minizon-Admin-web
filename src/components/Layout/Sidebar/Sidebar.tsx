@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Users, Car, Truck, UserCheck, Navigation,
   Calendar, CreditCard, AlertCircle, HeadphonesIcon,
-  Bell, Settings, LogOut, Building2, X,
+  Bell, Settings, LogOut, Building2, X, MapPin,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -30,6 +30,7 @@ const NAV_ICONS: Record<NavItemId, LucideIcon> = {
   support:       HeadphonesIcon,
   notifications: Bell,
   settings:      Settings,
+  tracking:      MapPin,
 };
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {

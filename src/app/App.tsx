@@ -12,6 +12,7 @@ import { DisputesScreen }      from '../screens/Disputes/DisputesScreen';
 import { SupportScreen }       from '../screens/Support/SupportScreen';
 import { SettingsScreen }      from '../screens/Settings/SettingsScreen';
 import { NotificationsScreen } from '../screens/Notifications/NotificationsScreen';
+import { TrackingScreen }      from '../screens/Tracking/TrackingScreen';
 import { ROUTES }              from '../navigation/routes';
 import { useAuth }             from '../hooks/useAuth';
 import { ErrorBoundary }       from '../components/Common/ErrorBoundary';
@@ -45,6 +46,7 @@ export function App() {
       <Route path={ROUTES.SUPPORT}       element={<ProtectedRoute><ErrorBoundary><SupportScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><ErrorBoundary><NotificationsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.SETTINGS}      element={<ProtectedRoute><ErrorBoundary><SettingsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.TRACKING}      element={<ProtectedRoute><ErrorBoundary><TrackingScreen /></ErrorBoundary></ProtectedRoute>} />
 
       <Route path="/"                element={<Navigate to={ROUTES.LOGIN} replace />} />
       <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.LOGIN} replace />} />

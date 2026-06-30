@@ -12,6 +12,7 @@ export const ROUTES = {
   SUPPORT:       '/support',
   NOTIFICATIONS: '/notifications',
   SETTINGS:      '/settings',
+  TRACKING:      '/tracking',
   NOT_FOUND:     '*',
 } as const;
 
