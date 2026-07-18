@@ -1,4 +1,4 @@
-const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? 'http://localhost:3000/api';
+const apiUrl = (import.meta.env.VITE_API_URL as string | undefined) ?? 'https://minizon-api-iubm.onrender.com/api';
 const baseUrl = apiUrl.replace(/\/api$/, '');   // https://minizon-api.onrender.com
 
 export const env = {
