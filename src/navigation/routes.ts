@@ -13,6 +13,12 @@ export const ROUTES = {
   NOTIFICATIONS: '/notifications',
   SETTINGS:      '/settings',
   TRACKING:      '/tracking',
+  MESSAGING:     '/messaging',
+  AUDIT:         '/audit',
+  REPORTS:       '/reports',
+  PRICING:       '/pricing',
+  PAYOUTS:       '/payouts',
+  REVIEWS:       '/reviews',
   NOT_FOUND:     '*',
 } as const;
 

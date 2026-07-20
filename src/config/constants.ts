@@ -37,7 +37,8 @@ export const ADMIN_USER = {
 export type NavItemId =
   | 'dashboard' | 'users' | 'drivers' | 'vehicles' | 'passengers' | 'trips'
   | 'reservations' | 'payments' | 'disputes' | 'support'
-  | 'notifications' | 'settings' | 'tracking';
+  | 'notifications' | 'settings' | 'tracking' | 'messaging'
+  | 'audit' | 'reports' | 'pricing' | 'payouts' | 'reviews';
 
 export interface NavItem {
   id:    NavItemId;
@@ -58,7 +59,13 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'support',       label: 'Support',        path: '/support' },
   { id: 'notifications', label: 'Notifications',  path: '/notifications' },
   { id: 'settings',      label: 'Paramètres',     path: '/settings' },
-  { id: 'tracking',      label: 'Suivi Temps Réel', path: '/tracking' },
+  { id: 'tracking',      label: 'Suivi Temps Réel',  path: '/tracking'   },
+  { id: 'messaging',     label: 'Communication',     path: '/messaging'  },
+  { id: 'audit',         label: "Journal d'Audit",   path: '/audit'      },
+  { id: 'reports',       label: 'Rapports',           path: '/reports'    },
+  { id: 'pricing',       label: 'Tarifs & Promos',   path: '/pricing'    },
+  { id: 'payouts',       label: 'Virements',          path: '/payouts'    },
+  { id: 'reviews',       label: 'Évaluations',        path: '/reviews'    },
 ];
 
 // ── Dashboard KPI cards ──────────────────────────────────

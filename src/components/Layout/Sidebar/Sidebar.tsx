@@ -2,7 +2,8 @@ import { useState } from 'react';
 import {
   LayoutDashboard, Users, Car, Truck, UserCheck, Navigation,
   Calendar, CreditCard, AlertCircle, HeadphonesIcon,
-  Bell, Settings, LogOut, Building2, X, MapPin,
+  Bell, Settings, LogOut, Building2, X, MapPin, MessageSquare,
+  Shield, BarChart2, Tag, Banknote, Star,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -31,6 +32,12 @@ const NAV_ICONS: Record<NavItemId, LucideIcon> = {
   notifications: Bell,
   settings:      Settings,
   tracking:      MapPin,
+  messaging:     MessageSquare,
+  audit:         Shield,
+  reports:       BarChart2,
+  pricing:       Tag,
+  payouts:       Banknote,
+  reviews:       Star,
 };
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {

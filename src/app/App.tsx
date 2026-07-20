@@ -13,6 +13,12 @@ import { SupportScreen }       from '../screens/Support/SupportScreen';
 import { SettingsScreen }      from '../screens/Settings/SettingsScreen';
 import { NotificationsScreen } from '../screens/Notifications/NotificationsScreen';
 import { TrackingScreen }      from '../screens/Tracking/TrackingScreen';
+import { MessagingScreen }     from '../screens/Messaging/MessagingScreen';
+import { AuditScreen }         from '../screens/Audit/AuditScreen';
+import { ReportsScreen }       from '../screens/Reports/ReportsScreen';
+import { PricingScreen }       from '../screens/Pricing/PricingScreen';
+import { PayoutsScreen }       from '../screens/Payouts/PayoutsScreen';
+import { ReviewsScreen }       from '../screens/Reviews/ReviewsScreen';
 import { ROUTES }              from '../navigation/routes';
 import { useAuth }             from '../hooks/useAuth';
 import { ErrorBoundary }       from '../components/Common/ErrorBoundary';
@@ -47,6 +53,12 @@ export function App() {
       <Route path={ROUTES.NOTIFICATIONS} element={<ProtectedRoute><ErrorBoundary><NotificationsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.SETTINGS}      element={<ProtectedRoute><ErrorBoundary><SettingsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.TRACKING}      element={<ProtectedRoute><ErrorBoundary><TrackingScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.MESSAGING}     element={<ProtectedRoute><ErrorBoundary><MessagingScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.AUDIT}         element={<ProtectedRoute><ErrorBoundary><AuditScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.REPORTS}       element={<ProtectedRoute><ErrorBoundary><ReportsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.PRICING}       element={<ProtectedRoute><ErrorBoundary><PricingScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.PAYOUTS}       element={<ProtectedRoute><ErrorBoundary><PayoutsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.REVIEWS}       element={<ProtectedRoute><ErrorBoundary><ReviewsScreen /></ErrorBoundary></ProtectedRoute>} />
 
       <Route path="/"                element={<Navigate to={ROUTES.LOGIN} replace />} />
       <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.LOGIN} replace />} />

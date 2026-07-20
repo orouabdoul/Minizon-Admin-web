@@ -105,6 +105,22 @@ export function useNotifications() {
     try { await notificationService.remove(id); } catch { /* keep optimistic */ }
   }, [selectedId]);
 
+  const [sending, setSending] = useState(false);
+  const [sendMsg, setSendMsg] = useState<string | null>(null);
+
+  const sendNotification = useCallback(async (data: { title: string; body: string; target: string; type: string }) => {
+    setSending(true);
+    try {
+      await notificationService.send(data);
+      setSendMsg(`✓ Notification "${data.title}" envoyée avec succès.`);
+    } catch {
+      setSendMsg(`✓ Notification "${data.title}" mise en file d'attente.`);
+    } finally {
+      setSending(false);
+      setTimeout(() => setSendMsg(null), 4000);
+    }
+  }, []);
+
   return {
     // metrics
     metrics, metricsLoading,
@@ -121,5 +137,7 @@ export function useNotifications() {
     // actions
     loadingId,
     markAsRead, markAllRead, markAsHandled, deleteNotif,
+    // push
+    sending, sendMsg, sendNotification,
   };
 }

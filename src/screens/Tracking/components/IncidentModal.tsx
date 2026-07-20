@@ -22,6 +22,7 @@ export function IncidentModal({ trip, isOpen, initialType, onClose, onSubmit }: 
   const [notes,    setNotes]    = useState('');
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (isOpen) { setSelected(initialType ?? null); setNotes(''); }
   }, [isOpen, initialType]);
 

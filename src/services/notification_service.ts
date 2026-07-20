@@ -23,4 +23,7 @@ export const notificationService = {
 
   remove: (uuid: string) =>
     api.delete(`/admin/notifications/${uuid}`),
+
+  send: (data: { title: string; body: string; target: string; type: string }) =>
+    api.post('/admin/notifications/push', data),
 };
