@@ -19,6 +19,7 @@ import { ReportsScreen }       from '../screens/Reports/ReportsScreen';
 import { PricingScreen }       from '../screens/Pricing/PricingScreen';
 import { PayoutsScreen }       from '../screens/Payouts/PayoutsScreen';
 import { ReviewsScreen }       from '../screens/Reviews/ReviewsScreen';
+import { RefundsScreen }       from '../screens/Refunds/RefundsScreen';
 import { ROUTES }              from '../navigation/routes';
 import { useAuth }             from '../hooks/useAuth';
 import { ErrorBoundary }       from '../components/Common/ErrorBoundary';
@@ -59,6 +60,7 @@ export function App() {
       <Route path={ROUTES.PRICING}       element={<ProtectedRoute><ErrorBoundary><PricingScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.PAYOUTS}       element={<ProtectedRoute><ErrorBoundary><PayoutsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.REVIEWS}       element={<ProtectedRoute><ErrorBoundary><ReviewsScreen /></ErrorBoundary></ProtectedRoute>} />
+      <Route path={ROUTES.REFUNDS}       element={<ProtectedRoute><ErrorBoundary><RefundsScreen /></ErrorBoundary></ProtectedRoute>} />
 
       <Route path="/"                element={<Navigate to={ROUTES.LOGIN} replace />} />
       <Route path={ROUTES.NOT_FOUND} element={<Navigate to={ROUTES.LOGIN} replace />} />

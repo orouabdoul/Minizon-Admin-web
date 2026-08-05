@@ -24,7 +24,7 @@ export function useDrivers() {
     try {
       const { data } = await driverService.getAll(page, PAGE_SIZE, status, q);
       // API returns: { success, message, body: { data: [...], total, per_page, ... } }
-      const body = (data as Record<string, unknown>).body as {
+      const body = (data as unknown as Record<string, unknown>).body as {
         data: unknown[];
         total: number;
       };
@@ -95,7 +95,7 @@ export function useDrivers() {
     setDetailLoading(true);
     try {
       const { data } = await driverService.getById(id);
-      const body = ((data as Record<string, unknown>).body ?? data) as Parameters<typeof mapApiDriverToDriver>[0];
+      const body = ((data as unknown as Record<string, unknown>).body ?? data) as Parameters<typeof mapApiDriverToDriver>[0];
       console.log('[Driver getById] raw body:', JSON.stringify(body, null, 2));
       const detail = mapApiDriverToDriver(body);
       console.log('[Driver getById] mapped urls:', {

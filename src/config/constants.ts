@@ -38,7 +38,7 @@ export type NavItemId =
   | 'dashboard' | 'users' | 'drivers' | 'vehicles' | 'passengers' | 'trips'
   | 'reservations' | 'payments' | 'disputes' | 'support'
   | 'notifications' | 'settings' | 'tracking' | 'messaging'
-  | 'audit' | 'reports' | 'pricing' | 'payouts' | 'reviews';
+  | 'audit' | 'reports' | 'pricing' | 'payouts' | 'reviews' | 'refunds';
 
 export interface NavItem {
   id:    NavItemId;
@@ -66,6 +66,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'pricing',       label: 'Tarifs & Promos',   path: '/pricing'    },
   { id: 'payouts',       label: 'Virements',          path: '/payouts'    },
   { id: 'reviews',       label: 'Évaluations',        path: '/reviews'    },
+  { id: 'refunds',       label: 'Remboursements',     path: '/refunds'    },
 ];
 
 // ── Dashboard KPI cards ──────────────────────────────────
@@ -74,7 +75,7 @@ export interface KpiCardData {
   label:        string;
   value:        string;
   badge:        string;
-  badgeVariant: 'success' | 'error';
+  badgeVariant: 'success' | 'error' | 'warning' | 'neutral';
   iconBg:       string;
   iconColor:    string;
   iconId:       string;
@@ -157,7 +158,7 @@ export const MOCK_DRIVERS: Driver[] = [
     phone: '+229 97 45 67 89', email: 'kofi@email.com',
     vehicle: 'Toyota Corolla', plate: 'BJ-1234-AB',
     avatar: 'https://placehold.co/40x40',
-    documents: { permis: 'ok', carteGrise: 'ok', assurance: 'pending' },
+    documents: { permis: 'ok', carteGrise: 'ok', assurance: 'pending', tvmDoc: 'pending', technicalControl: 'pending' },
     score: 85, status: 'En attente',
   },
   {
@@ -165,7 +166,7 @@ export const MOCK_DRIVERS: Driver[] = [
     phone: '+229 96 78 90 12', email: 'adjoa@email.com',
     vehicle: 'Honda Civic', plate: 'BJ-5678-CD',
     avatar: 'https://placehold.co/40x40',
-    documents: { permis: 'ok', carteGrise: 'ok', assurance: 'ok' },
+    documents: { permis: 'ok', carteGrise: 'ok', assurance: 'ok', tvmDoc: 'ok', technicalControl: 'ok' },
     score: 95, status: 'Vérifié',
   },
   {
@@ -173,7 +174,7 @@ export const MOCK_DRIVERS: Driver[] = [
     phone: '+229 95 12 34 56', email: 'jb.hounkpe@email.com',
     vehicle: 'Renault Logan', plate: 'BJ-9012-EF',
     avatar: 'https://placehold.co/40x40',
-    documents: { permis: 'ok', carteGrise: 'pending', assurance: 'pending' },
+    documents: { permis: 'ok', carteGrise: 'pending', assurance: 'pending', tvmDoc: 'pending', technicalControl: 'pending' },
     score: 60, status: 'En attente',
   },
 ];
@@ -434,43 +435,6 @@ export const PAYMENT_METHOD_OPTIONS = [
   { value: 'Cash',            label: 'Cash'                },
 ] as const;
 
-// ── Payments page — mock payments ────────────────────────
-import type { Payment } from '../models/payment.model';
-
-export const MOCK_PAYMENTS: Payment[] = [
-  {
-    id: '1', transactionId: 'TXN-2024-0012', reservationId: 'RES-2024-001',
-    passengerName: 'Marie Dupont',    passengerAvatar: 'https://placehold.co/40x40',
-    driverName: 'Jean Martin',        driverAvatar: 'https://placehold.co/40x40',
-    amount: '45,000 FCFA', method: 'Mobile Money',
-    date: '15 Jan 2024', time: '12:32', createdAgo: 'Il y a 2h',
-    status: 'Succès', reference: 'MM-BJ-8472', fee: '900 FCFA', net: '44,100 FCFA',
-  },
-  {
-    id: '2', transactionId: 'TXN-2024-0011', reservationId: 'RES-2024-002',
-    passengerName: 'Pierre Moreau',   passengerAvatar: 'https://placehold.co/40x40',
-    driverName: 'Sophie Bernard',     driverAvatar: 'https://placehold.co/40x40',
-    amount: '32,500 FCFA', method: 'Carte bancaire',
-    date: '16 Jan 2024', time: '09:17', createdAgo: 'Il y a 4h',
-    status: 'En attente', reference: 'CB-BJ-8471', fee: '650 FCFA', net: '31,850 FCFA',
-  },
-  {
-    id: '3', transactionId: 'TXN-2024-0010', reservationId: 'RES-2024-003',
-    passengerName: 'Fatou Sow',       passengerAvatar: 'https://placehold.co/40x40',
-    driverName: 'Koffi Mensah',       driverAvatar: 'https://placehold.co/40x40',
-    amount: '75,000 FCFA', method: 'Mobile Money',
-    date: '14 Jan 2024', time: '07:02', createdAgo: 'Il y a 1j',
-    status: 'Succès', reference: 'MM-BJ-8470', fee: '1,500 FCFA', net: '73,500 FCFA',
-  },
-  {
-    id: '4', transactionId: 'TXN-2024-0009', reservationId: 'RES-2024-004',
-    passengerName: 'Aminata Diallo',  passengerAvatar: 'https://placehold.co/40x40',
-    driverName: 'Adjovi Sèna',        driverAvatar: 'https://placehold.co/40x40',
-    amount: '18,000 FCFA', method: 'Virement',
-    date: '13 Jan 2024', time: '15:45', createdAgo: 'Il y a 2j',
-    status: 'Remboursé', reference: 'VIR-BJ-8469', fee: '360 FCFA', net: '17,640 FCFA',
-  },
-];
 
 // ── Disputes page — KPI data ─────────────────────────────
 export interface DisputeKpiData {

@@ -155,7 +155,7 @@ export function useUsers() {
         avatar:   basic.avatar,
         selfies:  basic.selfies,
         idCard:   basic.idCard,
-        documents: { permis: 'pending', carteGrise: 'pending', assurance: 'pending' },
+        documents: { permis: 'pending', carteGrise: 'pending', assurance: 'pending', tvmDoc: 'pending', technicalControl: 'pending' },
         score:    0,
         status:   verificationToDriverStatus(basic.verification),
       });
@@ -166,7 +166,7 @@ export function useUsers() {
     try {
       const { data } = await platformUserService.getById(id);
       // Handle various API wrapping patterns: body, body.user, body.data
-      const rawBody = ((data as Record<string, unknown>).body ?? data) as Record<string, unknown>;
+      const rawBody = ((data as unknown as Record<string, unknown>).body ?? data) as Record<string, unknown>;
       const body = (rawBody.user ?? rawBody.data ?? rawBody) as ApiPlatformUser;
       console.log('[User getById] raw body:', JSON.stringify(body, null, 2));
       const detail = mapApiPlatformUser(body);
@@ -186,7 +186,7 @@ export function useUsers() {
     if (basic?.type === 'Conducteur') {
       try {
         const { data: dData } = await driverService.getById(id);
-        const dBody = ((dData as Record<string, unknown>).body ?? dData) as Parameters<typeof mapApiDriverToDriver>[0];
+        const dBody = ((dData as unknown as Record<string, unknown>).body ?? dData) as Parameters<typeof mapApiDriverToDriver>[0];
         setSelectedDriver(mapApiDriverToDriver(dBody));
       } catch {
         // Keep the minimal driver shape already shown — do NOT reset to null

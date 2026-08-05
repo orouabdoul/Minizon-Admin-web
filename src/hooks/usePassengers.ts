@@ -118,7 +118,7 @@ export function usePassengers() {
     try {
       const { data } = await passengerService.getById(id);
       // Unwrap body: may be direct object or nested under a key
-      const raw = ((data as Record<string, unknown>).body ?? data) as Record<string, unknown>;
+      const raw = ((data as unknown as Record<string, unknown>).body ?? data) as Record<string, unknown>;
       const body = ((raw.passenger ?? raw.user ?? raw.data) ?? raw) as ApiPassenger;
       console.log('[Passenger getById] raw body:', JSON.stringify(body, null, 2));
       const detail = mapApiPassenger(body);

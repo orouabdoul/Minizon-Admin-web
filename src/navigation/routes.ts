@@ -19,6 +19,7 @@ export const ROUTES = {
   PRICING:       '/pricing',
   PAYOUTS:       '/payouts',
   REVIEWS:       '/reviews',
+  REFUNDS:       '/refunds',
   NOT_FOUND:     '*',
 } as const;
 

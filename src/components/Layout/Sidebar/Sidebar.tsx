@@ -3,7 +3,7 @@ import {
   LayoutDashboard, Users, Car, Truck, UserCheck, Navigation,
   Calendar, CreditCard, AlertCircle, HeadphonesIcon,
   Bell, Settings, LogOut, Building2, X, MapPin, MessageSquare,
-  Shield, BarChart2, Tag, Banknote, Star,
+  Shield, BarChart2, Tag, Banknote, Star, RotateCcw,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
@@ -38,6 +38,7 @@ const NAV_ICONS: Record<NavItemId, LucideIcon> = {
   pricing:       Tag,
   payouts:       Banknote,
   reviews:       Star,
+  refunds:       RotateCcw,
 };
 
 export function Sidebar({ isOpen, onClose }: SidebarProps) {
