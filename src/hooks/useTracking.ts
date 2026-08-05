@@ -4,6 +4,16 @@ import type { TrackedTrip, TrackingStats, IncidentType } from '../models/trackin
 
 const POLL_MS = 15_000;
 
+// The API returns incident.uuid — normalize to incident.id
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeTrip(raw: any): TrackedTrip {
+  if (!raw.incident) return raw as TrackedTrip;
+  return {
+    ...raw,
+    incident: { ...raw.incident, id: raw.incident.uuid ?? raw.incident.id ?? '' },
+  } as TrackedTrip;
+}
+
 // ── Realistic mock data (Bénin / West Africa) ────────────────────────────────
 const MOCK_TRIPS: TrackedTrip[] = [
   {
@@ -67,6 +77,8 @@ export function useTracking() {
   const [trips,      setTrips]      = useState<TrackedTrip[]>([]);
   const [stats,      setStats]      = useState<TrackingStats | null>(null);
   const [loading,    setLoading]    = useState(true);
+  const [error,      setError]      = useState<string | null>(null);
+  const [usingMock,  setUsingMock]  = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [filter,     setFilter]     = useState<'all' | 'actif' | 'incident'>('all');
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -74,21 +86,32 @@ export function useTracking() {
   const loadTrips = useCallback(async () => {
     try {
       const [tripsRes, statsRes] = await Promise.all([
-        trackingService.getActiveTrips(),
+        trackingService.getActiveTrips(filter !== 'all' ? filter : undefined),
         trackingService.getStats(),
       ]);
-      if (tripsRes.data.body) setTrips(tripsRes.data.body);
-      if (statsRes.data.body) setStats(statsRes.data.body);
-    } catch {
-      // Fallback to mock data if API is not ready
+
+      const rawTrips = tripsRes.data.body?.trips;
+      if (Array.isArray(rawTrips)) {
+        setTrips(rawTrips.map(normalizeTrip));
+        setUsingMock(false);
+        setError(null);
+      }
+
+      if (statsRes.data.body) {
+        setStats(statsRes.data.body);
+      }
+    } catch (err) {
       setTrips(MOCK_TRIPS);
       setStats(MOCK_STATS);
+      setUsingMock(true);
+      setError(err instanceof Error ? err.message : 'API indisponible — données de démo');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [filter]);
 
   useEffect(() => {
+    setLoading(true);
     loadTrips();
     pollRef.current = setInterval(loadTrips, POLL_MS);
     return () => { if (pollRef.current) clearInterval(pollRef.current); };
@@ -97,10 +120,16 @@ export function useTracking() {
   const reportIncident = useCallback(async (
     tripId: string, type: IncidentType, notes: string,
   ) => {
-    // Optimistic update
     setTrips((prev) => prev.map((t) =>
       t.id === tripId
-        ? { ...t, status: 'incident' as const, incident: { id: `inc-${Date.now()}`, type, notes, reportedAt: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }), resolved: false } }
+        ? {
+            ...t, status: 'incident' as const,
+            incident: {
+              id: `inc-${Date.now()}`, type, notes,
+              reportedAt: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+              resolved: false,
+            },
+          }
         : t,
     ));
     setStats((s) => s ? { ...s, incidents: s.incidents + 1, activeTrips: Math.max(0, s.activeTrips - 1) } : s);
@@ -112,7 +141,6 @@ export function useTracking() {
   const resolveIncident = useCallback(async (tripId: string) => {
     const trip = trips.find((t) => t.id === tripId);
     if (!trip?.incident) return;
-    // Optimistic update
     setTrips((prev) => prev.map((t) =>
       t.id === tripId
         ? { ...t, status: 'actif' as const, incident: t.incident ? { ...t.incident, resolved: true } : undefined }
@@ -120,7 +148,7 @@ export function useTracking() {
     ));
     setStats((s) => s ? { ...s, incidents: Math.max(0, s.incidents - 1), activeTrips: s.activeTrips + 1 } : s);
     try {
-      await trackingService.resolveIncident(tripId, trip.incident.id);
+      await trackingService.resolveIncident(tripId);
     } catch { /* keep optimistic */ }
   }, [trips]);
 
@@ -135,6 +163,8 @@ export function useTracking() {
     allTrips: trips,
     stats,
     loading,
+    error,
+    usingMock,
     selectedId,
     setSelectedId,
     filter,

@@ -89,9 +89,43 @@ export function useSupport() {
     try {
       await supportService.resolve(id);
       setTickets((prev) => prev.map((t) => t.id === id ? { ...t, status: 'Résolu' as const } : t));
+      setSelectedTicket((prev) => prev?.id === id ? { ...prev, status: 'Résolu' as const } : prev);
     } catch { /* server error */ }
     finally { setLoadingId(null); }
   }, []);
+
+  // ── Ticket detail ─────────────────────────────────────
+  const [selectedTicketId, setSelectedTicketIdRaw] = useState<string | null>(null);
+  const [selectedTicket,   setSelectedTicket]       = useState<SupportTicket | null>(null);
+  const [detailLoading,    setDetailLoading]        = useState(false);
+
+  const setSelectedTicketId = useCallback(async (id: string | null) => {
+    setSelectedTicketIdRaw(id);
+    if (!id) { setSelectedTicket(null); return; }
+
+    // Show list data immediately while fetching full detail
+    const basic = tickets.find((t) => t.id === id) ?? null;
+    setSelectedTicket(basic);
+    setDetailLoading(true);
+    try {
+      const { data } = await supportService.getById(id);
+      if (data.body) setSelectedTicket(data.body);
+    } catch {
+      // keep basic data
+    } finally {
+      setDetailLoading(false);
+    }
+  }, [tickets]);
+
+  // ── Remove ticket ─────────────────────────────────────
+  const removeTicket = useCallback(async (id: string) => {
+    setTickets((prev) => prev.filter((t) => t.id !== id));
+    setTotal((n) => Math.max(0, n - 1));
+    if (selectedTicketId === id) { setSelectedTicketIdRaw(null); setSelectedTicket(null); }
+    try {
+      await supportService.remove(id);
+    } catch { /* keep optimistic */ }
+  }, [selectedTicketId]);
 
   // ── Create ticket ─────────────────────────────────────
   const [showNewTicket, setShowNewTicket] = useState(false);
@@ -133,6 +167,11 @@ export function useSupport() {
     applyFilters, resetFilters,
     // resolve
     loadingId, resolve,
+    // detail
+    selectedTicketId, setSelectedTicketId,
+    selectedTicket, detailLoading,
+    // remove
+    removeTicket,
     // create
     showNewTicket, setShowNewTicket,
     creating, createError, createTicket,

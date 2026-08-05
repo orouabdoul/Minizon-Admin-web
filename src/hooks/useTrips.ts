@@ -1,9 +1,25 @@
 import { useState, useCallback, useEffect } from 'react';
 import { tripService }       from '../services/trip_service';
 import { mapApiTripToTrip }  from '../models/trip.model';
-import type { Trip, TripMetrics } from '../models/trip.model';
+import type { Trip, TripMetrics, TripStatus } from '../models/trip.model';
+import type { ApiTripStatus } from '../services/trip_service';
 
 const PAGE_SIZE = 15;
+
+const OPT_STATUS: Record<ApiTripStatus, TripStatus> = {
+  pending:   'Actif',
+  active:    'Actif',
+  completed: 'Terminé',
+  cancelled: 'Annulé',
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractList(body: any): any[] {
+  if (Array.isArray(body?.data))  return body.data;
+  if (Array.isArray(body?.trips)) return body.trips;
+  if (Array.isArray(body))        return body;
+  return [];
+}
 
 export function useTrips() {
   const [trips,        setTrips]       = useState<Trip[]>([]);
@@ -47,9 +63,9 @@ export function useTrips() {
         date:        date              ? date   : undefined,
       });
       const body = data.body;
-      const list = Array.isArray(body?.data) ? body.data : [];
+      const list = extractList(body);
       setTrips(list.map(mapApiTripToTrip));
-      setTotal(body?.total ?? 0);
+      setTotal(body?.total ?? list.length);
     } catch {
       setFetchError('Impossible de charger les trajets.');
       setTrips([]);
@@ -86,7 +102,8 @@ export function useTrips() {
     setDetailLoading(true);
     try {
       const { data } = await tripService.getById(id);
-      const body = (data.body ?? data) as Parameters<typeof mapApiTripToTrip>[0];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const body = (data.body ?? data) as any;
       setDetailTrip(mapApiTripToTrip(body));
     } catch {
       // keep basic list data
@@ -94,6 +111,27 @@ export function useTrips() {
       setDetailLoading(false);
     }
   }, [trips]);
+
+  // ── Update status ──────────────────────────────────────────────────────────
+  const updateStatus = useCallback(async (id: string, apiStatus: ApiTripStatus) => {
+    const optimistic = OPT_STATUS[apiStatus];
+    setTrips((prev) => prev.map((t) => t.id === id ? { ...t, status: optimistic } : t));
+    setDetailTrip((prev) => prev && prev.id === id ? { ...prev, status: optimistic } : prev);
+    try {
+      await tripService.updateStatus(id, apiStatus);
+    } catch {
+      fetchTrips(currentPage, departureFilter, destinationFilter, statusFilter, dateFilter);
+    }
+  }, [fetchTrips, currentPage, departureFilter, destinationFilter, statusFilter, dateFilter]);
+
+  // ── Remove ─────────────────────────────────────────────────────────────────
+  // NOT optimistic — backend rejects deletion of active trips (HTTP 403)
+  const removeTrip = useCallback(async (id: string): Promise<void> => {
+    await tripService.remove(id);  // throws on 403 / other errors
+    setTrips((prev) => prev.filter((t) => t.id !== id));
+    setTotal((n) => Math.max(0, n - 1));
+    if (selectedId === id) { setSelectedIdState(null); setDetailTrip(null); }
+  }, [selectedId]);
 
   return {
     trips,
@@ -115,5 +153,7 @@ export function useTrips() {
     setSelectedId,
     selectedTrip:  detailTrip,
     detailLoading,
+    updateStatus,
+    removeTrip,
   };
 }

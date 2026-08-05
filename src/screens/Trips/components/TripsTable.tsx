@@ -1,4 +1,4 @@
-import { Eye, Download, Columns } from 'lucide-react';
+import { Eye, Download, Columns, Trash2 } from 'lucide-react';
 import { AppIcon }         from '../../../components/Common/AppIcon';
 import { Badge }           from '../../../components/DataDisplay/Badge/Badge';
 import {
@@ -7,19 +7,22 @@ import {
 import { TripDetailModal } from './TripDetailModal';
 import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
 import type { Trip, TripStatus } from '../../../models/trip.model';
+import type { ApiTripStatus }    from '../../../services/trip_service';
 
 interface TripsTableProps {
-  trips:         Trip[];
-  total:         number;
-  pageSize:      number;
-  currentPage:   number;
-  loading:       boolean;
-  fetchError:    string | null;
-  onView:        (id: string) => void;
-  onCloseDetail: () => void;
-  selectedTrip:  Trip | null;
+  trips:          Trip[];
+  total:          number;
+  pageSize:       number;
+  currentPage:    number;
+  loading:        boolean;
+  fetchError:     string | null;
+  onView:         (id: string) => void;
+  onCloseDetail:  () => void;
+  selectedTrip:   Trip | null;
   detailLoading?: boolean;
-  onPageChange:  (p: number) => void;
+  onPageChange:   (p: number) => void;
+  onUpdateStatus: (id: string, status: ApiTripStatus) => void;
+  onDelete:       (id: string) => void;
 }
 
 function statusVariant(s: TripStatus): BadgeVariant {
@@ -63,12 +66,17 @@ function Pagination({
 
 export function TripsTable({
   trips, total, pageSize, currentPage, loading, fetchError,
-  onView, onCloseDetail, selectedTrip, detailLoading, onPageChange,
+  onView, onCloseDetail, selectedTrip, detailLoading, onPageChange, onUpdateStatus, onDelete,
 }: TripsTableProps) {
   return (
     <>
       {selectedTrip && (
-        <TripDetailModal trip={selectedTrip} detailLoading={detailLoading} onClose={onCloseDetail} />
+        <TripDetailModal
+          trip={selectedTrip}
+          detailLoading={detailLoading}
+          onClose={onCloseDetail}
+          onUpdateStatus={onUpdateStatus}
+        />
       )}
 
       <div className="trips-table-card">
@@ -99,7 +107,7 @@ export function TripsTable({
               <Th width="130px">Passagers</Th>
               <Th width="130px">Revenus</Th>
               <Th width="90px">Statut</Th>
-              <Th width="80px">Actions</Th>
+              <Th width="100px">Actions</Th>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -182,6 +190,9 @@ export function TripsTable({
                     <div className="trip-actions">
                       <button type="button" className="trip-action-btn" title="Voir" onClick={() => onView(t.id)}>
                         <AppIcon icon={Eye} size={18} color="#4B5563" />
+                      </button>
+                      <button type="button" className="trip-action-btn" title="Supprimer" onClick={() => onDelete(t.id)}>
+                        <AppIcon icon={Trash2} size={16} color="#E53935" />
                       </button>
                     </div>
                   </Td>

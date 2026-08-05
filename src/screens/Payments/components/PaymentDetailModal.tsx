@@ -1,4 +1,4 @@
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Loader, Zap } from 'lucide-react';
 import { AppIcon }   from '../../../components/Common/AppIcon';
 import { DetailModal, DetailSection, DetailRow, DetailTimeline } from '../../../components/Overlay/DetailModal/DetailModal';
 import { Badge }     from '../../../components/DataDisplay/Badge/Badge';
@@ -14,15 +14,21 @@ const STATUS_VARIANT: Record<PaymentTxStatus, BadgeVariant> = {
 };
 
 interface Props {
-  payment:      Payment;
-  onClose:      () => void;
-  onRefund:     (id: string) => void;
-  loadingId:    string | null;
+  payment:        Payment;
+  onClose:        () => void;
+  onRefund:       (id: string) => void;
+  onSyncOne:      (id: string) => void;
+  loadingId:      string | null;
   detailLoading?: boolean;
+  syncOneLoading: boolean;
 }
 
-export function PaymentDetailModal({ payment: p, onClose, onRefund, loadingId, detailLoading }: Props) {
-  const busy = loadingId === p.id;
+export function PaymentDetailModal({
+  payment: p, onClose, onRefund, onSyncOne,
+  loadingId, detailLoading, syncOneLoading,
+}: Props) {
+  const busy        = loadingId === p.id;
+  const isPending   = p.status === 'En attente';
 
   return (
     <DetailModal title="Détail Transaction" onClose={onClose} accentColor="#2563EB">
@@ -34,8 +40,30 @@ export function PaymentDetailModal({ payment: p, onClose, onRefund, loadingId, d
       <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)', borderRadius: 12, justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 28, fontWeight: 700, color: '#111827' }}>{p.amount}</span>
         <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'monospace' }}>{p.paymentId}</span>
-        <div style={{ marginTop: 4, display: 'flex', gap: 8, alignItems: 'center' }}>
+        <div style={{ marginTop: 4, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
           <Badge label={p.status} variant={STATUS_VARIANT[p.status]} />
+
+          {/* Vérifier chez FedaPay — visible uniquement si En attente */}
+          {isPending && (
+            <button
+              type="button"
+              disabled={syncOneLoading}
+              onClick={() => onSyncOne(p.id)}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: 6,
+                padding: '4px 12px', border: '1px solid #2563EB',
+                borderRadius: 6, background: syncOneLoading ? '#F9FAFB' : '#EFF6FF',
+                color: '#2563EB', fontSize: 12, fontWeight: 600,
+                cursor: syncOneLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
+              }}
+            >
+              {syncOneLoading
+                ? <AppIcon icon={Loader} size={12} color="#2563EB" />
+                : <AppIcon icon={Zap} size={12} color="#2563EB" />}
+              {syncOneLoading ? 'Vérification…' : 'Vérifier chez FedaPay'}
+            </button>
+          )}
+
           {p.canRefund && (
             <button
               type="button"
@@ -54,6 +82,13 @@ export function PaymentDetailModal({ payment: p, onClose, onRefund, loadingId, d
             </button>
           )}
         </div>
+
+        {/* FedaPay raw status — show if available and different from display status */}
+        {p.fedapayStatus && (
+          <div style={{ fontSize: 11, color: '#6B7280', marginTop: 2 }}>
+            Statut FedaPay : <span style={{ fontFamily: 'monospace', color: '#374151' }}>{p.fedapayStatus}</span>
+          </div>
+        )}
       </div>
 
       {/* Route */}

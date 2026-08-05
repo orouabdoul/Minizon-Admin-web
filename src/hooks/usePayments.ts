@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { paymentService }               from '../services/payment_service';
 import { mapApiPaymentToPayment }        from '../models/payment.model';
-import type { Payment, PaymentMetrics }  from '../models/payment.model';
+import type { Payment, PaymentMetrics, SyncAllResult } from '../models/payment.model';
 
 const PAGE_SIZE = 15;
 
@@ -23,7 +23,6 @@ export function usePayments() {
   const [methodFilter,  setMethodFilter]  = useState('');
   const [dateFilter,    setDateFilter]    = useState('');
 
-  // ── Pending filters (applied on click) ───────────────
   const [appliedSearch,  setAppliedSearch]  = useState('');
   const [appliedStatus,  setAppliedStatus]  = useState('');
   const [appliedMethod,  setAppliedMethod]  = useState('');
@@ -96,12 +95,58 @@ export function usePayments() {
     try {
       await paymentService.refund(id);
       setPayments((prev) => prev.map((p) => p.id === id ? { ...p, canRefund: false, status: 'Remboursé' } : p));
-      if (selectedPayment?.id === id) {
-        setSelectedPayment((prev) => prev ? { ...prev, canRefund: false, status: 'Remboursé' } : prev);
-      }
-    } catch { /* server message will be visible in snackbar if implemented */ }
+      setSelectedPayment((prev) => prev?.id === id ? { ...prev, canRefund: false, status: 'Remboursé' } : prev);
+    } catch { /* server message visible via fetchError */ }
     finally { setLoadingId(null); }
-  }, [selectedPayment]);
+  }, []);
+
+  // ── Sync all (global FedaPay sync) ───────────────────
+  const [syncAllLoading, setSyncAllLoading] = useState(false);
+  const [syncAllResult,  setSyncAllResult]  = useState<SyncAllResult | null>(null);
+  const [syncAllError,   setSyncAllError]   = useState<string | null>(null);
+
+  const syncAll = useCallback(async () => {
+    setSyncAllLoading(true);
+    setSyncAllResult(null);
+    setSyncAllError(null);
+    try {
+      const res = await paymentService.syncAll();
+      setSyncAllResult(res.data.body);
+      // Reload the list to reflect updated statuses
+      fetchPayments(currentPage, appliedSearch, appliedStatus, appliedMethod, appliedDate);
+      // Also refresh metrics
+      paymentService.getMetrics().then((r) => setMetrics(r.data.body)).catch(() => {});
+    } catch (e) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setSyncAllError((e as any)?.response?.data?.message ?? 'Erreur lors de la synchronisation FedaPay.');
+    } finally {
+      setSyncAllLoading(false);
+    }
+  }, [fetchPayments, currentPage, appliedSearch, appliedStatus, appliedMethod, appliedDate]);
+
+  const dismissSyncResult = useCallback(() => {
+    setSyncAllResult(null);
+    setSyncAllError(null);
+  }, []);
+
+  // ── Sync one (single payment FedaPay check) ──────────
+  const [syncOneLoading, setSyncOneLoading] = useState(false);
+
+  const syncOne = useCallback(async (id: string) => {
+    setSyncOneLoading(true);
+    try {
+      const res = await paymentService.syncOne(id);
+      const updated = mapApiPaymentToPayment(res.data.body);
+      // Update list row
+      setPayments((prev) => prev.map((p) => p.id === id ? updated : p));
+      // Update modal
+      setSelectedPayment(updated);
+    } catch {
+      // Error displayed via syncOneError if needed; silently keep current state
+    } finally {
+      setSyncOneLoading(false);
+    }
+  }, []);
 
   return {
     // metrics
@@ -119,5 +164,9 @@ export function usePayments() {
     setSelectedId, selectedPayment, detailLoading,
     // refund
     loadingId, refund,
+    // sync all
+    syncAll, syncAllLoading, syncAllResult, syncAllError, dismissSyncResult,
+    // sync one
+    syncOne, syncOneLoading,
   };
 }

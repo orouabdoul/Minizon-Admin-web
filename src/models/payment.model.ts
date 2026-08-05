@@ -9,6 +9,15 @@ export interface PaymentMetrics {
   commission: string;
 }
 
+// Result of POST /admin/payments/sync
+export interface SyncAllResult {
+  checked: number;
+  locked:  number;
+  failed:  number;
+  skipped: number;
+  errors:  number;
+}
+
 interface ApiTimelineEvent {
   label:  string;
   time:   string;
@@ -40,6 +49,8 @@ export interface ApiPayment {
   status:             string;
   canRefund:          boolean;
   timelineEvents?:    ApiTimelineEvent[];
+  // Returned by POST /admin/payments/{uuid}/sync
+  fedapay_status?:    string;
 }
 
 export interface Payment {
@@ -66,14 +77,23 @@ export interface Payment {
   status:            PaymentTxStatus;
   canRefund:         boolean;
   timelineEvents:    { label: string; time: string; done: boolean }[];
+  fedapayStatus?:    string;  // raw FedaPay status for info display
 }
 
+// Maps both French display values and backend enum values
 const STATUS_MAP: Record<string, PaymentTxStatus> = {
+  // French (API may already return display labels)
   'En attente': 'En attente',
   'Sécurisé':   'Sécurisé',
   'Libéré':     'Libéré',
   'Échoué':     'Échoué',
   'Remboursé':  'Remboursé',
+  // Backend enum values
+  pending:  'En attente',
+  locked:   'Sécurisé',
+  success:  'Libéré',
+  failed:   'Échoué',
+  refunded: 'Remboursé',
 };
 
 export function mapApiPaymentToPayment(d: ApiPayment): Payment {
@@ -105,5 +125,6 @@ export function mapApiPaymentToPayment(d: ApiPayment): Payment {
       time:  e.time,
       done:  e.done ?? e.status === 'done',
     })),
+    fedapayStatus: d.fedapay_status,
   };
 }

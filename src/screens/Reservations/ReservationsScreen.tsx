@@ -1,6 +1,8 @@
-import { Download, Bell, Ban } from 'lucide-react';
+import { useState } from 'react';
+import { Download, Bell, Ban, Trash2 } from 'lucide-react';
 import { AppIcon }             from '../../components/Common/AppIcon';
 import { DashboardLayout }     from '../../components/Layout/DashboardLayout/DashboardLayout';
+import { ConfirmDialog }       from '../../components/Overlay/ConfirmDialog/ConfirmDialog';
 import { ReservationsMetrics } from './components/ReservationsMetrics';
 import { ReservationsFilters } from './components/ReservationsFilters';
 import { ReservationsTable }   from './components/ReservationsTable';
@@ -18,7 +20,21 @@ export function ReservationsScreen() {
     dateFilter,    setDateFilter,
     applyFilters,  resetFilters,
     setSelectedId, selectedReservation, detailLoading,
+    updateStatus,  removeReservation,
   } = useReservations();
+
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+
+  const handleDeleteRequest = (id: string) => {
+    // Close detail modal first, then confirm
+    setSelectedId(null);
+    setDeleteTarget(id);
+  };
+
+  const handleDeleteConfirm = () => {
+    if (deleteTarget) removeReservation(deleteTarget);
+    setDeleteTarget(null);
+  };
 
   return (
     <DashboardLayout title="Gestion des Réservations">
@@ -52,6 +68,8 @@ export function ReservationsScreen() {
           onCloseDetail={() => setSelectedId(null)}
           selectedReservation={selectedReservation}
           detailLoading={detailLoading}
+          onUpdateStatus={updateStatus}
+          onDelete={handleDeleteRequest}
         />
 
         <div className="reservations-action-bar">
@@ -71,6 +89,17 @@ export function ReservationsScreen() {
           </div>
           <span className="reservations-action-bar__info">Dernière mise à jour: à l'instant</span>
         </div>
+
+        <ConfirmDialog
+          isOpen={deleteTarget !== null}
+          onClose={() => setDeleteTarget(null)}
+          onConfirm={handleDeleteConfirm}
+          title="Supprimer la réservation"
+          message="Cette action est irréversible. La réservation sera définitivement supprimée."
+          confirmLabel="Supprimer"
+          variant="danger"
+          icon={Trash2}
+        />
       </div>
     </DashboardLayout>
   );

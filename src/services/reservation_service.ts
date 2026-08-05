@@ -1,6 +1,6 @@
 import { api } from './api';
 import type { ApiBodyResponse } from '../models/api_response.model';
-import type { ApiReservation, ReservationMetrics } from '../models/reservation.model';
+import type { ApiReservation, ReservationMetrics, ApiReservationStatus } from '../models/reservation.model';
 
 interface ReservationsListBody {
   data:         ApiReservation[];
@@ -36,6 +36,9 @@ export const reservationService = {
   getById: (uuid: string) =>
     api.get<ApiBodyResponse<ApiReservation>>(`/admin/reservations/${uuid}`),
 
-  cancel: (id: string) =>
-    api.post<ApiBodyResponse<ApiReservation>>(`/admin/reservations/${id}/cancel`),
+  updateStatus: (uuid: string, status: ApiReservationStatus) =>
+    api.put<ApiBodyResponse<ApiReservation>>(`/admin/reservations/${uuid}`, { status }),
+
+  remove: (uuid: string) =>
+    api.delete<ApiBodyResponse<null>>(`/admin/reservations/${uuid}`),
 };

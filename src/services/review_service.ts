@@ -1,9 +1,25 @@
 import { api } from './api';
-import type { ReviewStatus } from '../models/review.model';
+import type { ApiBodyResponse } from '../models/api_response.model';
+import type { Review, ReviewStats, ReviewStatus } from '../models/review.model';
+
+interface ReviewListParams {
+  search?:    string;
+  status?:    string;
+  direction?: string;
+  rating?:    string;
+  per_page?:  number;
+}
 
 export const reviewService = {
-  getAll:    (params?: { status?: ReviewStatus; direction?: string; search?: string }) =>
-               api.get('/admin/reviews', { params }),
-  setStatus: (id: string, status: ReviewStatus) => api.patch(`/admin/reviews/${id}`, { status }),
-  remove:    (id: string)                        => api.delete(`/admin/reviews/${id}`),
+  getStats: () =>
+    api.get<ApiBodyResponse<ReviewStats>>('/admin/reviews/stats'),
+
+  getAll: (params?: ReviewListParams) =>
+    api.get<ApiBodyResponse<Review[]>>('/admin/reviews', { params }),
+
+  setStatus: (uuid: string, status: ReviewStatus) =>
+    api.patch<ApiBodyResponse<null>>(`/admin/reviews/${uuid}/status`, { status }),
+
+  remove: (uuid: string) =>
+    api.delete<ApiBodyResponse<null>>(`/admin/reviews/${uuid}`),
 };

@@ -1,9 +1,17 @@
 import { useState, useCallback, useEffect } from 'react';
 import { reservationService }            from '../services/reservation_service';
 import { mapApiReservationToReservation } from '../models/reservation.model';
-import type { Reservation, ReservationMetrics } from '../models/reservation.model';
+import type { Reservation, ReservationMetrics, ReservationStatus, ApiReservationStatus } from '../models/reservation.model';
 
 const PAGE_SIZE = 10;
+
+// Optimistic status mapping: API value → display value
+const OPT_STATUS: Record<ApiReservationStatus, ReservationStatus> = {
+  pending:   'En attente',
+  accepted:  'Confirmée',
+  rejected:  'Annulée',
+  cancelled: 'Annulée',
+};
 
 export function useReservations() {
   const [reservations, setReservations] = useState<Reservation[]>([]);
@@ -21,9 +29,9 @@ export function useReservations() {
   const [dateFilter,    setDateFilter]    = useState('');
   const [currentPage,   setCurrentPage]  = useState(1);
 
-  const [selectedId,    setSelectedIdState] = useState<string | null>(null);
-  const [detailReservation, setDetailReservation] = useState<Reservation | null>(null);
-  const [detailLoading, setDetailLoading]   = useState(false);
+  const [selectedId,         setSelectedIdState]    = useState<string | null>(null);
+  const [detailReservation,  setDetailReservation]  = useState<Reservation | null>(null);
+  const [detailLoading,      setDetailLoading]      = useState(false);
 
   // ── Metrics ────────────────────────────────────────────────────────────────
   useEffect(() => {
@@ -98,6 +106,29 @@ export function useReservations() {
     }
   }, [reservations]);
 
+  // ── Update status ──────────────────────────────────────────────────────────
+  const updateStatus = useCallback(async (id: string, apiStatus: ApiReservationStatus) => {
+    const optimistic = OPT_STATUS[apiStatus];
+    setReservations((prev) => prev.map((r) => r.id === id ? { ...r, status: optimistic } : r));
+    setDetailReservation((prev) => prev && prev.id === id ? { ...prev, status: optimistic } : prev);
+    try {
+      await reservationService.updateStatus(id, apiStatus);
+    } catch {
+      // on error revert — trigger a list refresh instead
+      fetchReservations(currentPage, search, cityFilter, statusFilter, paymentFilter, dateFilter);
+    }
+  }, [fetchReservations, currentPage, search, cityFilter, statusFilter, paymentFilter, dateFilter]);
+
+  // ── Remove ─────────────────────────────────────────────────────────────────
+  const removeReservation = useCallback(async (id: string) => {
+    setReservations((prev) => prev.filter((r) => r.id !== id));
+    setTotal((t) => Math.max(0, t - 1));
+    if (selectedId === id) { setSelectedIdState(null); setDetailReservation(null); }
+    try {
+      await reservationService.remove(id);
+    } catch { /* keep optimistic */ }
+  }, [selectedId]);
+
   return {
     reservations,
     total,
@@ -119,5 +150,7 @@ export function useReservations() {
     setSelectedId,
     selectedReservation: detailReservation,
     detailLoading,
+    updateStatus,
+    removeReservation,
   };
 }

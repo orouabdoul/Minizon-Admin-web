@@ -1,4 +1,4 @@
-import { Eye, Star, Download } from 'lucide-react';
+import { Eye, Star, Download, Trash2 } from 'lucide-react';
 import { AppIcon }  from '../../../components/Common/AppIcon';
 import { Badge }    from '../../../components/DataDisplay/Badge/Badge';
 import {
@@ -6,7 +6,7 @@ import {
 } from '../../../components/DataDisplay/Table/Table';
 import { ReservationDetailModal } from './ReservationDetailModal';
 import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
-import type { Reservation, ReservationStatus, ReservationRisk, PaymentStatus } from '../../../models/reservation.model';
+import type { Reservation, ReservationStatus, ReservationRisk, PaymentStatus, ApiReservationStatus } from '../../../models/reservation.model';
 
 interface ReservationsTableProps {
   reservations:        Reservation[];
@@ -20,6 +20,8 @@ interface ReservationsTableProps {
   onCloseDetail:       () => void;
   selectedReservation: Reservation | null;
   detailLoading?:      boolean;
+  onUpdateStatus:      (id: string, status: ApiReservationStatus) => void;
+  onDelete:            (id: string) => void;
 }
 
 const STATUS_VARIANT: Record<ReservationStatus, BadgeVariant> = {
@@ -90,6 +92,7 @@ function Pagination({
 export function ReservationsTable({
   reservations, total, pageSize, currentPage, loading, fetchError,
   setCurrentPage, onView, onCloseDetail, selectedReservation, detailLoading,
+  onUpdateStatus, onDelete,
 }: ReservationsTableProps) {
   return (
     <>
@@ -98,6 +101,8 @@ export function ReservationsTable({
           reservation={selectedReservation}
           detailLoading={detailLoading}
           onClose={onCloseDetail}
+          onUpdateStatus={onUpdateStatus}
+          onDelete={onDelete}
         />
       )}
 
@@ -123,7 +128,7 @@ export function ReservationsTable({
               <Th width="140px">Montant</Th>
               <Th width="110px">Statut</Th>
               <Th width="90px">Risque</Th>
-              <Th width="80px">Actions</Th>
+              <Th width="100px">Actions</Th>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -204,7 +209,10 @@ export function ReservationsTable({
                   <Td>
                     <div className="trip-actions">
                       <button type="button" className="trip-action-btn" title="Voir" onClick={() => onView(r.id)}>
-                        <AppIcon icon={Eye} size={16} color="#9CA3AF" />
+                        <AppIcon icon={Eye} size={16} color="#4B5563" />
+                      </button>
+                      <button type="button" className="trip-action-btn" title="Supprimer" onClick={() => onDelete(r.id)}>
+                        <AppIcon icon={Trash2} size={15} color="#E53935" />
                       </button>
                     </div>
                   </Td>

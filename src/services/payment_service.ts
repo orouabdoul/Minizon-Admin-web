@@ -1,6 +1,6 @@
 import { api } from './api';
 import type { ApiBodyResponse } from '../models/api_response.model';
-import type { ApiPayment, PaymentMetrics } from '../models/payment.model';
+import type { ApiPayment, PaymentMetrics, SyncAllResult } from '../models/payment.model';
 
 interface PaymentsListBody {
   data:         ApiPayment[];
@@ -36,4 +36,12 @@ export const paymentService = {
 
   refund: (uuid: string) =>
     api.post<ApiBodyResponse<Record<string, never>>>(`/admin/payments/${uuid}/refund`),
+
+  // Global FedaPay sync — checks all pending payments
+  syncAll: () =>
+    api.post<ApiBodyResponse<SyncAllResult>>('/admin/payments/sync'),
+
+  // Single payment FedaPay sync
+  syncOne: (uuid: string) =>
+    api.post<ApiBodyResponse<ApiPayment & { fedapay_status?: string }>>(`/admin/payments/${uuid}/sync`),
 };

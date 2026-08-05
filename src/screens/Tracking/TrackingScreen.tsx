@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { Navigation, AlertTriangle, Car, TrendingUp } from 'lucide-react';
+import { Navigation, AlertTriangle, Car, TrendingUp, WifiOff } from 'lucide-react';
 import { DashboardLayout } from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }         from '../../components/Common/AppIcon';
 import { TrackingMap }     from './components/TrackingMap';
@@ -26,17 +26,32 @@ function StatCard({ label, value, color, bg, icon }: StatItem) {
   );
 }
 
+// ── Mock / API error banner ───────────────────────────────────────────────────
+
+function MockBanner({ message }: { message: string }) {
+  return (
+    <div style={{
+      display: 'flex', alignItems: 'center', gap: 8,
+      padding: '8px 14px', marginBottom: 12,
+      background: '#FEF9C3', border: '1px solid #FDE68A',
+      borderRadius: 9, fontSize: 12, color: '#92400E',
+    }}>
+      <AppIcon icon={WifiOff} size={14} color="#D97706" />
+      <span><strong>Mode démo</strong> — {message}</span>
+    </div>
+  );
+}
+
 // ── Screen ────────────────────────────────────────────────────────────────────
 
 export function TrackingScreen() {
   const {
-    trips, allTrips, stats, loading,
+    trips, allTrips, stats, loading, error, usingMock,
     selectedId, setSelectedId,
     filter, setFilter,
     reportIncident, resolveIncident, refresh,
   } = useTracking();
 
-  // Incident modal state
   const [incidentTrip, setIncidentTrip] = useState<TrackedTrip | null>(null);
   const [pendingType,  setPendingType]  = useState<IncidentType | null>(null);
 
@@ -60,6 +75,9 @@ export function TrackingScreen() {
 
   return (
     <DashboardLayout title="Suivi des Trajets en Temps Réel">
+
+      {/* API error / mock banner */}
+      {usingMock && error && <MockBanner message={error} />}
 
       {/* Stats bar */}
       <div className="tracking-stats-bar">
@@ -91,7 +109,6 @@ export function TrackingScreen() {
 
       {/* Map + list layout */}
       <div className="tracking-layout">
-        {/* Left: trip list */}
         <TripListPanel
           trips={trips}
           selectedId={selectedId}
@@ -104,7 +121,6 @@ export function TrackingScreen() {
           onRefresh={refresh}
         />
 
-        {/* Right: map */}
         <div className="tracking-map-wrap">
           <TrackingMap
             trips={allTrips}
@@ -114,16 +130,16 @@ export function TrackingScreen() {
             onResolve={resolveIncident}
           />
 
-          {/* Map legend */}
           <div className="tracking-legend">
             <span className="tracking-legend__item tracking-legend__item--actif">🟢 Actif</span>
             <span className="tracking-legend__item tracking-legend__item--panne">🔴 Incident</span>
-            <span style={{ fontSize: 11, color: '#9CA3AF' }}>Actualisé toutes les 15s</span>
+            <span style={{ fontSize: 11, color: '#9CA3AF' }}>
+              {usingMock ? '⚡ Démo' : 'Actualisé toutes les 15s'}
+            </span>
           </div>
         </div>
       </div>
 
-      {/* Incident modal */}
       <IncidentModal
         isOpen={incidentTrip !== null}
         trip={incidentTrip}

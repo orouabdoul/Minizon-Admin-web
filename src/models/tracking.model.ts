@@ -6,15 +6,15 @@ export interface TripPosition {
   lng:       number;
   heading?:  number;
   speed?:    number;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 export interface TripIncident {
-  id:         string;
-  type:       IncidentType;
-  notes:      string;
-  reportedAt: string;
-  resolved:   boolean;
+  id:          string;
+  type:        IncidentType;
+  notes:       string;
+  reportedAt?: string;
+  resolved:    boolean;
 }
 
 export interface TrackedTrip {
@@ -26,13 +26,17 @@ export interface TrackedTrip {
   passengerCount:    number;
   from:              string;
   to:                string;
-  fromCoords:        [number, number];
-  toCoords:          [number, number];
-  startedAt:         string;
+  fromCoords?:       [number, number];
+  toCoords?:         [number, number];
+  startedAt?:        string;
   estimatedArrival:  string;
   status:            TrackedStatus;
   position:          TripPosition;
   incident?:         TripIncident;
+}
+
+export interface TripListBody {
+  trips: TrackedTrip[];
 }
 
 export interface TrackingStats {

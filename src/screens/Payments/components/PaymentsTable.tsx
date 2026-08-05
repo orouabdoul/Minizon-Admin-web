@@ -1,10 +1,10 @@
-import { Eye, RefreshCw }  from 'lucide-react';
+import { Eye, RefreshCw, Zap, Loader }  from 'lucide-react';
 import { AppIcon }          from '../../../components/Common/AppIcon';
 import { Badge }            from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
 import { PaymentDetailModal } from './PaymentDetailModal';
 import type { BadgeVariant }  from '../../../components/DataDisplay/Badge/Badge';
-import type { Payment, PaymentTxStatus } from '../../../models/payment.model';
+import type { Payment, PaymentTxStatus, SyncAllResult } from '../../../models/payment.model';
 
 interface PaymentsTableProps {
   payments:        Payment[];
@@ -20,6 +20,14 @@ interface PaymentsTableProps {
   onView:          (id: string) => void;
   onCloseDetail:   () => void;
   selectedPayment: Payment | null;
+  // FedaPay sync
+  onSyncAll:       () => void;
+  syncAllLoading:  boolean;
+  syncAllResult:   SyncAllResult | null;
+  syncAllError:    string | null;
+  onDismissSync:   () => void;
+  onSyncOne:       (id: string) => void;
+  syncOneLoading:  boolean;
 }
 
 const STATUS_VARIANT: Record<PaymentTxStatus, BadgeVariant> = {
@@ -67,7 +75,15 @@ export function PaymentsTable({
   payments, total, pageSize, currentPage, setCurrentPage,
   loading, fetchError, loadingId, detailLoading,
   onRefund, onView, onCloseDetail, selectedPayment,
+  onSyncAll, syncAllLoading, syncAllResult, syncAllError, onDismissSync,
+  onSyncOne, syncOneLoading,
 }: PaymentsTableProps) {
+
+  // Build sync result banner message
+  const syncBannerMsg = syncAllResult
+    ? `${syncAllResult.locked + syncAllResult.failed} paiement(s) mis à jour — ${syncAllResult.locked} sécurisé(s), ${syncAllResult.failed} échoué(s). ${syncAllResult.skipped} encore en attente.${syncAllResult.errors > 0 ? ` ⚠️ ${syncAllResult.errors} erreur(s) FedaPay.` : ''}`
+    : null;
+
   return (
     <>
       {selectedPayment && (
@@ -77,6 +93,8 @@ export function PaymentsTable({
           detailLoading={detailLoading}
           onRefund={onRefund}
           loadingId={loadingId}
+          onSyncOne={onSyncOne}
+          syncOneLoading={syncOneLoading}
         />
       )}
 
@@ -86,7 +104,53 @@ export function PaymentsTable({
             <p className="payments-table-header__title">Toutes les Transactions</p>
             <p className="payments-table-header__count">{total.toLocaleString('fr-FR')} transactions</p>
           </div>
+
+          {/* FedaPay sync button */}
+          <button
+            type="button"
+            onClick={onSyncAll}
+            disabled={syncAllLoading}
+            style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '7px 14px', borderRadius: 8,
+              border: '1.5px solid #2563EB',
+              background: syncAllLoading ? '#F9FAFB' : '#EFF6FF',
+              color: syncAllLoading ? '#9CA3AF' : '#2563EB',
+              fontSize: 12, fontWeight: 700,
+              cursor: syncAllLoading ? 'default' : 'pointer',
+              transition: 'all 0.15s',
+            }}
+          >
+            {syncAllLoading
+              ? <AppIcon icon={Loader} size={13} color="#9CA3AF" />
+              : <AppIcon icon={Zap} size={13} color="#2563EB" />}
+            {syncAllLoading ? 'Synchronisation…' : 'Synchroniser avec FedaPay'}
+          </button>
         </div>
+
+        {/* Sync result / error banner */}
+        {(syncBannerMsg || syncAllError) && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 10,
+            padding: '10px 16px',
+            background:   syncAllError ? '#FEF2F2' : '#F0FDF4',
+            borderBottom: `1px solid ${syncAllError ? '#FCA5A5' : '#BBF7D0'}`,
+          }}>
+            <span style={{ fontSize: 13, color: syncAllError ? '#DC2626' : '#166534', flex: 1 }}>
+              {syncAllError ?? syncBannerMsg}
+              {syncAllResult?.errors && syncAllResult.errors > 0
+                ? <span style={{ marginLeft: 4, color: '#DC2626' }}>Certaines requêtes FedaPay ont échoué.</span>
+                : null}
+            </span>
+            <button
+              type="button"
+              onClick={onDismissSync}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6B7280', fontSize: 16, lineHeight: 1 }}
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         <Table>
           <TableHead>

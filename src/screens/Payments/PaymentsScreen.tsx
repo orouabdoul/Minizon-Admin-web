@@ -16,6 +16,9 @@ export function PaymentsScreen() {
     applyFilters, resetFilters,
     loadingId, refund,
     setSelectedId, selectedPayment, detailLoading,
+    // FedaPay sync
+    syncAll, syncAllLoading, syncAllResult, syncAllError, dismissSyncResult,
+    syncOne, syncOneLoading,
   } = usePayments();
 
   return (
@@ -41,6 +44,13 @@ export function PaymentsScreen() {
           onView={setSelectedId}
           onCloseDetail={() => setSelectedId(null)}
           selectedPayment={selectedPayment}
+          onSyncAll={syncAll}
+          syncAllLoading={syncAllLoading}
+          syncAllResult={syncAllResult}
+          syncAllError={syncAllError}
+          onDismissSync={dismissSyncResult}
+          onSyncOne={syncOne}
+          syncOneLoading={syncOneLoading}
         />
       </div>
     </DashboardLayout>

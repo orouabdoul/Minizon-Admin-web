@@ -1,5 +1,8 @@
 import { useState } from 'react';
-import { DollarSign, Download, CheckCircle, Clock, AlertCircle, RefreshCw, Loader } from 'lucide-react';
+import {
+  DollarSign, Download, CheckCircle, Clock, AlertCircle, RefreshCw,
+  Loader, WifiOff, Sparkles, AlertTriangle,
+} from 'lucide-react';
 import { DashboardLayout } from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }         from '../../components/Common/AppIcon';
 import { usePayouts }      from '../../hooks/usePayouts';
@@ -16,15 +19,12 @@ const STATUS_CONFIG: Record<PayoutStatus, { label: string; color: string; bg: st
 
 const METHODS: PayoutMethod[] = ['MTN Mobile Money', 'Moov Money', 'Virement bancaire'];
 
-function fmt(n: number) {
-  return n.toLocaleString('fr-FR') + ' FCFA';
-}
+function fmt(n: number) { return n.toLocaleString('fr-FR') + ' FCFA'; }
 
 // ── Process Modal ──────────────────────────────────────────────────────────────
 
 function ProcessModal({
-  name, netAmount, method: initMethod,
-  onClose, onConfirm,
+  name, netAmount, method: initMethod, onClose, onConfirm,
 }: { name: string; netAmount: number; method: PayoutMethod; onClose: () => void; onConfirm: (m: PayoutMethod) => void }) {
   const [method, setMethod] = useState<PayoutMethod>(initMethod);
   return (
@@ -40,7 +40,7 @@ function ProcessModal({
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{name}</div>
             <div style={{ fontSize: 20, fontWeight: 800, color: '#00A86B', marginTop: 4 }}>{fmt(netAmount)}</div>
           </div>
-          <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Méthode de paiement</span>
             {METHODS.map((m) => (
               <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: `2px solid ${method === m ? '#2563EB' : '#E5E7EB'}`, cursor: 'pointer', background: method === m ? '#EFF6FF' : '#fff' }}>
@@ -48,7 +48,7 @@ function ProcessModal({
                 <span style={{ fontSize: 13, fontWeight: 600, color: method === m ? '#2563EB' : '#374151' }}>{m}</span>
               </label>
             ))}
-          </label>
+          </div>
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Annuler</button>
@@ -63,28 +63,53 @@ function ProcessModal({
 
 export function PayoutsScreen() {
   const {
-    payouts, summary, loading, processing, exportMsg,
+    payouts, summary, loading, usingMock,
+    statusFilter, setStatusFilter,
+    processing, exportMsg,
     selected, toggleSelect, selectAll, clearSelection,
+    generating, generateMsg, generateError, generatePayouts,
     processPayout, markPaid, retryPayout, batchProcess, exportCsv,
+    refresh,
   } = usePayouts();
 
   const [modalFor, setModalFor] = useState<string | null>(null);
-  const [statusFilter, setStatusFilter] = useState<PayoutStatus | 'all'>('all');
 
-  const visible = statusFilter === 'all' ? payouts : payouts.filter((p) => p.status === statusFilter);
   const pendingCount = payouts.filter((p) => p.status === 'en_attente').length;
-  const modalItem = payouts.find((p) => p.id === modalFor);
+  const modalItem    = payouts.find((p) => p.id === modalFor);
 
   return (
     <DashboardLayout title="Virements Conducteurs">
 
+      {/* ── Mock banner ──────────────────────────────────────────────────────── */}
+      {usingMock && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>
+          <AppIcon icon={WifiOff} size={15} color="#D97706" />
+          <span style={{ fontSize: 13, color: '#92400E', flex: 1 }}>Mode démo — API indisponible, données simulées.</span>
+          <button type="button" onClick={refresh} style={{ fontSize: 12, fontWeight: 700, color: '#D97706', background: 'none', border: '1.5px solid #FDE68A', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>Réessayer</button>
+        </div>
+      )}
+
+      {/* ── Generate banner ───────────────────────────────────────────────────── */}
+      {generateMsg && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#F0FDF4', border: '1px solid #BBF7D0', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>
+          <AppIcon icon={CheckCircle} size={15} color="#16A34A" />
+          <span style={{ fontSize: 13, color: '#14532D' }}>{generateMsg}</span>
+        </div>
+      )}
+      {generateError && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#FEF2F2', border: '1px solid #FCA5A5', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>
+          <AppIcon icon={AlertTriangle} size={15} color="#DC2626" />
+          <span style={{ fontSize: 13, color: '#991B1B' }}>{generateError}</span>
+        </div>
+      )}
+
       {/* ── Summary cards ────────────────────────────────────────────────────── */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
         {[
-          { label: 'Montant à verser',    value: fmt(summary.totalPending), color: '#D97706', bg: '#FEF3C7', icon: Clock        },
-          { label: 'Virements en attente',value: String(summary.pendingAmount), color: '#D97706', bg: '#FEF3C7', icon: Clock    },
-          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),    color: '#00A86B', bg: '#DCFCE7', icon: CheckCircle  },
-          { label: 'Conducteurs actifs',   value: String(summary.totalDrivers), color: '#2563EB', bg: '#DBEAFE', icon: DollarSign },
+          { label: 'Montant à verser',     value: fmt(summary.totalPending),     color: '#D97706', bg: '#FEF3C7', icon: Clock        },
+          { label: 'Virements en attente', value: String(summary.pendingAmount), color: '#D97706', bg: '#FEF3C7', icon: Clock        },
+          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),        color: '#00A86B', bg: '#DCFCE7', icon: CheckCircle  },
+          { label: 'Conducteurs actifs',   value: String(summary.totalDrivers),  color: '#2563EB', bg: '#DBEAFE', icon: DollarSign   },
         ].map((k) => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6' }}>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -135,8 +160,26 @@ export function PayoutsScreen() {
             </button>
           )}
 
-          <button type="button" onClick={exportCsv} style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>
-            <AppIcon icon={Download} size={13} color="#374151" /> Export CSV
+          {/* Generate payout sheets */}
+          <button
+            type="button"
+            onClick={generatePayouts}
+            disabled={generating}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: generating ? '#F9FAFB' : '#fff', fontSize: 12, fontWeight: 600, color: generating ? '#9CA3AF' : '#374151', cursor: generating ? 'default' : 'pointer' }}
+          >
+            {generating
+              ? <AppIcon icon={Loader} size={13} color="#9CA3AF" />
+              : <AppIcon icon={Sparkles} size={13} color="#374151" />}
+            Générer les fiches
+          </button>
+
+          <button
+            type="button"
+            onClick={exportCsv}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#374151', cursor: 'pointer' }}
+          >
+            <AppIcon icon={Download} size={13} color="#374151" />
+            Export CSV
           </button>
         </div>
 
@@ -158,15 +201,17 @@ export function PayoutsScreen() {
 
         {loading ? (
           <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>Chargement…</div>
+        ) : payouts.length === 0 ? (
+          <div style={{ padding: '40px', textAlign: 'center', color: '#9CA3AF' }}>Aucun virement trouvé</div>
         ) : (
-          visible.map((p, i) => {
-            const sc = STATUS_CONFIG[p.status];
-            const isSelected = selected.has(p.id);
-            const isProcessing = processing === p.id;
+          payouts.map((p, i) => {
+            const sc          = STATUS_CONFIG[p.status];
+            const isSelected  = selected.has(p.id);
+            const isProcessing= processing === p.id;
             return (
               <div
                 key={p.id}
-                style={{ display: 'grid', gridTemplateColumns: '40px 200px 80px 130px 130px 120px 130px 140px', gap: 8, padding: '12px 16px', alignItems: 'center', borderBottom: i < visible.length - 1 ? '1px solid #F9FAFB' : 'none', background: isSelected ? '#EFF6FF' : (i % 2 === 0 ? '#fff' : '#FAFAFA') }}
+                style={{ display: 'grid', gridTemplateColumns: '40px 200px 80px 130px 130px 120px 130px 140px', gap: 8, padding: '12px 16px', alignItems: 'center', borderBottom: i < payouts.length - 1 ? '1px solid #F9FAFB' : 'none', background: isSelected ? '#EFF6FF' : (i % 2 === 0 ? '#fff' : '#FAFAFA') }}
               >
                 {/* Checkbox */}
                 <input
@@ -206,6 +251,7 @@ export function PayoutsScreen() {
                   <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 8px', borderRadius: 9999, color: sc.color, background: sc.bg, alignSelf: 'flex-start' }}>
                     {sc.label}
                   </span>
+
                   {p.status === 'en_attente' && (
                     <button
                       type="button"
@@ -217,6 +263,7 @@ export function PayoutsScreen() {
                       Verser
                     </button>
                   )}
+
                   {p.status === 'en_traitement' && (
                     <button
                       type="button"
@@ -226,6 +273,7 @@ export function PayoutsScreen() {
                       Confirmer payé
                     </button>
                   )}
+
                   {p.status === 'échoué' && (
                     <button
                       type="button"
@@ -235,6 +283,7 @@ export function PayoutsScreen() {
                       Réessayer
                     </button>
                   )}
+
                   {p.reference && (
                     <span style={{ fontSize: 10, color: '#9CA3AF', fontFamily: 'monospace' }}>{p.reference}</span>
                   )}

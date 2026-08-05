@@ -13,5 +13,12 @@ export interface Review {
   comment:      string;
   createdAt:    string;
   status:       ReviewStatus;
-  reportCount:  number;
+  reportCount?: number;
+}
+
+export interface ReviewStats {
+  total:     number;
+  avgRating: string;
+  signalé:   number;
+  masqué:    number;
 }

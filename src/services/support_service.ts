@@ -40,6 +40,9 @@ export const supportService = {
       },
     }),
 
+  getById: (uuid: string) =>
+    api.get<ApiBodyResponse<SupportTicket>>(`/admin/support/${uuid}`),
+
   getAgents: () =>
     api.get<ApiBodyResponse<SupportAgent[]>>('/admin/support/agents'),
 
@@ -48,4 +51,7 @@ export const supportService = {
 
   resolve: (uuid: string) =>
     api.post<ApiBodyResponse<Record<string, never>>>(`/admin/support/${uuid}/resolve`),
+
+  remove: (uuid: string) =>
+    api.delete<ApiBodyResponse<null>>(`/admin/support/${uuid}`),
 };

@@ -2,6 +2,9 @@ import { api } from './api';
 import type { ApiBodyResponse } from '../models/api_response.model';
 import type { ApiTrip, TripMetrics } from '../models/trip.model';
 
+// API status values accepted by PUT /admin/trips/{uuid}
+export type ApiTripStatus = 'pending' | 'active' | 'completed' | 'cancelled';
+
 interface TripsListBody {
   data:         ApiTrip[];
   total:        number;
@@ -33,4 +36,10 @@ export const tripService = {
 
   getById: (uuid: string) =>
     api.get<ApiBodyResponse<ApiTrip>>(`/admin/trips/${uuid}`),
+
+  updateStatus: (uuid: string, status: ApiTripStatus) =>
+    api.put<ApiBodyResponse<ApiTrip>>(`/admin/trips/${uuid}`, { status }),
+
+  remove: (uuid: string) =>
+    api.delete<ApiBodyResponse<null>>(`/admin/trips/${uuid}`),
 };

@@ -1,4 +1,4 @@
-import { Search, Eye, CheckSquare, MoreVertical, Smartphone, Phone, Mail, MessageCircle, HelpCircle } from 'lucide-react';
+import { Search, Eye, CheckSquare, Trash2, Smartphone, Phone, Mail, MessageCircle, HelpCircle } from 'lucide-react';
 import type { LucideIcon }  from 'lucide-react';
 import { AppIcon }          from '../../../components/Common/AppIcon';
 import { Badge }            from '../../../components/DataDisplay/Badge/Badge';
@@ -19,6 +19,8 @@ interface SupportTableProps {
   fetchError:    string | null;
   loadingId:     string | null;
   onResolve:     (id: string) => void;
+  onView:        (id: string) => void;
+  onDelete:      (id: string) => void;
 }
 
 const PRIORITY_VARIANT: Record<TicketPriority, BadgeVariant> = {
@@ -77,7 +79,7 @@ export function SupportTable({
   tickets, total, pageSize, currentPage, setCurrentPage,
   search, setSearch, applyFilters,
   loading, fetchError,
-  loadingId, onResolve,
+  loadingId, onResolve, onView, onDelete,
 }: SupportTableProps) {
   return (
     <div className="support-table-card">
@@ -110,7 +112,7 @@ export function SupportTable({
             <Th width="90px">Statut</Th>
             <Th width="120px">Agent</Th>
             <Th width="80px">Temps</Th>
-            <Th width="100px">Actions</Th>
+            <Th width="110px">Actions</Th>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -130,7 +132,7 @@ export function SupportTable({
             tickets.map((t) => {
               const busy   = loadingId === t.id;
               const isOpen = t.status === 'Nouveau' || t.status === 'En cours';
-              const ChannelIcon = CHANNEL_ICON[t.channel] ?? HelpCircle;
+              const ChannelIcon  = CHANNEL_ICON[t.channel]  ?? HelpCircle;
               const channelColor = CHANNEL_COLOR[t.channel] ?? '#6B7280';
               return (
                 <TableRow key={t.id}>
@@ -183,7 +185,7 @@ export function SupportTable({
                   </Td>
                   <Td>
                     <div className="trip-actions">
-                      <button type="button" className="trip-action-btn" title="Voir">
+                      <button type="button" className="trip-action-btn" title="Voir" onClick={() => onView(t.id)}>
                         <AppIcon icon={Eye} size={14} color="#2563EB" />
                       </button>
                       {isOpen && (
@@ -191,8 +193,8 @@ export function SupportTable({
                           <AppIcon icon={CheckSquare} size={14} color={busy ? '#9CA3AF' : '#16A34A'} />
                         </button>
                       )}
-                      <button type="button" className="trip-action-btn" title="Plus">
-                        <AppIcon icon={MoreVertical} size={14} color="#4B5563" />
+                      <button type="button" className="trip-action-btn" title="Supprimer" onClick={() => onDelete(t.id)}>
+                        <AppIcon icon={Trash2} size={14} color="#E53935" />
                       </button>
                     </div>
                   </Td>
