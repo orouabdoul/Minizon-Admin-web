@@ -1,124 +1,152 @@
-import { useState, useEffect, useCallback } from 'react';
-import type { Conversation, ChatMessage, BroadcastTarget } from '../models/messaging.model';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import type {
+  Conversation, ChatMessage, BroadcastTarget, BroadcastResult,
+  ConvStatusFilter, RoleFilter, UserSearchResult,
+} from '../models/messaging.model';
 import { messagingService } from '../services/messaging_service';
 
-// ── Mock conversations ─────────────────────────────────────────────────────────
+const POLL_MS = 10_000;
 
-const MOCK: Conversation[] = [
-  {
-    id: 'c1', driverId: 'd1',
-    driverName: 'Kofi Mensah', driverAvatar: 'https://placehold.co/40x40',
-    driverPhone: '+229 97 45 67 89', driverStatus: 'en_trajet',
-    activeTripId: '#TRJ-8472', priority: 'retard',
-    lastMessage: 'Je viens de sortir de l\'embouteillage, j\'arrive bientôt',
-    lastMessageAt: '2026-07-01T14:30:00', unreadCount: 1,
-    messages: [
-      { id: 'm1', conversationId: 'c1', sender: 'driver', content: 'Bonjour, je suis en retard à cause d\'un embouteillage sur la N1', sentAt: '2026-07-01T14:10:00', status: 'lu' },
-      { id: 'm2', conversationId: 'c1', sender: 'admin',  content: 'Merci de nous avoir informé. Pouvez-vous estimer votre retard ?', sentAt: '2026-07-01T14:12:00', status: 'lu' },
-      { id: 'm3', conversationId: 'c1', sender: 'driver', content: 'Environ 20 minutes, désolé pour la gêne occasionnée', sentAt: '2026-07-01T14:15:00', status: 'lu' },
-      { id: 'm4', conversationId: 'c1', sender: 'admin',  content: 'D\'accord, nous informons votre passager. Conduisez prudemment.', sentAt: '2026-07-01T14:16:00', status: 'lu' },
-      { id: 'm5', conversationId: 'c1', sender: 'driver', content: 'Je viens de sortir de l\'embouteillage, j\'arrive bientôt', sentAt: '2026-07-01T14:30:00', status: 'envoyé' },
-    ],
-  },
-  {
-    id: 'c2', driverId: 'd2',
-    driverName: 'Adjovi Sèna', driverAvatar: 'https://placehold.co/40x40',
-    driverPhone: '+229 96 78 90 12', driverStatus: 'en_trajet',
-    activeTripId: '#TRJ-8471', priority: 'panne',
-    lastMessage: 'Une assistance est en route, ETA 15 min. Restez avec vos passagers.',
-    lastMessageAt: '2026-07-01T13:50:00', unreadCount: 0,
-    messages: [
-      { id: 'm6', conversationId: 'c2', sender: 'driver', content: 'Panne de carburant sur la route de Parakou, au niveau du km 45', sentAt: '2026-07-01T13:45:00', status: 'lu' },
-      { id: 'm7', conversationId: 'c2', sender: 'admin',  content: 'Restez calme. Avez-vous des passagers avec vous ?', sentAt: '2026-07-01T13:47:00', status: 'lu' },
-      { id: 'm8', conversationId: 'c2', sender: 'driver', content: 'Oui, 2 passagers. Nous sommes sur le côté de la route, tout va bien.', sentAt: '2026-07-01T13:48:00', status: 'lu' },
-      { id: 'm9', conversationId: 'c2', sender: 'admin',  content: 'Une assistance est en route, ETA 15 min. Restez avec vos passagers.', sentAt: '2026-07-01T13:50:00', status: 'lu' },
-    ],
-  },
-  {
-    id: 'c3', driverId: 'd3',
-    driverName: 'Adjoa Koffi', driverAvatar: 'https://placehold.co/40x40',
-    driverPhone: '+229 95 12 34 56', driverStatus: 'en_ligne',
-    priority: 'normal',
-    lastMessage: 'Merci ! Je peux commencer à accepter des trajets maintenant ?',
-    lastMessageAt: '2026-07-01T12:05:00', unreadCount: 1,
-    messages: [
-      { id: 'm10', conversationId: 'c3', sender: 'admin',  content: 'Bonjour Adjoa, votre vérification de documents a été approuvée ! Votre compte est maintenant actif.', sentAt: '2026-07-01T12:00:00', status: 'lu' },
-      { id: 'm11', conversationId: 'c3', sender: 'driver', content: 'Merci ! Je peux commencer à accepter des trajets maintenant ?', sentAt: '2026-07-01T12:05:00', status: 'envoyé' },
-    ],
-  },
-  {
-    id: 'c4', driverId: 'd4',
-    driverName: 'Jean-Baptiste Hounkpè', driverAvatar: 'https://placehold.co/40x40',
-    driverPhone: '+229 94 56 78 90', driverStatus: 'hors_ligne',
-    priority: 'normal',
-    lastMessage: 'Parfait, j\'y serai à 07h00. Bonne journée !',
-    lastMessageAt: '2026-07-01T10:15:00', unreadCount: 0,
-    messages: [
-      { id: 'm12', conversationId: 'c4', sender: 'admin',  content: 'Bonjour Jean-Baptiste, votre trajet de demain est confirmé : Cotonou → Parakou, départ 07h00. Soyez ponctuel.', sentAt: '2026-07-01T10:00:00', status: 'lu' },
-      { id: 'm13', conversationId: 'c4', sender: 'driver', content: 'Parfait, j\'y serai à 07h00. Bonne journée !', sentAt: '2026-07-01T10:15:00', status: 'lu' },
-    ],
-  },
-  {
-    id: 'c5', driverId: 'd5',
-    driverName: 'Yao Kobenan', driverAvatar: 'https://placehold.co/40x40',
-    driverPhone: '+229 93 45 67 89', driverStatus: 'en_ligne',
-    priority: 'normal',
-    lastMessage: 'Bonjour, comment signaler un accident mineur sur l\'application ?',
-    lastMessageAt: '2026-07-01T15:20:00', unreadCount: 1,
-    messages: [
-      { id: 'm14', conversationId: 'c5', sender: 'driver', content: 'Bonjour, comment signaler un accident mineur sur l\'application ?', sentAt: '2026-07-01T15:20:00', status: 'envoyé' },
-    ],
-  },
-];
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function extractConversations(raw: any): { conversations: Conversation[]; totalUnread: number } | null {
+  const body = raw?.body ?? raw;
+  if (!body) return null;
+  if (Array.isArray(body.conversations))
+    return { conversations: body.conversations, totalUnread: body.totalUnread ?? 0 };
+  if (Array.isArray(body))
+    return { conversations: body, totalUnread: 0 };
+  if (Array.isArray(body.data))
+    return { conversations: body.data, totalUnread: body.totalUnread ?? 0 };
+  return null;
+}
+
+function mergeConversations(apiList: Conversation[], prev: Conversation[]): Conversation[] {
+  return apiList.map((c) => {
+    const cached = prev.find((p) => p.id === c.id);
+    return { ...c, messages: cached?.messages ?? c.messages };
+  });
+}
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 export function useMessaging() {
-  const [conversations, setConversations] = useState<Conversation[]>(MOCK);
-  const [selectedId,    setSelectedId]    = useState<string | null>('c1');
-  const [loading,       setLoading]       = useState(false);
-  const [sending,       setSending]       = useState(false);
+  const [conversations,   setConversations]   = useState<Conversation[]>([]);
+  const [totalUnread,     setTotalUnread]      = useState(0);
+  const [selectedId,      setSelectedId]       = useState<string | null>(null);
+  const [roleFilter,      setRoleFilter]       = useState<RoleFilter>('all');
+  const [statusFilter,    setStatusFilter]     = useState<ConvStatusFilter>('tous');
+  const [loading,         setLoading]          = useState(true);
+  const [loadingMessages, setLoadingMessages]  = useState(false);
+  const [sending,         setSending]          = useState(false);
+  const [error,           setError]            = useState<string | null>(null);
+  const [broadcastResult, setBroadcastResult]  = useState<BroadcastResult | null>(null);
+  const [broadcastError,  setBroadcastError]   = useState<string | null>(null);
+
+  // User search for new conversation
+  const [userSearchResults, setUserSearchResults] = useState<UserSearchResult[]>([]);
+  const [userSearchLoading, setUserSearchLoading] = useState(false);
+  const [startingConv,      setStartingConv]      = useState(false);
+
+  const filtersRef     = useRef({ role: roleFilter, status: statusFilter });
+  const selectedIdRef  = useRef<string | null>(null);
+  const refreshMsgRef  = useRef<((id: string) => Promise<void>) | null>(null);
+
+  useEffect(() => { filtersRef.current = { role: roleFilter, status: statusFilter }; }, [roleFilter, statusFilter]);
+  useEffect(() => { selectedIdRef.current = selectedId; }, [selectedId]);
 
   const selectedConversation = conversations.find((c) => c.id === selectedId) ?? null;
-  const totalUnread          = conversations.reduce((s, c) => s + c.unreadCount, 0);
 
-  // ── Initial load ──────────────────────────────────────────────────────────
+  // ── Fetch list ─────────────────────────────────────────────────────────────
+
+  const fetchConversations = useCallback((role: RoleFilter, status: ConvStatusFilter, silent = false) => {
+    return messagingService.getConversations({
+      ...(role   !== 'all'  ? { role }   : {}),
+      ...(status !== 'tous' ? { status } : {}),
+    })
+      .then((res) => {
+        const extracted = extractConversations(res.data);
+        if (!extracted) { if (!silent) setError('Format de réponse inattendu.'); return; }
+        setError(null);
+        setConversations((prev) => {
+          if (silent) {
+            const selId = selectedIdRef.current;
+            const prevC = selId ? prev.find((c) => c.id === selId) : null;
+            const newC  = selId ? extracted.conversations.find((c) => c.id === selId) : null;
+            if (prevC && newC && newC.lastMessageAt !== prevC.lastMessageAt)
+              setTimeout(() => refreshMsgRef.current?.(selId!), 0);
+          }
+          return mergeConversations(extracted.conversations, prev);
+        });
+        setTotalUnread(extracted.totalUnread);
+      })
+      .catch(() => { if (!silent) setError('Impossible de charger les conversations.'); });
+  }, []);
+
   useEffect(() => {
     setLoading(true);
-    messagingService.getConversations()
-      .then((res) => {
-        const data = res.data.body;
-        if (Array.isArray(data) && data.length > 0) setConversations(data);
-      })
-      .catch(() => { /* keep mock */ })
-      .finally(() => setLoading(false));
-  }, []);
+    fetchConversations(roleFilter, statusFilter).finally(() => setLoading(false));
+  }, [roleFilter, statusFilter, fetchConversations]);
 
-  // ── 5-second polling ──────────────────────────────────────────────────────
   useEffect(() => {
-    const id = setInterval(() => {
-      messagingService.getConversations()
-        .then((res) => {
-          const data = res.data.body;
-          if (Array.isArray(data) && data.length > 0) setConversations(data);
-        })
-        .catch(() => {});
-    }, 5000);
+    const id = setInterval(
+      () => fetchConversations(filtersRef.current.role, filtersRef.current.status, true),
+      POLL_MS,
+    );
     return () => clearInterval(id);
-  }, []);
+  }, [fetchConversations]);
 
-  // ── Select + mark as read ─────────────────────────────────────────────────
-  const selectConversation = useCallback((id: string) => {
+  // ── Select conversation ────────────────────────────────────────────────────
+
+  const selectConversation = useCallback(async (id: string) => {
     setSelectedId(id);
     setConversations((prev) => prev.map((c) => c.id === id ? { ...c, unreadCount: 0 } : c));
-    messagingService.markAsRead(id).catch(() => {});
-  }, []);
+    setTotalUnread((n) => {
+      const conv = conversations.find((c) => c.id === id);
+      return Math.max(0, n - (conv?.unreadCount ?? 0));
+    });
 
-  // ── Send message (optimistic) ─────────────────────────────────────────────
+    const alreadyLoaded = conversations.find((c) => c.id === id)?.messages !== undefined;
+    if (alreadyLoaded) return;
+
+    setLoadingMessages(true);
+    try {
+      const res = await messagingService.openConversation(id);
+      const raw  = res.data as any;
+      const body = raw?.body ?? raw;
+      const conv     = body?.conversation ?? {};
+      const messages: ChatMessage[] = body?.messages ?? [];
+      setConversations((prev) => prev.map((c) =>
+        c.id === id ? { ...c, ...conv, messages, unreadCount: 0 } : c
+      ));
+    } catch { /* keep visible without messages */ }
+    finally { setLoadingMessages(false); }
+  }, [conversations]);
+
+  const refreshMessages = useCallback(async (id: string) => {
+    setLoadingMessages(true);
+    try {
+      const res = await messagingService.openConversation(id);
+      const raw  = res.data as any;
+      const body = raw?.body ?? raw;
+      const conv     = body?.conversation ?? {};
+      const messages: ChatMessage[] = body?.messages ?? [];
+      setConversations((prev) => prev.map((c) =>
+        c.id === id ? { ...c, ...conv, messages, unreadCount: 0 } : c
+      ));
+    } catch { /* keep existing */ }
+    finally { setLoadingMessages(false); }
+  }, []);
+  refreshMsgRef.current = refreshMessages;
+
+  // ── Send message (optimistic) ──────────────────────────────────────────────
+
   const sendMessage = useCallback(async (content: string) => {
     if (!selectedId || !content.trim()) return;
-    const msg: ChatMessage = {
-      id:             `msg-${Date.now()}`,
+    const tempId = `temp-${Date.now()}`;
+    const tempMsg: ChatMessage = {
+      id:             tempId,
       conversationId: selectedId,
       sender:         'admin',
       content:        content.trim(),
@@ -128,28 +156,106 @@ export function useMessaging() {
     setConversations((prev) => prev.map((c) =>
       c.id !== selectedId ? c : {
         ...c,
-        messages:      [...c.messages, msg],
-        lastMessage:   msg.content,
-        lastMessageAt: msg.sentAt,
+        messages:      [...(c.messages ?? []), tempMsg],
+        lastMessage:   tempMsg.content,
+        lastMessageAt: tempMsg.sentAt,
       }
     ));
     setSending(true);
     try {
-      await messagingService.sendMessage(selectedId, content.trim());
-    } catch { /* optimistic update already visible */ }
+      const res = await messagingService.sendMessage(selectedId, content.trim());
+      const raw     = res.data as any;
+      const realMsg = raw?.body?.message ?? raw?.message;
+      if (realMsg) {
+        setConversations((prev) => prev.map((c) =>
+          c.id !== selectedId ? c : {
+            ...c,
+            messages: (c.messages ?? []).map((m) => m.id === tempId ? { ...realMsg } : m),
+          }
+        ));
+      }
+    } catch { /* optimistic stays */ }
     finally { setSending(false); }
   }, [selectedId]);
 
-  // ── Broadcast ─────────────────────────────────────────────────────────────
-  const broadcastMessage = useCallback(async (content: string, target: BroadcastTarget) => {
+  // ── Search users for new conversation ─────────────────────────────────────
+
+  const searchUsersForNew = useCallback(async (q: string, role: RoleFilter = 'all') => {
+    if (!q.trim()) { setUserSearchResults([]); return; }
+    setUserSearchLoading(true);
     try {
-      await messagingService.broadcast(content, target);
-    } catch { /* silent — optimistic */ }
+      const res = await messagingService.searchUsers(q, role);
+      const raw = res.data as any;
+      setUserSearchResults(raw?.body ?? raw ?? []);
+    } catch { setUserSearchResults([]); }
+    finally { setUserSearchLoading(false); }
+  }, []);
+
+  const clearUserSearch = useCallback(() => setUserSearchResults([]), []);
+
+  // ── Start new conversation ─────────────────────────────────────────────────
+
+  const startNewConversation = useCallback(async (
+    userUuid: string,
+    firstMessage?: string,
+  ): Promise<string | null> => {
+    setStartingConv(true);
+    try {
+      const res  = await messagingService.startConversation(userUuid, firstMessage);
+      const raw  = res.data as any;
+      const body = raw?.body ?? raw;
+      const conv: Conversation       = body.conversation;
+      const msgs: ChatMessage[]      = body.messages ?? [];
+      setConversations((prev) => {
+        const exists = prev.find((c) => c.id === conv.id);
+        if (exists) return prev.map((c) => c.id === conv.id ? { ...c, ...conv, messages: msgs } : c);
+        return [{ ...conv, messages: msgs }, ...prev];
+      });
+      setSelectedId(conv.id);
+      return conv.id;
+    } catch { return null; }
+    finally { setStartingConv(false); }
+  }, []);
+
+  // ── Broadcast ──────────────────────────────────────────────────────────────
+
+  const broadcastMessage = useCallback(async (content: string, target: BroadcastTarget): Promise<BroadcastResult> => {
+    setBroadcastError(null);
+    try {
+      const res = await messagingService.broadcast(content, target);
+      const raw = res.data as any;
+      const result: BroadcastResult = raw?.body ?? raw ?? { sent_to: 0, target };
+      setBroadcastResult(result);
+      return result;
+    } catch (e: unknown) {
+      const axiosMsg  = (e as any)?.response?.data?.message;
+      const httpStatus = (e as any)?.response?.status;
+      const msg = axiosMsg
+        ?? (httpStatus ? `Erreur serveur (${httpStatus}). Veuillez réessayer.` : 'Connexion impossible. Vérifiez votre réseau.');
+      setBroadcastError(msg);
+      throw new Error(msg);
+    }
+  }, []);
+
+  const dismissBroadcastResult = useCallback(() => {
+    setBroadcastResult(null);
+    setBroadcastError(null);
   }, []);
 
   return {
+    // list
     conversations, selectedId, selectedConversation,
-    totalUnread, loading, sending,
-    selectConversation, sendMessage, broadcastMessage,
+    totalUnread, loading, loadingMessages, sending, error,
+    // filters
+    roleFilter,   setRoleFilter,
+    statusFilter, setStatusFilter,
+    // conversation actions
+    selectConversation, refreshMessages, sendMessage,
+    // new conversation
+    userSearchResults, userSearchLoading, startingConv,
+    searchUsersForNew, clearUserSearch, startNewConversation,
+    // broadcast
+    broadcastResult, broadcastError, dismissBroadcastResult,
+    broadcastMessage,
   };
 }

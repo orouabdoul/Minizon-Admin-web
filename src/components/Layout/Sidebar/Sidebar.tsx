@@ -3,12 +3,12 @@ import {
   LayoutDashboard, Users, Car, Truck, UserCheck, Navigation,
   Calendar, CreditCard, AlertCircle, HeadphonesIcon,
   Bell, Settings, LogOut, Building2, X, MapPin, MessageSquare,
-  Shield, BarChart2, Tag, Banknote, Star, RotateCcw,
+  Shield, BarChart2, Banknote, Star, RotateCcw,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { NavLink } from 'react-router-dom';
 import { AppIcon } from '../../Common/AppIcon';
-import { NAV_ITEMS, APP_NAME, APP_SUBTITLE } from '../../../config/constants';
+import { NAV_ITEMS, NAV_GROUPS, APP_NAME, APP_SUBTITLE } from '../../../config/constants';
 import type { NavItemId } from '../../../config/constants';
 import { useAuth } from '../../../hooks/useAuth';
 import { ConfirmDialog } from '../../Overlay/ConfirmDialog/ConfirmDialog';
@@ -35,7 +35,6 @@ const NAV_ICONS: Record<NavItemId, LucideIcon> = {
   messaging:     MessageSquare,
   audit:         Shield,
   reports:       BarChart2,
-  pricing:       Tag,
   payouts:       Banknote,
   reviews:       Star,
   refunds:       RotateCcw,
@@ -73,38 +72,44 @@ export function Sidebar({ isOpen, onClose }: SidebarProps) {
           </button>
         </div>
 
-        {/* Navigation */}
+        {/* Navigation groupée par section */}
         <nav className="dash-sidebar__nav">
-          {NAV_ITEMS.map((item) => {
-            const Icon = NAV_ICONS[item.id];
-            return (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                className={({ isActive }) =>
-                  'dash-nav-item' + (isActive ? ' dash-nav-item--active' : '')
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <AppIcon
-                      icon={Icon}
-                      size={20}
-                      color={isActive ? 'white' : '#D1D5DB'}
-                      strokeWidth={isActive ? 2 : 1.5}
-                    />
-                    {item.label}
-                  </>
-                )}
-              </NavLink>
-            );
-          })}
+          {NAV_GROUPS.map((group) => (
+            <div key={group.label} className="dash-nav-group">
+              <span className="dash-nav-group__label">{group.label}</span>
+              {group.items.map((id) => {
+                const item = NAV_ITEMS.find((n) => n.id === id)!;
+                const Icon = NAV_ICONS[id];
+                return (
+                  <NavLink
+                    key={id}
+                    to={item.path}
+                    className={({ isActive }) =>
+                      'dash-nav-item' + (isActive ? ' dash-nav-item--active' : '')
+                    }
+                  >
+                    {({ isActive }) => (
+                      <>
+                        <AppIcon
+                          icon={Icon}
+                          size={20}
+                          color={isActive ? 'white' : '#D1D5DB'}
+                          strokeWidth={isActive ? 2 : 1.5}
+                        />
+                        {item.label}
+                      </>
+                    )}
+                  </NavLink>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
         {/* Logout */}
         <div className="dash-sidebar__footer">
           <button className="dash-sidebar__logout" type="button" onClick={() => setConfirmOpen(true)}>
-            <AppIcon icon={LogOut} size={20} color="#9CA3AF" />
+            <AppIcon icon={LogOut} size={20} color="#E53935" />
             Déconnexion
           </button>
         </div>

@@ -2,7 +2,6 @@ import { api } from './api';
 import type { ApiNotification, NotifMetrics } from '../models/notification.model';
 
 export const notificationService = {
-  // Metrics may or may not be wrapped — extract body or root
   getMetrics: () =>
     api.get<{ body?: NotifMetrics } & Partial<NotifMetrics>>('/admin/notifications/metrics'),
 
@@ -25,5 +24,5 @@ export const notificationService = {
     api.delete(`/admin/notifications/${uuid}`),
 
   send: (data: { title: string; body: string; target: string; type: string }) =>
-    api.post('/admin/notifications/push', data),
+    api.post('/admin/notifications/send', data),
 };

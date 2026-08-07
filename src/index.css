@@ -173,9 +173,12 @@ img    { display: block; max-width: 100%; }
   line-height: 28px;
 }
 .dash-sidebar__logo-sub {
-  color: #9CA3AF;
+  color: #D1D5DB;
   font-size: 12px;
+  font-weight: 500;
   line-height: 16px;
+  letter-spacing: 0.01em;
+  -webkit-font-smoothing: antialiased;
 }
 /* Close button — hidden on desktop */
 .dash-sidebar__close {
@@ -190,10 +193,26 @@ img    { display: block; max-width: 100%; }
 
 .dash-sidebar__nav {
   flex: 1;
-  padding: 20px 12px 12px;
+  padding: 12px 12px 12px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
+  overflow-y: auto;
+}
+
+.dash-nav-group {
+  margin-bottom: 4px;
+}
+
+.dash-nav-group__label {
+  display: block;
+  padding: 10px 16px 4px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.35);
+  user-select: none;
 }
 
 .dash-nav-item {
@@ -235,7 +254,7 @@ img    { display: block; max-width: 100%; }
   gap: 12px;
   padding: 10px 12px;
   border-radius: 8px;
-  color: #9CA3AF;
+  color: #E53935;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
@@ -1379,4 +1398,30 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   .passengers-metrics { grid-template-columns: 1fr; }
   .passengers-filters { flex-direction: column; align-items: stretch; }
   .passengers-filter-select, .passengers-reset-btn { width: 100%; justify-content: center; }
+}
+
+/* ═══════════════════════════════════════════════════════
+   PRINT — Rapport PDF via window.print()
+═══════════════════════════════════════════════════════ */
+@media print {
+  /* Hide all navigation chrome */
+  .dash-sidebar,
+  .dash-header,
+  .dash-backdrop,
+  .reports-controls { display: none !important; }
+
+  /* Full-width layout without sidebar */
+  .dash-layout { display: block !important; }
+  .dash-main   { margin-left: 0 !important; padding-top: 0 !important; width: 100% !important; }
+  .dash-content { padding: 12px 20px !important; }
+
+  /* Clean appearance for print */
+  body, .dash-content { background: white !important; }
+  * { box-shadow: none !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+  /* Keep card outlines subtle */
+  [style*="outline: 1px solid"] { outline: 1px solid #E5E7EB !important; }
+
+  /* Page break control */
+  .dash-content > div { page-break-inside: avoid; }
 }

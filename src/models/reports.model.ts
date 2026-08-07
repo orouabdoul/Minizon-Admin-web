@@ -7,7 +7,7 @@ export interface ReportKpi {
   trend: string;
   up:    boolean;
   color: string;
-  bg:    string;
+  bg:    string; // derived client-side if absent from API
 }
 
 export interface RevenueBar {
@@ -17,12 +17,12 @@ export interface RevenueBar {
 }
 
 export interface TopDriver {
-  rank:   number;
-  name:   string;
-  avatar: string;
-  trips:  number;
+  rank:    number; // derived from array index if absent from API
+  name:    string;
+  avatar:  string;
+  trips:   number;
   revenue: string;
-  rating: number;
+  rating:  number;
 }
 
 export interface ZoneStat {

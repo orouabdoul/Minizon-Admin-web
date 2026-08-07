@@ -48,7 +48,17 @@ export function useSettings() {
       .finally(() => setGeneralLoading(false));
 
     settingsService.getCommissions()
-      .then((r) => setCommissions(r.data.body ?? []))
+      .then((r) => setCommissions(
+        (r.data.body ?? []).map((d: any) => ({
+          id:      d.id ?? d.uuid ?? '',
+          uuid:    d.uuid,
+          label:   d.label,
+          type:    d.type,
+          rate:    d.rate,
+          revenue: d.revenue ?? '—',
+          status:  d.status,
+        })),
+      ))
       .catch(() => {})
       .finally(() => setCommissionsLoading(false));
 
@@ -85,7 +95,13 @@ export function useSettings() {
 
   const updateCommission = useCallback(async (id: string, updates: { rate: string; status: string }) => {
     setCommissions((prev) => prev.map((c) => c.id === id ? { ...c, ...updates } : c));
-    try { await settingsService.updateCommission(id, updates); } catch { /* keep optimistic */ }
+    const ratePercent = parseFloat(updates.rate.replace('%', '').trim());
+    try {
+      await settingsService.updateCommission(id, {
+        rate_percent: isNaN(ratePercent) ? 0 : ratePercent,
+        status:       updates.status,
+      });
+    } catch { /* keep optimistic */ }
   }, []);
 
   const addAdmin = useCallback(async (data: { name: string; email: string; phone: string; role: string }) => {

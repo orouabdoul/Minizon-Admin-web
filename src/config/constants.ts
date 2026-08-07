@@ -38,13 +38,27 @@ export type NavItemId =
   | 'dashboard' | 'users' | 'drivers' | 'vehicles' | 'passengers' | 'trips'
   | 'reservations' | 'payments' | 'disputes' | 'support'
   | 'notifications' | 'settings' | 'tracking' | 'messaging'
-  | 'audit' | 'reports' | 'pricing' | 'payouts' | 'reviews' | 'refunds';
+  | 'audit' | 'reports' | 'payouts' | 'reviews' | 'refunds';
 
 export interface NavItem {
   id:    NavItemId;
   label: string;
   path:  string;
 }
+
+export interface NavGroup {
+  label: string;
+  items: NavItemId[];
+}
+
+export const NAV_GROUPS: NavGroup[] = [
+  { label: "Vue d'ensemble", items: ['dashboard'] },
+  { label: 'Utilisateurs',   items: ['users', 'drivers', 'passengers', 'vehicles'] },
+  { label: 'Opérations',     items: ['trips', 'reservations', 'tracking', 'messaging'] },
+  { label: 'Finance',        items: ['payments', 'payouts', 'refunds'] },
+  { label: 'Relation client', items: ['disputes', 'support', 'reviews'] },
+  { label: 'Administration', items: ['notifications', 'reports', 'audit', 'settings'] },
+];
 
 export const NAV_ITEMS: NavItem[] = [
   { id: 'dashboard',     label: 'Dashboard',      path: '/dashboard' },
@@ -63,7 +77,6 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'messaging',     label: 'Communication',     path: '/messaging'  },
   { id: 'audit',         label: "Journal d'Audit",   path: '/audit'      },
   { id: 'reports',       label: 'Rapports',           path: '/reports'    },
-  { id: 'pricing',       label: 'Tarifs & Promos',   path: '/pricing'    },
   { id: 'payouts',       label: 'Virements',          path: '/payouts'    },
   { id: 'reviews',       label: 'Évaluations',        path: '/reviews'    },
   { id: 'refunds',       label: 'Remboursements',     path: '/refunds'    },
@@ -419,20 +432,21 @@ export const PAYMENT_KPI_DATA: PassengerKpiData[] = [
 ];
 
 // ── Payments page — filter options ───────────────────────
+// Valeurs vides ('') → l'API n'envoie pas le paramètre (tous)
 export const PAYMENT_STATUS_OPTIONS = [
-  { value: 'all',         label: 'Tous les statuts' },
-  { value: 'Succès',      label: 'Succès'           },
+  { value: '',            label: 'Tous les statuts' },
   { value: 'En attente',  label: 'En attente'       },
+  { value: 'Sécurisé',    label: 'Sécurisé'         },
+  { value: 'Libéré',      label: 'Libéré'           },
   { value: 'Échoué',      label: 'Échoué'           },
   { value: 'Remboursé',   label: 'Remboursé'        },
 ] as const;
 
 export const PAYMENT_METHOD_OPTIONS = [
-  { value: 'all',             label: 'Toutes les méthodes' },
-  { value: 'Mobile Money',    label: 'Mobile Money'        },
-  { value: 'Carte bancaire',  label: 'Carte bancaire'      },
-  { value: 'Virement',        label: 'Virement'            },
-  { value: 'Cash',            label: 'Cash'                },
+  { value: '',          label: 'Tous les opérateurs' },
+  { value: 'MTN',       label: 'MTN Money'           },
+  { value: 'Moov',      label: 'Moov Money'          },
+  { value: 'Celtiis',   label: 'Celtiis'             },
 ] as const;
 
 

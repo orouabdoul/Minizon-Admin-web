@@ -18,7 +18,7 @@ export const settingsService = {
   getCommissions: () =>
     api.get<ApiBodyResponse<Commission[]>>('/admin/settings/commissions'),
 
-  updateCommission: (uuid: string, data: { rate: string; status: string }) =>
+  updateCommission: (uuid: string, data: { rate_percent: number; status: string }) =>
     api.put(`/admin/settings/commissions/${uuid}`, data),
 
   getPayments: () =>

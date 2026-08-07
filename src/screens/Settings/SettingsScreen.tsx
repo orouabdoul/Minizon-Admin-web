@@ -4,6 +4,7 @@ import { SettingsGeneralCard }     from './components/SettingsGeneralCard';
 import { SettingsCommissionsCard } from './components/SettingsCommissionsCard';
 import { SettingsPaymentsCard }    from './components/SettingsPaymentsCard';
 import { SettingsSecurityCard }    from './components/SettingsSecurityCard';
+import { SettingsPromosCard }      from './components/SettingsPromosCard';
 import { SettingsAdminsCard }      from './components/SettingsAdminsCard';
 import { SettingsAnalyticsCard }   from './components/SettingsAnalyticsCard';
 import { useSettings }             from '../../hooks/useSettings';
@@ -38,9 +39,9 @@ export function SettingsScreen() {
           onSaveCommission={updateCommission}
         />
 
-        <SettingsPaymentsCard providers={providers} loading={providersLoading} />
+        <SettingsPromosCard />
 
-        <SettingsSecurityCard logs={securityLogs} loading={securityLoading} />
+        <SettingsPaymentsCard providers={providers} loading={providersLoading} />
 
         <SettingsAdminsCard
           admins={admins}
@@ -51,6 +52,8 @@ export function SettingsScreen() {
         />
 
         <SettingsAnalyticsCard analytics={analytics} loading={analyticsLoading} />
+
+        <SettingsSecurityCard logs={securityLogs} loading={securityLoading} />
 
       </div>
     </DashboardLayout>

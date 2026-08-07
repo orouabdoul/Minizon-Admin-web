@@ -35,7 +35,10 @@ export const paymentService = {
     api.get<ApiBodyResponse<ApiPayment>>(`/admin/payments/${uuid}`),
 
   refund: (uuid: string) =>
-    api.post<ApiBodyResponse<Record<string, never>>>(`/admin/payments/${uuid}/refund`),
+    api.post<ApiBodyResponse<ApiPayment>>(`/admin/payments/${uuid}/refund`),
+
+  release: (uuid: string) =>
+    api.post<ApiBodyResponse<ApiPayment>>(`/admin/payments/${uuid}/release`),
 
   // Global FedaPay sync — checks all pending payments
   syncAll: () =>

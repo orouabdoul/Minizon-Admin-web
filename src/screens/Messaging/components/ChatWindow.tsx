@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, Send, MessageSquare, ChevronRight } from 'lucide-react';
+import { Phone, Send, MessageSquare, ChevronRight, RefreshCw } from 'lucide-react';
 import { AppIcon } from '../../../components/Common/AppIcon';
 import type { Conversation, DriverStatus } from '../../../models/messaging.model';
 
@@ -29,24 +29,28 @@ function fmtDate(iso: string) {
 function sameDay(a: string, b: string) {
   return new Date(a).toDateString() === new Date(b).toDateString();
 }
-
-interface Props {
-  conversation: Conversation | null;
-  sending:      boolean;
-  onSend:       (content: string) => void;
+function initials(name: string) {
+  return name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2);
 }
 
-export function ChatWindow({ conversation, sending, onSend }: Props) {
-  const [input,        setInput]        = useState('');
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  const textareaRef    = useRef<HTMLTextAreaElement>(null);
+interface Props {
+  conversation:    Conversation | null;
+  sending:         boolean;
+  loadingMessages: boolean;
+  onSend:          (content: string) => void;
+  onRefresh:       (id: string) => void;
+}
+
+export function ChatWindow({ conversation, sending, loadingMessages, onSend, onRefresh }: Props) {
+  const [input, setInput]  = useState('');
+  const messagesEndRef     = useRef<HTMLDivElement>(null);
+  const textareaRef        = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [conversation?.messages.length]);
+  }, [conversation?.messages?.length]);
 
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setInput('');
     textareaRef.current?.focus();
   }, [conversation?.id]);
@@ -62,41 +66,54 @@ export function ChatWindow({ conversation, sending, onSend }: Props) {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  // ── Empty state ───────────────────────────────────────────────────────────
+  // ── Empty state ─────────────────────────────────────────────────────────────
   if (!conversation) {
     return (
-      <div className="msg-chat msg-chat--empty">
-        <AppIcon icon={MessageSquare} size={44} color="#D1D5DB" />
-        <p style={{ color: '#9CA3AF', fontSize: 14, marginTop: 12, textAlign: 'center' }}>
-          Sélectionnez une conversation<br />pour commencer
-        </p>
+      <div className="msg-chat">
+        <div className="msg-chat__empty">
+          <div className="msg-chat__empty-icon">
+            <AppIcon icon={MessageSquare} size={32} color="#2563EB" />
+          </div>
+          <p className="msg-chat__empty-title">Aucune conversation sélectionnée</p>
+          <p className="msg-chat__empty-sub">
+            Sélectionnez une conversation dans la liste<br />ou démarrez-en une nouvelle.
+          </p>
+        </div>
       </div>
     );
   }
 
-  const status = STATUS_CONFIG[conversation.driverStatus];
+  const name     = conversation.name ?? conversation.driverName ?? '?';
+  const avatar   = conversation.avatar ?? conversation.driverAvatar;
+  const phone    = conversation.phone;
+  const status   = STATUS_CONFIG[conversation.driverStatus!] ?? STATUS_CONFIG.hors_ligne;
+  const messages = conversation.messages ?? [];
 
   return (
     <div className="msg-chat">
-      {/* ── Header ────────────────────────────────────────────────────────── */}
+      {/* ── Header ──────────────────────────────────────────────────────────── */}
       <div className="msg-chat__header">
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <img src={conversation.driverAvatar} alt={conversation.driverName} className="msg-chat__avatar" />
+        <div className="msg-chat__user">
+          {avatar ? (
+            <img src={avatar} alt={name} className="msg-chat__avatar" />
+          ) : (
+            <div className="msg-chat__avatar-fallback">{initials(name)}</div>
+          )}
           <div>
-            <div className="msg-chat__driver-name">{conversation.driverName}</div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: 3 }}>
+            <div className="msg-chat__name">{name}</div>
+            <div className="msg-chat__meta">
+              {conversation.roleLabel && (
+                <span className="msg-chat__role">{conversation.roleLabel}</span>
+              )}
               <span
-                style={{
-                  display: 'flex', alignItems: 'center', gap: 4,
-                  fontSize: 11, fontWeight: 600, padding: '3px 8px', borderRadius: 9999,
-                  color: status.color, background: status.bg,
-                }}
+                className="msg-chat__status-badge"
+                style={{ color: status.color, background: status.bg }}
               >
-                <span style={{ width: 6, height: 6, borderRadius: '50%', background: status.color }} />
+                <span className="msg-chat__status-dot" style={{ background: status.color }} />
                 {status.label}
               </span>
               {conversation.activeTripId && (
-                <span style={{ display: 'flex', alignItems: 'center', gap: 2, fontSize: 11, color: '#6B7280' }}>
+                <span className="msg-chat__trip">
                   <ChevronRight size={10} />
                   Trajet {conversation.activeTripId}
                 </span>
@@ -105,45 +122,73 @@ export function ChatWindow({ conversation, sending, onSend }: Props) {
           </div>
         </div>
 
-        {/* Call button */}
-        <a
-          href={`tel:${conversation.driverPhone}`}
-          className="msg-call-btn"
-          title={`Appeler ${conversation.driverName} — ${conversation.driverPhone}`}
-        >
-          <AppIcon icon={Phone} size={15} color="#fff" />
-          Appeler
-        </a>
+        <div className="msg-chat__actions">
+          <button
+            type="button"
+            className="msg-chat__refresh-btn"
+            onClick={() => onRefresh(conversation.id)}
+            disabled={loadingMessages}
+            title="Actualiser les messages"
+          >
+            <AppIcon icon={RefreshCw} size={14} color="#6B7280" />
+          </button>
+          {phone && (
+            <a
+              href={`tel:${phone}`}
+              className="msg-chat__call-btn"
+              title={`Appeler ${name} — ${phone}`}
+            >
+              <AppIcon icon={Phone} size={14} color="#fff" />
+              Appeler
+            </a>
+          )}
+        </div>
       </div>
 
       {/* Phone hint */}
-      <div className="msg-phone-hint">
-        📞 {conversation.driverPhone} — cliquez sur Appeler pour ouvrir le téléphone
-      </div>
+      {phone && (
+        <div className="msg-chat__phone-hint">
+          📞 {phone} — cliquez sur Appeler pour ouvrir le téléphone
+        </div>
+      )}
 
-      {/* ── Messages ──────────────────────────────────────────────────────── */}
-      <div className="msg-messages">
-        {conversation.messages.map((msg, i) => {
+      {/* ── Messages ────────────────────────────────────────────────────────── */}
+      <div className="msg-chat__messages">
+        {loadingMessages ? (
+          <div className="msg-chat__loading">
+            <p className="msg-chat__state-text">Chargement des messages…</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="msg-chat__no-messages">
+            <p className="msg-chat__state-text">
+              Aucun message pour l'instant.<br />Commencez la conversation ci-dessous.
+            </p>
+          </div>
+        ) : messages.map((msg, i) => {
           const isAdmin  = msg.sender === 'admin';
-          const showDate = i === 0 || !sameDay(conversation.messages[i - 1].sentAt, msg.sentAt);
+          const showDate = i === 0 || !sameDay(messages[i - 1].sentAt, msg.sentAt);
 
           return (
             <div key={msg.id}>
               {showDate && (
-                <div className="msg-date-sep">
+                <div className="msg-date-divider">
+                  <span className="msg-date-divider__line" />
                   <span>{fmtDate(msg.sentAt)}</span>
+                  <span className="msg-date-divider__line" />
                 </div>
               )}
-              <div className={`msg-bubble-wrap${isAdmin ? ' msg-bubble-wrap--admin' : ''}`}>
+              <div className={`msg-bubble-row${isAdmin ? ' msg-bubble-row--admin' : ''}`}>
                 {!isAdmin && (
-                  <img src={conversation.driverAvatar} alt="" className="msg-bubble__avatar" />
+                  avatar
+                    ? <img src={avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
+                    : <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#6B7280', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{initials(name)}</div>
                 )}
-                <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--driver'}`}>
+                <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
                   <p className="msg-bubble__text">{msg.content}</p>
-                  <div className="msg-bubble__meta">
+                  <div className="msg-bubble__footer">
                     <span className="msg-bubble__time">{fmtTime(msg.sentAt)}</span>
                     {isAdmin && (
-                      <span className="msg-bubble__status" title={msg.status}>
+                      <span className="msg-bubble__ticks" title={msg.status}>
                         {msg.status === 'lu' ? '✓✓' : '✓'}
                       </span>
                     )}
@@ -153,18 +198,19 @@ export function ChatWindow({ conversation, sending, onSend }: Props) {
             </div>
           );
         })}
+
         {sending && (
-          <div className="msg-bubble-wrap msg-bubble-wrap--admin">
-            <div className="msg-bubble msg-bubble--admin" style={{ opacity: 0.6 }}>
-              <p className="msg-bubble__text" style={{ fontStyle: 'italic' }}>Envoi en cours…</p>
+          <div className="msg-sending-row">
+            <div className="msg-sending-bubble">
+              <p>Envoi en cours…</p>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* ── Quick templates ────────────────────────────────────────────────── */}
-      <div className="msg-templates">
+      {/* ── Quick templates ──────────────────────────────────────────────────── */}
+      <div className="msg-chat__templates">
         {QUICK_TEMPLATES.map((tpl, i) => (
           <button
             key={i}
@@ -177,11 +223,11 @@ export function ChatWindow({ conversation, sending, onSend }: Props) {
         ))}
       </div>
 
-      {/* ── Input bar ─────────────────────────────────────────────────────── */}
-      <div className="msg-input-bar">
+      {/* ── Input bar ────────────────────────────────────────────────────────── */}
+      <div className="msg-chat__input-bar">
         <textarea
           ref={textareaRef}
-          className="msg-input"
+          className="msg-chat__textarea"
           placeholder="Écrire un message… (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)"
           value={input}
           rows={2}
@@ -190,7 +236,7 @@ export function ChatWindow({ conversation, sending, onSend }: Props) {
         />
         <button
           type="button"
-          className={`msg-send-btn${input.trim() && !sending ? ' msg-send-btn--active' : ''}`}
+          className={`msg-chat__send-btn${input.trim() && !sending ? ' msg-chat__send-btn--active' : ''}`}
           onClick={handleSend}
           disabled={!input.trim() || sending}
           title="Envoyer (Entrée)"

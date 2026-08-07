@@ -16,11 +16,13 @@ export interface GeneralSettings {
 }
 
 export interface Commission {
-  id: string;
-  type: string;
-  rate: string;
-  revenue: string;
-  status: string;
+  id:       string;
+  uuid?:    string;
+  label?:   string;
+  type:     string;
+  rate:     string;
+  revenue:  string;
+  status:   string;
 }
 
 export interface PaymentProvider {

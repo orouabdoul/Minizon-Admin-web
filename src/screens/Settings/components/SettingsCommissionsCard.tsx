@@ -6,23 +6,42 @@ import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../componen
 import { DetailModal, DetailSection } from '../../../components/Overlay/DetailModal/DetailModal';
 import type { Commission } from '../../../models/settings.model';
 
+const TYPE_LABELS: Record<string, string> = {
+  covoiturage_standard:   'Covoiturage Standard',
+  covoiturage_express:    'Covoiturage Express',
+  frais_service_passager: 'Frais de service passager',
+  livraison:              'Livraison',
+};
+
+function displayLabel(c: Commission) {
+  return c.label ?? TYPE_LABELS[c.type] ?? c.type;
+}
+
+function parseRate(rate: string): number {
+  const n = parseFloat(rate.replace('%', '').trim());
+  return isNaN(n) ? 0 : n;
+}
+
 interface Props {
-  commissions:       Commission[];
-  loading:           boolean;
-  onSaveCommission:  (id: string, updates: { rate: string; status: string }) => void;
+  commissions:      Commission[];
+  loading:          boolean;
+  onSaveCommission: (id: string, updates: { rate: string; status: string }) => void;
 }
 
 function EditCommissionModal({
-  commission,
-  onClose,
-  onSave,
+  commission, onClose, onSave,
 }: {
   commission: Commission;
   onClose:    () => void;
   onSave:     (updates: Pick<Commission, 'rate' | 'status'>) => void;
 }) {
-  const [rate,   setRate]   = useState(commission.rate);
-  const [status, setStatus] = useState(commission.status);
+  const [rateNum, setRateNum] = useState<number>(parseRate(commission.rate));
+  const [status,  setStatus]  = useState(commission.status);
+
+  const handleSave = () => {
+    onSave({ rate: `${rateNum}%`, status });
+    onClose();
+  };
 
   return (
     <DetailModal title="Modifier la Commission" onClose={onClose} accentColor="#2563EB">
@@ -31,7 +50,7 @@ function EditCommissionModal({
           <AppIcon icon={Pencil} size={22} color="#2563EB" />
         </div>
         <div>
-          <p className="detail-hero__name">{commission.type}</p>
+          <p className="detail-hero__name">{displayLabel(commission)}</p>
           <p className="detail-hero__sub">Revenus : {commission.revenue}</p>
         </div>
       </div>
@@ -43,20 +62,26 @@ function EditCommissionModal({
             <input
               className="settings-input"
               type="text"
-              value={commission.type}
+              value={displayLabel(commission)}
               disabled
               style={{ opacity: 0.6, cursor: 'not-allowed' }}
             />
           </div>
           <div className="modal-form-group">
-            <label className="modal-form-label">Taux de commission</label>
+            <label className="modal-form-label">Taux de commission (%)</label>
             <input
               className="settings-input"
-              type="text"
-              placeholder="Ex: 15%"
-              value={rate}
-              onChange={(e) => setRate(e.target.value)}
+              type="number"
+              min={0}
+              max={100}
+              step={0.5}
+              placeholder="Ex : 10"
+              value={rateNum}
+              onChange={(e) => setRateNum(Number(e.target.value))}
             />
+            <span style={{ fontSize: 11, color: '#9CA3AF', marginTop: 3 }}>
+              Taux actuel : {commission.rate} — entrez la nouvelle valeur sans le symbole %
+            </span>
           </div>
           <div className="modal-form-group">
             <label className="modal-form-label">Statut</label>
@@ -76,8 +101,8 @@ function EditCommissionModal({
         <button
           type="button"
           className="modal-btn-save modal-btn-save--blue"
-          disabled={!rate.trim()}
-          onClick={() => { onSave({ rate, status }); onClose(); }}
+          disabled={rateNum < 0 || rateNum > 100}
+          onClick={handleSave}
         >
           Enregistrer les modifications
         </button>
@@ -131,7 +156,7 @@ export function SettingsCommissionsCard({ commissions, loading, onSaveCommission
               </TableRow>
             ) : commissions.map((row) => (
               <TableRow key={row.id}>
-                <Td><span className="settings-table-text">{row.type}</span></Td>
+                <Td><span className="settings-table-text">{displayLabel(row)}</span></Td>
                 <Td><span className="settings-table-text settings-table-text--bold">{row.rate}</span></Td>
                 <Td><span className="settings-table-text">{row.revenue}</span></Td>
                 <Td>

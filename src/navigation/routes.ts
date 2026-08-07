@@ -16,7 +16,6 @@ export const ROUTES = {
   MESSAGING:     '/messaging',
   AUDIT:         '/audit',
   REPORTS:       '/reports',
-  PRICING:       '/pricing',
   PAYOUTS:       '/payouts',
   REVIEWS:       '/reviews',
   REFUNDS:       '/refunds',

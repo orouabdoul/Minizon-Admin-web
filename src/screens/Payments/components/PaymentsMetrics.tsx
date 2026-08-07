@@ -1,82 +1,77 @@
-import { CreditCard, Shield, CheckCircle, AlertTriangle, TrendingUp, DollarSign } from 'lucide-react';
-import { PassengerKpiCard } from '../../../components/DataDisplay/PassengerKpiCard/PassengerKpiCard';
+import {
+  CreditCard, Shield, CheckCircle, AlertTriangle, TrendingUp, DollarSign,
+} from 'lucide-react';
+import { AppIcon }          from '../../../components/Common/AppIcon';
 import type { LucideIcon }  from 'lucide-react';
 import type { PaymentMetrics } from '../../../models/payment.model';
+
+interface CardDef {
+  icon:        LucideIcon;
+  label:       string;
+  sub:         string;
+  iconBg:      string;
+  iconColor:   string;
+  valueColor?: string;
+  value:       (m: PaymentMetrics | null, loading?: boolean) => string;
+}
+
+const CARDS: CardDef[] = [
+  {
+    icon: CreditCard, label: 'Total Paiements', sub: 'toutes transactions',
+    iconBg: '#EFF6FF', iconColor: '#2563EB',
+    value: (m, l) => l ? '…' : (m?.total ?? 0).toLocaleString('fr-FR'),
+  },
+  {
+    icon: Shield, label: 'Sécurisés (Escrow)', sub: 'en attente de libération',
+    iconBg: '#FFF7ED', iconColor: '#F97316',
+    value: (m, l) => l ? '…' : (m?.secured ?? 0).toLocaleString('fr-FR'),
+  },
+  {
+    icon: CheckCircle, label: 'Libérés', sub: 'transférés aux conducteurs',
+    iconBg: '#F0FDF4', iconColor: '#16A34A',
+    value: (m, l) => l ? '…' : (m?.released ?? 0).toLocaleString('fr-FR'),
+  },
+  {
+    icon: AlertTriangle, label: 'Échoués', sub: 'incluant remboursements',
+    iconBg: '#FEF2F2', iconColor: '#E53935', valueColor: '#E53935',
+    value: (m, l) => l ? '…' : (m?.failed ?? 0).toLocaleString('fr-FR'),
+  },
+  {
+    icon: TrendingUp, label: 'Volume Brut', sub: 'total encaissé',
+    iconBg: '#F0FDF4', iconColor: '#16A34A',
+    value: (m, l) => l ? '…' : (m?.volume ?? '—'),
+  },
+  {
+    icon: DollarSign, label: 'Commissions', sub: 'revenus plateforme',
+    iconBg: '#FFFBEB', iconColor: '#D97706',
+    value: (m, l) => l ? '…' : (m?.commission ?? '—'),
+  },
+];
 
 interface Props {
   metrics:  PaymentMetrics | null;
   loading?: boolean;
 }
 
-interface KpiDef {
-  id:        string;
-  label:     string;
-  value:     string;
-  badge:     string;
-  icon:      LucideIcon;
-  iconBg:    string;
-  iconColor: string;
-  badgeBg:   string;
-  badgeColor:string;
-}
-
 export function PaymentsMetrics({ metrics, loading }: Props) {
-  const n = (v?: number) => loading ? '…' : (v ?? 0).toLocaleString('fr-FR');
-  const s = (v?: string) => loading ? '…' : (v ?? '—');
-
-  const kpis: KpiDef[] = [
-    {
-      id: 'total', label: 'Total Paiements',
-      value: n(metrics?.total), badge: '',
-      icon: CreditCard, iconBg: '#EFF6FF', iconColor: '#3B82F6',
-      badgeBg: '#EFF6FF', badgeColor: '#3B82F6',
-    },
-    {
-      id: 'secured', label: 'Sécurisés (Escrow)',
-      value: n(metrics?.secured), badge: '',
-      icon: Shield, iconBg: '#FFF7ED', iconColor: '#F97316',
-      badgeBg: '#FFF7ED', badgeColor: '#F97316',
-    },
-    {
-      id: 'released', label: 'Libérés',
-      value: n(metrics?.released), badge: '',
-      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#00A86B',
-      badgeBg: '#F0FDF4', badgeColor: '#00A86B',
-    },
-    {
-      id: 'failed', label: 'Échoués',
-      value: n(metrics?.failed), badge: '',
-      icon: AlertTriangle, iconBg: '#FEF2F2', iconColor: '#E53935',
-      badgeBg: '#FEF2F2', badgeColor: '#E53935',
-    },
-    {
-      id: 'volume', label: 'Volume brut',
-      value: s(metrics?.volume), badge: '',
-      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#00A86B',
-      badgeBg: '#F0FDF4', badgeColor: '#00A86B',
-    },
-    {
-      id: 'commission', label: 'Commissions',
-      value: s(metrics?.commission), badge: '',
-      icon: DollarSign, iconBg: '#FFFBEB', iconColor: '#F59E0B',
-      badgeBg: '#FFFBEB', badgeColor: '#F59E0B',
-    },
-  ];
-
   return (
     <div className="payments-metrics">
-      {kpis.map((kpi) => (
-        <PassengerKpiCard
-          key={kpi.id}
-          label={kpi.label}
-          value={kpi.value}
-          badge={kpi.badge}
-          icon={kpi.icon}
-          iconBg={kpi.iconBg}
-          iconColor={kpi.iconColor}
-          badgeBg={kpi.badgeBg}
-          badgeColor={kpi.badgeColor}
-        />
+      {CARDS.map((c) => (
+        <div key={c.label} className="payments-kpi">
+          <div className="payments-kpi__icon" style={{ background: c.iconBg }}>
+            <AppIcon icon={c.icon} size={18} color={c.iconColor} />
+          </div>
+          <div className="payments-kpi__body">
+            <div className="payments-kpi__label">{c.label}</div>
+            <div
+              className="payments-kpi__value"
+              style={c.valueColor ? { color: c.valueColor } : undefined}
+            >
+              {c.value(metrics, loading)}
+            </div>
+            <div className="payments-kpi__sub">{c.sub}</div>
+          </div>
+        </div>
       ))}
     </div>
   );

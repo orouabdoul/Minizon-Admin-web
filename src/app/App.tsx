@@ -16,7 +16,6 @@ import { TrackingScreen }      from '../screens/Tracking/TrackingScreen';
 import { MessagingScreen }     from '../screens/Messaging/MessagingScreen';
 import { AuditScreen }         from '../screens/Audit/AuditScreen';
 import { ReportsScreen }       from '../screens/Reports/ReportsScreen';
-import { PricingScreen }       from '../screens/Pricing/PricingScreen';
 import { PayoutsScreen }       from '../screens/Payouts/PayoutsScreen';
 import { ReviewsScreen }       from '../screens/Reviews/ReviewsScreen';
 import { RefundsScreen }       from '../screens/Refunds/RefundsScreen';
@@ -57,7 +56,6 @@ export function App() {
       <Route path={ROUTES.MESSAGING}     element={<ProtectedRoute><ErrorBoundary><MessagingScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.AUDIT}         element={<ProtectedRoute><ErrorBoundary><AuditScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.REPORTS}       element={<ProtectedRoute><ErrorBoundary><ReportsScreen /></ErrorBoundary></ProtectedRoute>} />
-      <Route path={ROUTES.PRICING}       element={<ProtectedRoute><ErrorBoundary><PricingScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.PAYOUTS}       element={<ProtectedRoute><ErrorBoundary><PayoutsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.REVIEWS}       element={<ProtectedRoute><ErrorBoundary><ReviewsScreen /></ErrorBoundary></ProtectedRoute>} />
       <Route path={ROUTES.REFUNDS}       element={<ProtectedRoute><ErrorBoundary><RefundsScreen /></ErrorBoundary></ProtectedRoute>} />

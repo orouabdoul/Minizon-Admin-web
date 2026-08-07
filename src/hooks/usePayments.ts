@@ -18,24 +18,26 @@ export function usePayments() {
   }, []);
 
   // ── Filters ──────────────────────────────────────────
-  const [search,        setSearch]        = useState('');
-  const [statusFilter,  setStatusFilter]  = useState('');
-  const [methodFilter,  setMethodFilter]  = useState('');
-  const [dateFilter,    setDateFilter]    = useState('');
+  const [search,       setSearch]       = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [methodFilter, setMethodFilter] = useState('');
+  const [dateFilter,   setDateFilter]   = useState('');
 
-  const [appliedSearch,  setAppliedSearch]  = useState('');
-  const [appliedStatus,  setAppliedStatus]  = useState('');
-  const [appliedMethod,  setAppliedMethod]  = useState('');
-  const [appliedDate,    setAppliedDate]    = useState('');
+  const [appliedSearch, setAppliedSearch] = useState('');
+  const [appliedStatus, setAppliedStatus] = useState('');
+  const [appliedMethod, setAppliedMethod] = useState('');
+  const [appliedDate,   setAppliedDate]   = useState('');
 
   // ── List ─────────────────────────────────────────────
-  const [payments,     setPayments]     = useState<Payment[]>([]);
-  const [total,        setTotal]        = useState(0);
-  const [currentPage,  setCurrentPage]  = useState(1);
-  const [loading,      setLoading]      = useState(true);
-  const [fetchError,   setFetchError]   = useState<string | null>(null);
+  const [payments,    setPayments]    = useState<Payment[]>([]);
+  const [total,       setTotal]       = useState(0);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [loading,     setLoading]     = useState(true);
+  const [fetchError,  setFetchError]  = useState<string | null>(null);
 
-  const fetchPayments = useCallback((page: number, search: string, status: string, method: string, date: string) => {
+  const fetchPayments = useCallback((
+    page: number, search: string, status: string, method: string, date: string,
+  ) => {
     setLoading(true);
     setFetchError(null);
     paymentService.getAll(page, PAGE_SIZE, {
@@ -88,17 +90,87 @@ export function usePayments() {
   }, [payments]);
 
   // ── Refund ────────────────────────────────────────────
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [loadingId,   setLoadingId]   = useState<string | null>(null);
+  const [refundError, setRefundError] = useState<string | null>(null);
+
+  const dismissRefundError = useCallback(() => setRefundError(null), []);
 
   const refund = useCallback(async (id: string) => {
     setLoadingId(id);
+    setRefundError(null);
     try {
       await paymentService.refund(id);
-      setPayments((prev) => prev.map((p) => p.id === id ? { ...p, canRefund: false, status: 'Remboursé' } : p));
-      setSelectedPayment((prev) => prev?.id === id ? { ...prev, canRefund: false, status: 'Remboursé' } : prev);
-    } catch { /* server message visible via fetchError */ }
-    finally { setLoadingId(null); }
+      setPayments((prev) =>
+        prev.map((p) => p.id === id ? { ...p, canRefund: false, status: 'Remboursé' } : p),
+      );
+      setSelectedPayment((prev) =>
+        prev?.id === id ? { ...prev, canRefund: false, status: 'Remboursé' } : prev,
+      );
+      // Refresh metrics so counts stay accurate
+      paymentService.getMetrics().then((r) => setMetrics(r.data.body)).catch(() => {});
+    } catch (e: unknown) {
+      const httpStatus = (e as any)?.response?.status;
+      const apiMsg     = (e as any)?.response?.data?.message;
+      const msg = apiMsg ?? (
+        httpStatus === 422 ? 'Ce paiement ne peut pas être remboursé.' :
+        httpStatus === 502 ? 'Erreur FedaPay : remboursement impossible pour le moment.' :
+                             'Erreur lors du remboursement. Veuillez réessayer.'
+      );
+      setRefundError(msg);
+    } finally {
+      setLoadingId(null);
+    }
   }, []);
+
+  // ── Release ───────────────────────────────────────────
+  const [releaseError, setReleaseError] = useState<string | null>(null);
+
+  const dismissReleaseError = useCallback(() => setReleaseError(null), []);
+
+  const release = useCallback(async (id: string) => {
+    setLoadingId(id);
+    setReleaseError(null);
+    try {
+      const res = await paymentService.release(id);
+      const updated = mapApiPaymentToPayment(res.data.body);
+      setPayments((prev) => prev.map((p) => p.id === id ? updated : p));
+      setSelectedPayment((prev) => prev?.id === id ? updated : prev);
+      paymentService.getMetrics().then((r) => setMetrics(r.data.body)).catch(() => {});
+    } catch (e: unknown) {
+      const httpStatus = (e as any)?.response?.status;
+      const apiMsg     = (e as any)?.response?.data?.message;
+      const msg = apiMsg ?? (
+        httpStatus === 422 ? 'Ce paiement ne peut pas être libéré.' :
+        httpStatus === 403 ? 'Accès refusé.' :
+                             'Erreur lors de la libération. Veuillez réessayer.'
+      );
+      setReleaseError(msg);
+    } finally {
+      setLoadingId(null);
+    }
+  }, []);
+
+  // ── Release confirmation ──────────────────────────────
+  const [confirmReleaseId, setConfirmReleaseId] = useState<string | null>(null);
+
+  const requestRelease = useCallback((id: string) => setConfirmReleaseId(id), []);
+  const cancelRelease  = useCallback(() => setConfirmReleaseId(null), []);
+  const confirmRelease = useCallback(async () => {
+    const id = confirmReleaseId;
+    setConfirmReleaseId(null);
+    if (id) await release(id);
+  }, [confirmReleaseId, release]);
+
+  // ── Refund confirmation ───────────────────────────────
+  const [confirmRefundId, setConfirmRefundId] = useState<string | null>(null);
+
+  const requestRefund  = useCallback((id: string) => setConfirmRefundId(id), []);
+  const cancelRefund   = useCallback(() => setConfirmRefundId(null), []);
+  const confirmRefund  = useCallback(async () => {
+    const id = confirmRefundId;
+    setConfirmRefundId(null);
+    if (id) await refund(id);
+  }, [confirmRefundId, refund]);
 
   // ── Sync all (global FedaPay sync) ───────────────────
   const [syncAllLoading, setSyncAllLoading] = useState(false);
@@ -112,12 +184,9 @@ export function usePayments() {
     try {
       const res = await paymentService.syncAll();
       setSyncAllResult(res.data.body);
-      // Reload the list to reflect updated statuses
       fetchPayments(currentPage, appliedSearch, appliedStatus, appliedMethod, appliedDate);
-      // Also refresh metrics
       paymentService.getMetrics().then((r) => setMetrics(r.data.body)).catch(() => {});
     } catch (e) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       setSyncAllError((e as any)?.response?.data?.message ?? 'Erreur lors de la synchronisation FedaPay.');
     } finally {
       setSyncAllLoading(false);
@@ -137,12 +206,10 @@ export function usePayments() {
     try {
       const res = await paymentService.syncOne(id);
       const updated = mapApiPaymentToPayment(res.data.body);
-      // Update list row
       setPayments((prev) => prev.map((p) => p.id === id ? updated : p));
-      // Update modal
       setSelectedPayment(updated);
     } catch {
-      // Error displayed via syncOneError if needed; silently keep current state
+      // silently keep current state
     } finally {
       setSyncOneLoading(false);
     }
@@ -163,7 +230,11 @@ export function usePayments() {
     // detail
     setSelectedId, selectedPayment, detailLoading,
     // refund
-    loadingId, refund,
+    loadingId, refundError, dismissRefundError,
+    requestRefund, cancelRefund, confirmRefund, confirmRefundId,
+    // release
+    releaseError, dismissReleaseError,
+    requestRelease, cancelRelease, confirmRelease, confirmReleaseId,
     // sync all
     syncAll, syncAllLoading, syncAllResult, syncAllError, dismissSyncResult,
     // sync one
