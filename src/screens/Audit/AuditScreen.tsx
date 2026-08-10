@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Shield, Download, Search, RefreshCw, FileText } from 'lucide-react';
+import { Shield, Download, Search, RefreshCw, FileText, AlertTriangle, Users, BarChart2 } from 'lucide-react';
 import { DashboardLayout } from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }         from '../../components/Common/AppIcon';
 import { useAudit }        from '../../hooks/useAudit';
@@ -50,11 +50,9 @@ function fmtTimestamp(iso: string) {
 // ── Screen ─────────────────────────────────────────────────────────────────────
 
 export function AuditScreen() {
-  const { logs, loading, filters, admins, exportMsg, setFilters, exportLogs } = useAudit();
-  const [exportOpen, setExportOpen] = useState(false);
-
-  const totalLogs      = logs.length;
-  const critiquesCount = logs.filter((l) => l.severity === 'critique').length;
+  const { logs, stats, loading, filters, admins, exporting, setFilters, exportLogs, refresh } = useAudit();
+  // eslint-disable-next-line no-empty-pattern
+  const [] = useState(false);
 
   return (
     <DashboardLayout title="Journal d'Audit & Sécurité">
@@ -62,10 +60,10 @@ export function AuditScreen() {
       {/* ── KPI summary ──────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
         {[
-          { label: 'Entrées aujourd\'hui', value: logs.filter((l) => l.timestamp.startsWith('2026-07-01')).length, color: '#2563EB', bg: '#DBEAFE', icon: FileText },
-          { label: 'Actions critiques',    value: critiquesCount,                                                    color: '#E53935', bg: '#FEE2E2', icon: Shield   },
-          { label: 'Administrateurs actifs', value: admins.length,                                                   color: '#00A86B', bg: '#DCFCE7', icon: Shield   },
-          { label: 'Total entrées',        value: totalLogs,                                                          color: '#7C3AED', bg: '#F3E8FF', icon: FileText },
+          { label: "Actions aujourd'hui", value: stats.today_count,    color: '#2563EB', bg: '#DBEAFE', icon: FileText      },
+          { label: 'Événements critiques', value: stats.critique_count, color: '#E53935', bg: '#FEE2E2', icon: AlertTriangle },
+          { label: 'Administrateurs',      value: admins.length,        color: '#00A86B', bg: '#DCFCE7', icon: Users         },
+          { label: 'Total entrées',        value: stats.total,          color: '#7C3AED', bg: '#F3E8FF', icon: BarChart2     },
         ].map((k) => (
           <div key={k.label} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: '#fff', borderRadius: 10, outline: '1px solid #F3F4F6' }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -88,13 +86,13 @@ export function AuditScreen() {
             <AppIcon icon={Search} size={14} color="#9CA3AF" />
             <input
               style={{ border: 'none', background: 'transparent', fontSize: 13, color: '#374151', outline: 'none', flex: 1 }}
-              placeholder="Rechercher une action, un utilisateur…"
+              placeholder="Rechercher action, utilisateur, IP…"
               value={filters.search}
               onChange={(e) => setFilters({ search: e.target.value })}
             />
           </div>
 
-          {/* Severity filter */}
+          {/* Severity */}
           <select
             style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 12, color: '#374151', background: '#fff' }}
             value={filters.severity}
@@ -106,7 +104,7 @@ export function AuditScreen() {
             <option value="critique">Critique</option>
           </select>
 
-          {/* Action type filter */}
+          {/* Action type */}
           <select
             style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 12, color: '#374151', background: '#fff' }}
             value={filters.actionType}
@@ -118,7 +116,7 @@ export function AuditScreen() {
             ))}
           </select>
 
-          {/* Admin filter */}
+          {/* Admin */}
           <select
             style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 12, color: '#374151', background: '#fff' }}
             value={filters.adminId}
@@ -128,30 +126,46 @@ export function AuditScreen() {
             {admins.map((a) => <option key={a.id} value={a.id}>{a.name}</option>)}
           </select>
 
-          {/* Export */}
-          <div style={{ position: 'relative' }}>
-            <button
-              type="button"
-              onClick={() => setExportOpen((v) => !v)}
-              style={{ height: 36, padding: '0 14px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 12, fontWeight: 600, color: '#374151', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
-            >
-              <AppIcon icon={Download} size={13} color="#374151" /> Exporter
-            </button>
-            {exportOpen && (
-              <div style={{ position: 'absolute', right: 0, top: 40, background: '#fff', borderRadius: 10, border: '1.5px solid #E5E7EB', boxShadow: '0 4px 20px rgba(0,0,0,0.12)', zIndex: 100, overflow: 'hidden', minWidth: 140 }}>
-                <button type="button" onClick={() => { exportLogs('excel'); setExportOpen(false); }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', fontSize: 13, color: '#374151', cursor: 'pointer', textAlign: 'left' }}>📊 Export Excel</button>
-                <button type="button" onClick={() => { exportLogs('pdf');   setExportOpen(false); }} style={{ display: 'block', width: '100%', padding: '10px 16px', border: 'none', background: 'none', fontSize: 13, color: '#374151', cursor: 'pointer', textAlign: 'left' }}>📄 Export PDF</button>
-              </div>
-            )}
-          </div>
-        </div>
+          {/* Date from */}
+          <input
+            type="date"
+            style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 12, color: '#374151', background: '#fff' }}
+            value={filters.date_from}
+            onChange={(e) => setFilters({ date_from: e.target.value })}
+            title="Date début"
+          />
 
-        {/* Export message toast */}
-        {exportMsg && (
-          <div style={{ padding: '8px 16px', background: '#DCFCE7', borderTop: '1px solid #BBF7D0', fontSize: 12, fontWeight: 600, color: '#16A34A' }}>
-            ✓ {exportMsg}
-          </div>
-        )}
+          {/* Date to */}
+          <input
+            type="date"
+            style={{ height: 36, padding: '0 10px', borderRadius: 8, border: '1.5px solid #E5E7EB', fontSize: 12, color: '#374151', background: '#fff' }}
+            value={filters.date_to}
+            onChange={(e) => setFilters({ date_to: e.target.value })}
+            title="Date fin"
+          />
+
+          {/* Refresh */}
+          <button
+            type="button"
+            onClick={refresh}
+            disabled={loading}
+            style={{ height: 36, width: 36, borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+            title="Actualiser"
+          >
+            <AppIcon icon={RefreshCw} size={14} color={loading ? '#D1D5DB' : '#374151'} />
+          </button>
+
+          {/* Export CSV */}
+          <button
+            type="button"
+            onClick={exportLogs}
+            disabled={exporting}
+            style={{ height: 36, padding: '0 14px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 12, fontWeight: 600, color: exporting ? '#9CA3AF' : '#374151', cursor: exporting ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', gap: 6 }}
+          >
+            <AppIcon icon={Download} size={13} color={exporting ? '#9CA3AF' : '#374151'} />
+            {exporting ? 'Export…' : 'Export CSV'}
+          </button>
+        </div>
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────────────── */}
@@ -162,7 +176,10 @@ export function AuditScreen() {
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <AppIcon icon={Shield} size={16} color="#374151" />
             <span style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Journal d'audit</span>
-            <span style={{ fontSize: 12, color: '#6B7280' }}>— {logs.length} entrée{logs.length > 1 ? 's' : ''}</span>
+            <span style={{ fontSize: 12, color: '#6B7280' }}>
+              — {logs.length} entrée{logs.length > 1 ? 's' : ''} affichée{logs.length > 1 ? 's' : ''}
+              {stats.total > logs.length ? ` / ${stats.total} au total` : ''}
+            </span>
           </div>
           {loading && <AppIcon icon={RefreshCw} size={14} color="#9CA3AF" />}
         </div>
@@ -175,8 +192,12 @@ export function AuditScreen() {
         </div>
 
         {/* Rows */}
-        <div style={{ maxHeight: 'calc(100vh - 420px)', overflowY: 'auto' }}>
-          {logs.length === 0 ? (
+        <div style={{ maxHeight: 'calc(100vh - 440px)', overflowY: 'auto' }}>
+          {loading && logs.length === 0 ? (
+            <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
+              Chargement…
+            </div>
+          ) : logs.length === 0 ? (
             <div style={{ padding: '40px 16px', textAlign: 'center', color: '#9CA3AF', fontSize: 13 }}>
               Aucune entrée pour ces filtres
             </div>
@@ -202,7 +223,13 @@ export function AuditScreen() {
 
                 {/* Admin */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <img src={log.adminAvatar} alt={log.adminName} style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
+                  {log.adminAvatar ? (
+                    <img src={log.adminAvatar} alt={log.adminName} style={{ width: 24, height: 24, borderRadius: '50%', objectFit: 'cover' }} />
+                  ) : (
+                    <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#E5E7EB', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, color: '#6B7280' }}>
+                      {log.adminName.slice(0, 1).toUpperCase()}
+                    </div>
+                  )}
                   <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>{log.adminName}</span>
                 </div>
 

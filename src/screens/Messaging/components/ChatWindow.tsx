@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, Send, MessageSquare, ChevronRight, RefreshCw } from 'lucide-react';
+import { Phone, Send, MessageSquare, ChevronRight, RefreshCw, Pencil, Trash2, Check, X } from 'lucide-react';
 import { AppIcon } from '../../../components/Common/AppIcon';
 import type { Conversation, DriverStatus } from '../../../models/messaging.model';
 
@@ -39,12 +39,18 @@ interface Props {
   loadingMessages: boolean;
   onSend:          (content: string) => void;
   onRefresh:       (id: string) => void;
+  onEdit:          (msgId: string, content: string) => void;
+  onDelete:        (msgId: string) => void;
 }
 
-export function ChatWindow({ conversation, sending, loadingMessages, onSend, onRefresh }: Props) {
-  const [input, setInput]  = useState('');
-  const messagesEndRef     = useRef<HTMLDivElement>(null);
-  const textareaRef        = useRef<HTMLTextAreaElement>(null);
+export function ChatWindow({ conversation, sending, loadingMessages, onSend, onRefresh, onEdit, onDelete }: Props) {
+  const [input, setInput]             = useState('');
+  const [editingId, setEditingId]     = useState<string | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null);
+  const messagesEndRef                = useRef<HTMLDivElement>(null);
+  const textareaRef                   = useRef<HTMLTextAreaElement>(null);
+  const editInputRef                  = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -52,8 +58,13 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
 
   useEffect(() => {
     setInput('');
+    setEditingId(null);
     textareaRef.current?.focus();
   }, [conversation?.id]);
+
+  useEffect(() => {
+    if (editingId) editInputRef.current?.focus();
+  }, [editingId]);
 
   const handleSend = () => {
     if (!input.trim() || sending) return;
@@ -65,6 +76,19 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
+
+  const startEdit = (msgId: string, current: string) => {
+    setEditingId(msgId);
+    setEditContent(current);
+  };
+
+  const confirmEdit = () => {
+    if (!editingId || !editContent.trim()) return;
+    onEdit(editingId, editContent.trim());
+    setEditingId(null);
+  };
+
+  const cancelEdit = () => setEditingId(null);
 
   // ── Empty state ─────────────────────────────────────────────────────────────
   if (!conversation) {
@@ -167,6 +191,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
         ) : messages.map((msg, i) => {
           const isAdmin  = msg.sender === 'admin';
           const showDate = i === 0 || !sameDay(messages[i - 1].sentAt, msg.sentAt);
+          const isEditing = editingId === msg.id;
 
           return (
             <div key={msg.id}>
@@ -177,23 +202,87 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
                   <span className="msg-date-divider__line" />
                 </div>
               )}
-              <div className={`msg-bubble-row${isAdmin ? ' msg-bubble-row--admin' : ''}`}>
+              <div
+                className={`msg-bubble-row${isAdmin ? ' msg-bubble-row--admin' : ''}`}
+                onMouseEnter={() => isAdmin && setHoveredMsgId(msg.id)}
+                onMouseLeave={() => setHoveredMsgId(null)}
+              >
+                {/* Avatar utilisateur (messages non-admin) */}
                 {!isAdmin && (
                   avatar
                     ? <img src={avatar} alt="" style={{ width: 28, height: 28, borderRadius: '50%', objectFit: 'cover', flexShrink: 0 }} />
                     : <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#6B7280', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700, flexShrink: 0 }}>{initials(name)}</div>
                 )}
-                <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
-                  <p className="msg-bubble__text">{msg.content}</p>
-                  <div className="msg-bubble__footer">
-                    <span className="msg-bubble__time">{fmtTime(msg.sentAt)}</span>
-                    {isAdmin && (
-                      <span className="msg-bubble__ticks" title={msg.status}>
-                        {msg.status === 'lu' ? '✓✓' : '✓'}
-                      </span>
-                    )}
+
+                {/* Bulle ou formulaire d'édition — sibling direct dans la row, max-width:70% OK */}
+                {isEditing ? (
+                  <div className="msg-bubble-edit">
+                    <textarea
+                      ref={editInputRef}
+                      className="msg-bubble-edit__input"
+                      value={editContent}
+                      rows={2}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); confirmEdit(); }
+                        if (e.key === 'Escape') cancelEdit();
+                      }}
+                    />
+                    <div className="msg-bubble-edit__actions">
+                      <button type="button" className="msg-bubble-edit-btn msg-bubble-edit-btn--cancel" onClick={cancelEdit}>
+                        <AppIcon icon={X} size={12} color="#6B7280" /> Annuler
+                      </button>
+                      <button type="button" className="msg-bubble-edit-btn msg-bubble-edit-btn--save" onClick={confirmEdit}>
+                        <AppIcon icon={Check} size={12} color="#fff" /> Enregistrer
+                      </button>
+                    </div>
                   </div>
-                </div>
+                ) : (
+                  <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
+                    <p className="msg-bubble__text">{msg.content}</p>
+                    {isAdmin && msg.is_edited === true && (
+                      <p style={{ fontSize: 10, fontStyle: 'italic', opacity: 0.6, margin: '2px 0 0', lineHeight: 1.2 }}>
+                        (modifié)
+                      </p>
+                    )}
+                    <div className="msg-bubble__footer">
+                      <span className="msg-bubble__time">{fmtTime(msg.sentAt)}</span>
+                      {isAdmin && (
+                        <span
+                          className="msg-bubble__ticks"
+                          title={msg.status}
+                          style={{ color: msg.status === 'lu' ? '#2563EB' : '#9CA3AF' }}
+                        >
+                          {msg.status === 'lu' ? '✓✓' : '✓'}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Boutons modifier/supprimer — sibling après la bulle.
+                    Avec flex-direction:row-reverse sur .msg-bubble-row--admin,
+                    ils apparaissent visuellement à GAUCHE de la bulle. */}
+                {isAdmin && !isEditing && hoveredMsgId === msg.id && (
+                  <div style={{ display: 'flex', gap: 4, alignSelf: 'center' }}>
+                    <button
+                      type="button"
+                      className="msg-bubble-action-btn"
+                      title="Modifier"
+                      onClick={() => startEdit(msg.id, msg.content)}
+                    >
+                      <AppIcon icon={Pencil} size={11} color="#6B7280" />
+                    </button>
+                    <button
+                      type="button"
+                      className="msg-bubble-action-btn msg-bubble-action-btn--delete"
+                      title="Supprimer"
+                      onClick={() => onDelete(msg.id)}
+                    >
+                      <AppIcon icon={Trash2} size={11} color="#EF4444" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );

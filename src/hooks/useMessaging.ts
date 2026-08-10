@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import type {
   Conversation, ChatMessage, BroadcastTarget, BroadcastResult,
-  ConvStatusFilter, RoleFilter, UserSearchResult,
+  ConvStatusFilter, RoleFilter, UserSearchResult, SendToSelectedResult,
 } from '../models/messaging.model';
 import { messagingService } from '../services/messaging_service';
 
@@ -242,6 +242,63 @@ export function useMessaging() {
     setBroadcastError(null);
   }, []);
 
+  // ── Edit message ───────────────────────────────────────────────────────────
+
+  const editMessage = useCallback(async (convId: string, msgId: string, content: string): Promise<boolean> => {
+    setConversations((prev) => prev.map((c) =>
+      c.id !== convId ? c : {
+        ...c,
+        messages: (c.messages ?? []).map((m) =>
+          m.id !== msgId ? m : { ...m, content, is_edited: true }
+        ),
+      }
+    ));
+    try {
+      const res     = await messagingService.editMessage(msgId, content);
+      const raw     = res.data as any;
+      const updated = raw?.body ?? raw;
+      if (updated?.id) {
+        setConversations((prev) => prev.map((c) =>
+          c.id !== convId ? c : {
+            ...c,
+            messages: (c.messages ?? []).map((m) =>
+              m.id !== msgId ? m : { ...m, ...updated }
+            ),
+          }
+        ));
+      }
+      return true;
+    } catch { return false; }
+  }, []);
+
+  // ── Delete message ─────────────────────────────────────────────────────────
+
+  const deleteMessage = useCallback(async (convId: string, msgId: string): Promise<boolean> => {
+    setConversations((prev) => prev.map((c) =>
+      c.id !== convId ? c : {
+        ...c,
+        messages: (c.messages ?? []).filter((m) => m.id !== msgId),
+      }
+    ));
+    try {
+      await messagingService.deleteMessage(msgId);
+      return true;
+    } catch { return false; }
+  }, []);
+
+  // ── Send to selected ───────────────────────────────────────────────────────
+
+  const sendToSelected = useCallback(async (
+    userUuids: string[],
+    content: string,
+  ): Promise<SendToSelectedResult | null> => {
+    try {
+      const res = await messagingService.sendToSelected(userUuids, content);
+      const raw = res.data as any;
+      return raw?.body ?? raw ?? null;
+    } catch { return null; }
+  }, []);
+
   return {
     // list
     conversations, selectedId, selectedConversation,
@@ -251,11 +308,14 @@ export function useMessaging() {
     statusFilter, setStatusFilter,
     // conversation actions
     selectConversation, refreshMessages, sendMessage,
+    editMessage, deleteMessage,
     // new conversation
     userSearchResults, userSearchLoading, startingConv,
     searchUsersForNew, clearUserSearch, startNewConversation,
     // broadcast
     broadcastResult, broadcastError, dismissBroadcastResult,
     broadcastMessage,
+    // send to selected
+    sendToSelected,
   };
 }

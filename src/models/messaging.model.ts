@@ -14,6 +14,9 @@ export interface ChatMessage {
   content:         string;
   sentAt:          string;
   status:          MessageStatus;
+  is_read?:        boolean;
+  is_edited?:      boolean;
+  edited_at?:      string;
 }
 
 export interface Conversation {
@@ -54,6 +57,18 @@ export interface StartConvResult {
 export interface BroadcastResult {
   sent_to: number;
   target:  string;
+}
+
+export interface SendToSelectedResult {
+  sent_to:   number;
+  not_found: number;
+}
+
+export interface EditMessageResult {
+  id:        string;
+  content:   string;
+  is_edited: boolean;
+  edited_at: string;
 }
 
 export interface ConversationsBody {

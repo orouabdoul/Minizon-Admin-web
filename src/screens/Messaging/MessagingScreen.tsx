@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Radio, Search, Send } from 'lucide-react';
+import { X, Radio, Search, Send, Users } from 'lucide-react';
 import { DashboardLayout }   from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }           from '../../components/Common/AppIcon';
 import { ConversationList }  from './components/ConversationList';
@@ -33,9 +33,11 @@ export function MessagingScreen() {
     roleFilter, setRoleFilter,
     statusFilter, setStatusFilter,
     selectConversation, refreshMessages, sendMessage,
+    editMessage, deleteMessage,
     userSearchResults, userSearchLoading, startingConv,
     searchUsersForNew, clearUserSearch, startNewConversation,
     broadcastResult, broadcastError, broadcastMessage, dismissBroadcastResult,
+    sendToSelected,
   } = useMessaging();
 
   // ── Broadcast modal ─────────────────────────────────────────────────────────
@@ -69,6 +71,56 @@ export function MessagingScreen() {
     setBroadcastSent(false);
     setBroadcastTarget('tous');
     dismissBroadcastResult();
+  };
+
+  // ── Send-to-selected modal ──────────────────────────────────────────────────
+  const [selectOpen,      setSelectOpen]      = useState(false);
+  const [selectSearch,    setSelectSearch]    = useState('');
+  const [selectRole,      setSelectRole]      = useState<RoleFilter>('all');
+  const [selectedUuids,   setSelectedUuids]   = useState<Set<string>>(new Set());
+  const [selectMsg,       setSelectMsg]       = useState('');
+  const [selectSending,   setSelectSending]   = useState(false);
+  const [selectResult,    setSelectResult]    = useState<{ sent_to: number; not_found: number } | null>(null);
+
+  const openSelectModal = () => {
+    setSelectOpen(true);
+    setSelectSearch('');
+    setSelectRole('all');
+    setSelectedUuids(new Set());
+    setSelectMsg('');
+    setSelectResult(null);
+    clearUserSearch();
+  };
+
+  const closeSelectModal = () => {
+    setSelectOpen(false);
+    clearUserSearch();
+    setSelectResult(null);
+  };
+
+  const toggleSelectUser = (uuid: string) => {
+    setSelectedUuids((prev) => {
+      const next = new Set(prev);
+      next.has(uuid) ? next.delete(uuid) : next.add(uuid);
+      return next;
+    });
+  };
+
+  const handleSendToSelected = async () => {
+    if (!selectMsg.trim() || selectedUuids.size === 0 || selectSending) return;
+    setSelectSending(true);
+    try {
+      const result = await sendToSelected([...selectedUuids], selectMsg.trim());
+      if (result) {
+        setSelectResult(result);
+        setTimeout(() => {
+          closeSelectModal();
+          setSelectMsg('');
+        }, 2500);
+      }
+    } finally {
+      setSelectSending(false);
+    }
   };
 
   // ── New conversation modal ───────────────────────────────────────────────────
@@ -118,6 +170,7 @@ export function MessagingScreen() {
           onSelect={selectConversation}
           onBroadcast={() => setBroadcastOpen(true)}
           onNewConversation={openNewConv}
+          onSendToSelected={openSelectModal}
         />
         <ChatWindow
           conversation={selectedConversation}
@@ -125,6 +178,8 @@ export function MessagingScreen() {
           loadingMessages={loadingMessages}
           onSend={sendMessage}
           onRefresh={refreshMessages}
+          onEdit={(msgId, content) => selectedId && editMessage(selectedId, msgId, content)}
+          onDelete={(msgId) => selectedId && deleteMessage(selectedId, msgId)}
         />
       </div>
 
@@ -332,6 +387,154 @@ export function MessagingScreen() {
                   </button>
                 </div>
               </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ── Send-to-selected modal ───────────────────────────────────────────── */}
+      {selectOpen && (
+        <div className="msg-modal-overlay" onClick={closeSelectModal}>
+          <div className="msg-modal msg-modal--flex" onClick={(e) => e.stopPropagation()}>
+            <div className="msg-modal__header">
+              <div>
+                <p className="msg-modal__title">Envoyer à une sélection</p>
+                <p className="msg-modal__subtitle">
+                  Cochez les destinataires puis rédigez votre message
+                </p>
+              </div>
+              <button type="button" className="msg-modal__close" onClick={closeSelectModal}>
+                <AppIcon icon={X} size={18} color="#6B7280" />
+              </button>
+            </div>
+
+            {selectResult ? (
+              <div className="msg-broadcast-success">
+                <div className="msg-broadcast-success__icon">✅</div>
+                <p className="msg-broadcast-success__title">Messages envoyés !</p>
+                <p className="msg-broadcast-success__desc">
+                  Envoyé à <strong>{selectResult.sent_to}</strong> destinataire(s).
+                  {selectResult.not_found > 0 && (
+                    <> <span style={{ color: '#EF4444' }}>{selectResult.not_found} introuvable(s).</span></>
+                  )}
+                </p>
+              </div>
+            ) : (
+              <>
+                {/* Role chips */}
+                <div className="msg-role-chips">
+                  {NEW_CONV_ROLE_TABS.map(({ value, label }) => (
+                    <button
+                      key={value}
+                      type="button"
+                      className={`msg-role-chip${selectRole === value ? ' msg-role-chip--active' : ''}`}
+                      onClick={() => {
+                        setSelectRole(value);
+                        if (selectSearch.trim()) searchUsersForNew(selectSearch, value);
+                      }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Search */}
+                <div className="msg-modal-search">
+                  <div className="msg-modal-search__wrap">
+                    <AppIcon icon={Search} size={14} color="#9CA3AF" />
+                    <input
+                      className="msg-modal-search__input"
+                      placeholder="Rechercher par nom ou téléphone…"
+                      value={selectSearch}
+                      autoFocus
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSelectSearch(val);
+                        searchUsersForNew(val, selectRole);
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Selected count */}
+                {selectedUuids.size > 0 && (
+                  <p style={{ fontSize: 12, color: '#2563EB', padding: '0 16px', margin: '4px 0 0', fontWeight: 600 }}>
+                    {selectedUuids.size} sélectionné(s)
+                  </p>
+                )}
+
+                {/* Results with checkboxes */}
+                <div className="msg-modal-results">
+                  {userSearchLoading ? (
+                    <p className="msg-modal-empty">Recherche en cours…</p>
+                  ) : selectSearch.trim() && userSearchResults.length === 0 ? (
+                    <p className="msg-modal-empty">Aucun résultat pour « {selectSearch} »</p>
+                  ) : userSearchResults.length > 0 ? (
+                    <div className="msg-modal-result-list">
+                      {userSearchResults.map((u) => {
+                        const checked = selectedUuids.has(u.uuid);
+                        return (
+                          <button
+                            key={u.uuid}
+                            type="button"
+                            className={`msg-user-result${checked ? ' msg-user-result--selected' : ''}`}
+                            onClick={() => toggleSelectUser(u.uuid)}
+                          >
+                            <input
+                              type="checkbox"
+                              readOnly
+                              checked={checked}
+                              style={{ accentColor: '#2563EB', width: 14, height: 14, flexShrink: 0 }}
+                            />
+                            {u.avatar ? (
+                              <img src={u.avatar} alt={u.name} className="msg-user-result__avatar" />
+                            ) : (
+                              <div className="msg-user-result__avatar-fallback">{initials(u.name)}</div>
+                            )}
+                            <div className="msg-user-result__info">
+                              <div className="msg-user-result__name">{u.name}</div>
+                              <div className="msg-user-result__meta">{u.phone} · {u.roleLabel}</div>
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : (
+                    <p className="msg-modal-empty">Tapez un nom ou un numéro pour rechercher</p>
+                  )}
+                </div>
+
+                {/* Message */}
+                <div className="msg-modal-first-msg">
+                  <p className="msg-modal-first-msg__label">Message</p>
+                  <textarea
+                    className="msg-broadcast-textarea"
+                    value={selectMsg}
+                    onChange={(e) => setSelectMsg(e.target.value)}
+                    placeholder="Tapez votre message…"
+                    rows={3}
+                  />
+                </div>
+
+                <div className="msg-modal__footer">
+                  <button type="button" className="msg-btn msg-btn--cancel" onClick={closeSelectModal}>
+                    Annuler
+                  </button>
+                  <button
+                    type="button"
+                    className="msg-btn msg-btn--send"
+                    onClick={handleSendToSelected}
+                    disabled={!selectMsg.trim() || selectedUuids.size === 0 || selectSending}
+                  >
+                    {selectSending ? 'Envoi…' : (
+                      <>
+                        <AppIcon icon={Users} size={14} color="#fff" />
+                        Envoyer ({selectedUuids.size})
+                      </>
+                    )}
+                  </button>
+                </div>
+              </>
             )}
           </div>
         </div>

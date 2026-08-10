@@ -31,7 +31,7 @@ export const colors = {
   bannerCardBorder: 'rgba(255, 255, 255, 0.20)',
   bannerTextPrimary: '#FFFFFF',
   bannerTextSecondary: '#D1D5DB',
-  bannerTextMuted: '#9CA3AF',
+  bannerTextMuted: '#FFFFFF',
 
   white: '#FFFFFF',
   black: '#000000',

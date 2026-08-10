@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Search, Radio, Plus } from 'lucide-react';
+import { Search, Radio, Plus, Users } from 'lucide-react';
 import { AppIcon } from '../../../components/Common/AppIcon';
 import type {
   Conversation, DriverStatus, RoleFilter, ConvStatusFilter,
@@ -56,6 +56,7 @@ interface Props {
   onSelect:          (id: string) => void;
   onBroadcast:       () => void;
   onNewConversation: () => void;
+  onSendToSelected:  () => void;
 }
 
 export function ConversationList({
@@ -63,7 +64,7 @@ export function ConversationList({
   loading, error,
   roleFilter, setRoleFilter,
   statusFilter, setStatusFilter,
-  onSelect, onBroadcast, onNewConversation,
+  onSelect, onBroadcast, onNewConversation, onSendToSelected,
 }: Props) {
   const [search, setSearch] = useState('');
 
@@ -99,6 +100,16 @@ export function ConversationList({
               title="Nouveau message"
             >
               <AppIcon icon={Plus} size={14} color="#fff" />
+            </button>
+            <button
+              type="button"
+              className="msg-action-btn"
+              style={{ background: '#059669' }}
+              onClick={onSendToSelected}
+              title="Envoyer à une sélection"
+            >
+              <AppIcon icon={Users} size={12} color="#fff" />
+              Sélection
             </button>
             <button
               type="button"

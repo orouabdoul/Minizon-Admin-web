@@ -28,4 +28,16 @@ export const messagingService = {
   // POST /admin/messaging/broadcast
   broadcast: (content: string, target: BroadcastTarget) =>
     api.post('/admin/messaging/broadcast', { content, target }),
+
+  // POST /admin/messaging/send-to-selected
+  sendToSelected: (userUuids: string[], content: string) =>
+    api.post('/admin/messaging/send-to-selected', { user_uuids: userUuids, content }),
+
+  // PATCH /admin/messaging/messages/{uuid}
+  editMessage: (messageUuid: string, content: string) =>
+    api.patch(`/admin/messaging/messages/${messageUuid}`, { content }),
+
+  // DELETE /admin/messaging/messages/{uuid}
+  deleteMessage: (messageUuid: string) =>
+    api.delete(`/admin/messaging/messages/${messageUuid}`),
 };

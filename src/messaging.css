@@ -543,6 +543,68 @@
   letter-spacing: -1px;
 }
 
+/* ── Edit/delete actions on admin bubbles ─────────────────────────────────── */
+.msg-bubble-actions {
+  display: none;
+  gap: 4px;
+  margin-bottom: 3px;
+}
+.msg-bubble-row--admin:hover .msg-bubble-actions { display: flex; }
+
+.msg-bubble-action-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  border: none;
+  border-radius: 6px;
+  background: #F3F4F6;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.msg-bubble-action-btn:hover           { background: #E5E7EB; }
+.msg-bubble-action-btn--delete:hover   { background: #FEE2E2; }
+
+/* ── Inline edit form ─────────────────────────────────────────────────────── */
+.msg-bubble-edit {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 320px;
+}
+.msg-bubble-edit__input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1.5px solid #2563EB;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: inherit;
+  resize: none;
+  outline: none;
+  box-sizing: border-box;
+}
+.msg-bubble-edit__actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+.msg-bubble-edit-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.msg-bubble-edit-btn:hover { opacity: 0.85; }
+.msg-bubble-edit-btn--cancel { background: #F3F4F6; color: #374151; }
+.msg-bubble-edit-btn--save   { background: #2563EB; color: #fff; }
+
 .msg-sending-row {
   display: flex;
   justify-content: flex-end;
