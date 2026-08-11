@@ -1167,3 +1167,11 @@
   .messaging-layout--chat-open .msg-panel { display: none; }
   .messaging-layout--chat-open .msg-chat  { display: flex; }
 }
+
+@media (max-width: 480px) {
+  .msg-panel__header         { padding: 10px 12px 8px; }
+  .msg-panel__title          { font-size: 14px; }
+  .msg-chat__header          { padding: 10px 12px; }
+  .msg-chat__input-bar       { padding: 8px 10px; }
+  .msg-bubble                { max-width: 90%; font-size: 13px; }
+}

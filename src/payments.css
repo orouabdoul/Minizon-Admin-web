@@ -12,8 +12,24 @@
   gap: 14px;
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 1024px) {
   .payments-metrics { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 768px) {
+  .payments-metrics      { gap: 10px; }
+  .payments-filters-card { gap: 8px; }
+  .payments-filter-select,
+  .payments-filter-date  { min-width: 130px; }
+  .payments-table-header { padding: 12px 16px; }
+  .payments-pagination   { padding: 10px 16px; }
+}
+@media (max-width: 480px) {
+  .payments-metrics      { grid-template-columns: 1fr; }
+  .payments-filters-card { flex-direction: column; align-items: stretch; }
+  .payments-filter-search,
+  .payments-filter-select,
+  .payments-filter-date  { width: 100%; min-width: auto; }
+  .payments-confirm-dialog { padding: 24px 20px 20px; }
 }
 
 .payments-kpi {
