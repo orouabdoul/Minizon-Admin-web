@@ -5,6 +5,7 @@ import './trips-page.css';
 import './metrics-overrides.css';
 import './modals.css';
 import './dialogs.css';
+import './finance-pages.css';
 import { Providers } from './app/Providers';
 import { App } from './app/App';
 

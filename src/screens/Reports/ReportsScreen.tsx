@@ -49,7 +49,7 @@ export function ReportsScreen() {
       <style>{`@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }`}</style>
 
       {/* ── Period tabs + Export ──────────────────────────────────────────────── */}
-      <div className="reports-controls" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+      <div className="reports-controls">
         <div style={{ display: 'flex', gap: 6, background: '#F3F4F6', borderRadius: 10, padding: 4 }}>
           {PERIODS.map((p) => (
             <button
@@ -106,7 +106,7 @@ export function ReportsScreen() {
       {/* ── Full-page loading (first load) ───────────────────────────────────── */}
       {loading && !data && (
         <div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+          <div className="fin-kpi-grid">
             {[0, 1, 2, 3].map((i) => (
               <div key={i} style={{ padding: 16, background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', display: 'flex', flexDirection: 'column', gap: 10 }}>
                 <SkeletonBox h={10} w="60%" />
@@ -115,7 +115,7 @@ export function ReportsScreen() {
               </div>
             ))}
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16, marginBottom: 16 }}>
+          <div className="reports-chart-row">
             <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', padding: 16, height: 280, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <AppIcon icon={Loader} size={28} color="#D1D5DB" />
             </div>
@@ -160,7 +160,7 @@ export function ReportsScreen() {
         <div style={{ opacity: loading ? 0.6 : 1, transition: 'opacity 0.2s' }}>
 
           {/* KPI cards */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+          <div className="fin-kpi-grid">
             {data.kpis.map((kpi) => (
               <div key={kpi.id} style={{ padding: '16px', background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6' }}>
                 <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 8, fontWeight: 600, textTransform: 'uppercase', letterSpacing: 0.3 }}>
@@ -179,7 +179,7 @@ export function ReportsScreen() {
           </div>
 
           {/* Revenue chart + Top drivers */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 380px', gap: 16, marginBottom: 16 }}>
+          <div className="reports-chart-row">
 
             {/* Bar chart */}
             <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', padding: '16px' }}>
@@ -258,7 +258,7 @@ export function ReportsScreen() {
             ) : (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {data.byZone.map((z) => (
-                  <div key={z.zone} style={{ display: 'grid', gridTemplateColumns: '110px 1fr 80px 50px', alignItems: 'center', gap: 12 }}>
+                  <div key={z.zone} className="reports-zone-row" style={{ display: 'grid', gridTemplateColumns: '110px 1fr 80px 50px', alignItems: 'center', gap: 12 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{z.zone}</span>
                     <div style={{ height: 10, background: '#F3F4F6', borderRadius: 999, overflow: 'hidden' }}>
                       <div style={{ height: '100%', width: `${z.percent}%`, background: 'linear-gradient(to right, #2563EB, #60A5FA)', borderRadius: 999, transition: 'width 0.4s ease' }} />

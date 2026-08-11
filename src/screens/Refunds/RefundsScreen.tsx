@@ -39,8 +39,8 @@ function ApproveModal({
 }: { name: string; amount: number; onClose: () => void; onConfirm: (m: RefundMethod) => void }) {
   const [method, setMethod] = useState<RefundMethod>('MTN Mobile Money');
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-      <div style={{ background: '#fff', borderRadius: 16, width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Approuver le remboursement</span>
           <button type="button" onClick={onClose} style={{ border: 'none', background: 'none', fontSize: 18, color: '#6B7280', cursor: 'pointer' }}>×</button>
@@ -77,8 +77,8 @@ function ConfirmDoneModal({
 }: { name: string; amount: number; onClose: () => void; onConfirm: (ref: string) => void }) {
   const [ref, setRef] = useState('');
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-      <div style={{ background: '#fff', borderRadius: 16, width: 360, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Confirmer le remboursement</span>
           <button type="button" onClick={onClose} style={{ border: 'none', background: 'none', fontSize: 18, color: '#6B7280', cursor: 'pointer' }}>×</button>
@@ -125,7 +125,7 @@ export function RefundsScreen() {
     <DashboardLayout title="Remboursements Passagers">
 
       {/* ── KPI cards ────────────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div className="fin-kpi-grid">
         {[
           { label: 'Demandes en attente', value: String(summary.totalPending),             color: '#D97706', bg: '#FEF3C7', icon: Clock        },
           { label: 'Montant en attente',  value: fmt(summary.pendingAmount),                color: '#D97706', bg: '#FEF3C7', icon: AlertCircle  },
@@ -146,7 +146,7 @@ export function RefundsScreen() {
 
       {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
       <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', flexWrap: 'wrap' }}>
+        <div className="fin-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', flexWrap: 'wrap' }}>
 
           {/* Status tabs */}
           <div style={{ display: 'flex', gap: 4, background: '#F3F4F6', borderRadius: 8, padding: 3 }}>
@@ -182,7 +182,8 @@ export function RefundsScreen() {
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────────────── */}
-      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden' }}>
+      <div className="fin-table-scroll">
+      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden', minWidth: 860 }}>
 
         {/* Header */}
         <div style={{ display: 'grid', gridTemplateColumns: '180px 120px 140px 120px 110px 1fr', gap: 8, padding: '10px 16px', background: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
@@ -288,6 +289,7 @@ export function RefundsScreen() {
           );
         })}
       </div>
+      </div>{/* fin-table-scroll */}
 
       {/* Approve modal */}
       {approveItem && (

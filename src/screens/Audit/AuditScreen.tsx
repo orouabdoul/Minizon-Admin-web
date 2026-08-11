@@ -58,7 +58,7 @@ export function AuditScreen() {
     <DashboardLayout title="Journal d'Audit & Sécurité">
 
       {/* ── KPI summary ──────────────────────────────────────────────────────── */}
-      <div style={{ display: 'flex', gap: 12, marginBottom: 20 }}>
+      <div className="audit-kpi-row">
         {[
           { label: "Actions aujourd'hui", value: stats.today_count,    color: '#2563EB', bg: '#DBEAFE', icon: FileText      },
           { label: 'Événements critiques', value: stats.critique_count, color: '#E53935', bg: '#FEE2E2', icon: AlertTriangle },
@@ -79,7 +79,7 @@ export function AuditScreen() {
 
       {/* ── Filter bar ───────────────────────────────────────────────────────── */}
       <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', marginBottom: 16 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', flexWrap: 'wrap' }}>
+        <div className="audit-filter-bar">
 
           {/* Search */}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8, background: '#F3F4F6', borderRadius: 8, padding: '7px 12px', flex: 1, minWidth: 200 }}>
@@ -169,7 +169,8 @@ export function AuditScreen() {
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────────────── */}
-      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden' }}>
+      <div className="fin-table-scroll">
+      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden', minWidth: 880 }}>
 
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px 16px', borderBottom: '1px solid #F3F4F6' }}>
@@ -258,6 +259,7 @@ export function AuditScreen() {
           })}
         </div>
       </div>
+      </div>{/* fin-table-scroll */}
     </DashboardLayout>
   );
 }

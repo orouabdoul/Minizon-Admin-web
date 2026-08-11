@@ -1,0 +1,159 @@
+/* ── Finance pages — Virements, Remboursements, Rapports, Audit ── */
+
+/* ── KPI grid partagée (4 cols → 2 → 1) ─────────────────────────────────── */
+.fin-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── Scroll horizontal pour les tableaux ─────────────────────────────────── */
+.fin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 12px;
+}
+
+/* ── Rapports: barre période + export ────────────────────────────────────── */
+.reports-controls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* ── Rapports: graphique + Top 5 conducteurs côte à côte ─────────────────── */
+.reports-chart-row {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+/* ── Audit: ligne KPI (était flex inline) ────────────────────────────────── */
+.audit-kpi-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+/* ── Audit: barre de filtres ─────────────────────────────────────────────── */
+.audit-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+}
+
+/* ════════════════════════════════════════════════════════════════════════════
+   BREAKPOINTS
+   ════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Tablette (≤ 1024px) ─────────────────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .fin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .audit-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .reports-chart-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── Mobile (≤ 768px) ───────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .fin-kpi-grid {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .audit-kpi-row {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .reports-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .reports-controls > div:last-child {
+    display: flex !important;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .audit-filter-bar select,
+  .audit-filter-bar input[type="date"] {
+    flex: 1;
+    min-width: 130px;
+  }
+
+  /* Toolbar virements & remboursements */
+  .fin-toolbar {
+    padding: 10px 12px !important;
+    gap: 8px !important;
+  }
+
+  .fin-toolbar .fin-status-tabs {
+    width: 100%;
+    justify-content: flex-start;
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  /* Cards KPI — réduire la taille des valeurs */
+  .fin-kpi-grid > div .fin-kpi-value,
+  .audit-kpi-row > div .fin-kpi-value {
+    font-size: 16px !important;
+  }
+}
+
+/* ── Petit mobile (≤ 480px) ─────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .fin-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .audit-kpi-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .audit-filter-bar select,
+  .audit-filter-bar input[type="date"] {
+    min-width: calc(50% - 5px);
+  }
+
+  .audit-filter-bar > div:first-child {
+    width: 100%;
+  }
+
+  /* Rapports: tableau de zones — masquer colonnes détails */
+  .reports-zone-row {
+    grid-template-columns: 90px 1fr 50px !important;
+  }
+
+  .reports-zone-row > span:nth-child(3) {
+    display: none;
+  }
+
+  /* Réduire padding pour les panneaux sur très petit écran */
+  .fin-panel-16 {
+    padding: 12px !important;
+  }
+}

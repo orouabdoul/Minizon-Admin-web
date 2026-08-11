@@ -28,8 +28,8 @@ function ProcessModal({
 }: { name: string; netAmount: number; method: PayoutMethod; onClose: () => void; onConfirm: (m: PayoutMethod) => void }) {
   const [method, setMethod] = useState<PayoutMethod>(initMethod);
   return (
-    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
-      <div style={{ background: '#fff', borderRadius: 16, width: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
+    <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999, padding: 16 }}>
+      <div style={{ background: '#fff', borderRadius: 16, width: '100%', maxWidth: 380, boxShadow: '0 20px 60px rgba(0,0,0,0.2)', overflow: 'hidden' }}>
         <div style={{ padding: '16px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           <span style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Déclencher le virement</span>
           <button type="button" onClick={onClose} style={{ border: 'none', background: 'none', fontSize: 18, color: '#6B7280', cursor: 'pointer' }}>×</button>
@@ -104,7 +104,7 @@ export function PayoutsScreen() {
       )}
 
       {/* ── Summary cards ────────────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div className="fin-kpi-grid">
         {[
           { label: 'Montant à verser',     value: fmt(summary.totalPending),     color: '#D97706', bg: '#FEF3C7', icon: Clock        },
           { label: 'Virements en attente', value: String(summary.pendingAmount), color: '#D97706', bg: '#FEF3C7', icon: Clock        },
@@ -125,7 +125,7 @@ export function PayoutsScreen() {
 
       {/* ── Toolbar ──────────────────────────────────────────────────────────── */}
       <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', marginBottom: 12 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', flexWrap: 'wrap' }}>
+        <div className="fin-toolbar" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '12px 16px', flexWrap: 'wrap' }}>
 
           {/* Status filter tabs */}
           <div style={{ display: 'flex', gap: 4, background: '#F3F4F6', borderRadius: 8, padding: 3 }}>
@@ -191,7 +191,8 @@ export function PayoutsScreen() {
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────────────── */}
-      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden' }}>
+      <div className="fin-table-scroll">
+      <div style={{ background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6', overflow: 'hidden', minWidth: 1020 }}>
         {/* Column headers */}
         <div style={{ display: 'grid', gridTemplateColumns: '40px 200px 80px 130px 130px 120px 130px 140px', gap: 8, padding: '10px 16px', background: '#F9FAFB', borderBottom: '1px solid #F3F4F6' }}>
           {['', 'Conducteur', 'Trajets', 'Brut', 'Commission', 'Net à verser', 'Méthode', 'Statut / Action'].map((h) => (
@@ -293,6 +294,7 @@ export function PayoutsScreen() {
           })
         )}
       </div>
+      </div>{/* fin-table-scroll */}
 
       {/* Process modal */}
       {modalItem && (
