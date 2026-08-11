@@ -836,6 +836,7 @@ export const MOCK_TRIPS: Trip[] = [
     ],
     seatsBooked: 3,
     revenue: '15,000 FCFA',
+    bookingsCount: 3, pricePerSeatRaw: 5000, revenueRaw: 15000,
     status: 'Actif',
   },
   {
@@ -851,6 +852,7 @@ export const MOCK_TRIPS: Trip[] = [
     ],
     seatsBooked: 2,
     revenue: '12,000 FCFA',
+    bookingsCount: 2, pricePerSeatRaw: 6000, revenueRaw: 12000,
     status: 'Actif',
   },
 ];

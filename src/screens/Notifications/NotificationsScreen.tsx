@@ -1,5 +1,5 @@
 import { useState, useCallback }            from 'react';
-import { Bell, AlertTriangle, Unlock, RefreshCw, Loader } from 'lucide-react';
+import { Bell, AlertTriangle, Unlock, Loader } from 'lucide-react';
 import { DashboardLayout }                from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }                        from '../../components/Common/AppIcon';
 import { NotificationsMetrics }           from './components/NotificationsMetrics';
@@ -90,7 +90,7 @@ export function NotificationsScreen() {
   }, [viewNotifId]);
 
   const pendingLabel = pendingAction?.action === 'release' ? 'la libération' : 'le remboursement';
-  const pendingIcon  = pendingAction?.action === 'release' ? Unlock : RefreshCw;
+
   const pendingColor = pendingAction?.action === 'release' ? '#16A34A' : '#E53935';
   const pendingBtnClass = pendingAction?.action === 'release'
     ? 'payments-confirm-dialog__btn--release'

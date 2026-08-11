@@ -99,7 +99,7 @@ function PassengerCard({ p }: { p: PassengerStop }) {
 
 // ── Flag modal ─────────────────────────────────────────────────────────────────
 
-function FlagModal({ tripId, current, onClose, onSave }: {
+function FlagModal({ tripId: _tripId, current, onClose, onSave }: {
   tripId: string; current: boolean;
   onClose: () => void;
   onSave: (flag: boolean, note: string) => void;
@@ -350,7 +350,7 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
         <div className="trk-detail-card">
           <div className="trk-detail-card__label">
             Points de prise en charge &amp; dépose
-            {loadingDetail && <AppIcon icon={Loader} size={12} color="#9CA3AF" style={{ marginLeft: 6 }} />}
+            {loadingDetail && <span style={{ marginLeft: 6, display: 'inline-flex' }}><AppIcon icon={Loader} size={12} color="#9CA3AF" /></span>}
           </div>
           {!trip.passengers || trip.passengers.length === 0 ? (
             <p style={{ fontSize: 12, color: '#9CA3AF', textAlign: 'center', padding: '12px 0' }}>
