@@ -26,7 +26,18 @@ export function useVehicles() {
   // ── Fetch metrics ─────────────────────────────────────
   const fetchMetrics = useCallback(() => {
     vehiclesService.getMetrics()
-      .then((r) => { if (r.data.success) setMetrics(r.data.body); })
+      .then((r) => {
+        const body = r.data?.body;
+        if (!body) return;
+        // Cast en Record pour accepter les noms de champs anglais ou français de l'API
+        const raw = body as unknown as Record<string, unknown>;
+        setMetrics({
+          total:      Number(raw.total                                                ?? 0),
+          actif:      Number(raw.actif       ?? raw.active    ?? raw.actifs           ?? 0),
+          inspection: Number(raw.inspection  ?? raw.under_inspection                  ?? 0),
+          suspendu:   Number(raw.suspendu    ?? raw.suspended ?? raw.suspended_rejected ?? 0),
+        });
+      })
       .catch(() => {});
   }, []);
 
