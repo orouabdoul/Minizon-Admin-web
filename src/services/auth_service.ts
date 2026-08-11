@@ -7,4 +7,7 @@ export const authService = {
     api.post<ApiBodyResponse<AuthToken>>('/auth/admin/login', { email, password }),
 
   logout: () => api.post('/auth/logout'),
+
+  // Endpoint public — métriques vitrine page de login (pas d'auth requise)
+  getPlatformStats: () => api.get('/admin/platform-stats'),
 };

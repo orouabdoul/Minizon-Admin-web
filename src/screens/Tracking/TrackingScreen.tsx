@@ -188,6 +188,7 @@ export function TrackingScreen() {
             <TrackingMap
               trips={allTrips}
               selectedId={selectedId}
+              selectedTrip={selectedTrip}
               onSelect={setSelectedId}
               onReport={handleReport}
               onResolve={resolveIncident}
@@ -196,6 +197,12 @@ export function TrackingScreen() {
               <span className="tracking-legend__item">🟢 En cours</span>
               <span className="tracking-legend__item">🟡 En attente</span>
               <span className="tracking-legend__item">🔴 Incident</span>
+              {selectedTrip && (<>
+                <span className="tracking-legend__item" style={{ color: '#059669' }}>D Départ</span>
+                <span className="tracking-legend__item" style={{ color: '#DC2626' }}>A Arrivée</span>
+                <span className="tracking-legend__item" style={{ color: '#0891B2' }}>▲ Prise</span>
+                <span className="tracking-legend__item" style={{ color: '#EA580C' }}>▼ Dépôt</span>
+              </>)}
               <span style={{ fontSize: 11, color: '#9CA3AF' }}>
                 {usingMock ? '⚡ Démo' : 'GPS 5s · Liste 15s'}
               </span>

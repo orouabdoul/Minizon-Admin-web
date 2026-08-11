@@ -8,6 +8,7 @@ export interface TripPosition {
   heading?:   number;
   speed?:     number;
   updatedAt?: string;
+  hasGps?:    boolean;  // false quand lat/lng étaient null côté API
 }
 
 export interface TripIncident {

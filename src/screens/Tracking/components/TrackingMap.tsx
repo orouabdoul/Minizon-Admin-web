@@ -1,4 +1,4 @@
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef, useCallback, useState } from 'react';
 import type * as Leaflet from 'leaflet';
 import type { TrackedTrip, IncidentType } from '../../../models/tracking.model';
 
@@ -13,6 +13,17 @@ async function ensureLeaflet(): Promise<typeof Leaflet> {
   const mod = await import('leaflet');
   _L = (mod.default ?? mod) as unknown as typeof Leaflet;
   return _L;
+}
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function getCoords(
+  coords?: [number, number],
+  point?: { lat: number; lng: number } | null,
+): [number, number] | null {
+  if (coords != null && coords[0] != null && coords[1] != null) return coords;
+  if (point?.lat != null && point?.lng != null) return [point.lat, point.lng];
+  return null;
 }
 
 // ── Marker icon factory ───────────────────────────────────────────────────────
@@ -91,21 +102,53 @@ function popupHtml(t: TrackedTrip): string {
     </div>`;
 }
 
+// ── Point icon factory (départ / arrivée / pickup / dépôt) ───────────────────
+
+type PointType = 'departure' | 'arrival' | 'pickup' | 'dropoff';
+
+function makePointIcon(lib: typeof Leaflet, type: PointType): Leaflet.DivIcon {
+  const cfg: Record<PointType, { bg: string; label: string; size: number }> = {
+    departure: { bg: '#059669', label: 'D', size: 30 },
+    arrival:   { bg: '#DC2626', label: 'A', size: 30 },
+    pickup:    { bg: '#0891B2', label: '▲', size: 22 },
+    dropoff:   { bg: '#EA580C', label: '▼', size: 22 },
+  };
+  const { bg, label, size } = cfg[type];
+  return lib.divIcon({
+    html: `<div style="
+      width:${size}px;height:${size}px;background:${bg};
+      border:2.5px solid white;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 8px rgba(0,0,0,.4);
+      font-size:${size > 26 ? 11 : 9}px;font-weight:700;color:white;
+      line-height:1;
+    ">${label}</div>`,
+    iconSize:    [size, size],
+    iconAnchor:  [size / 2, size / 2],
+    popupAnchor: [0, -(size / 2 + 4)],
+    className:   '',
+  });
+}
+
 // ── Component ─────────────────────────────────────────────────────────────────
 
 interface Props {
-  trips:      TrackedTrip[];
-  selectedId: string | null;
-  onSelect:   (id: string) => void;
-  onReport:   (tripId: string, type: IncidentType) => void;
-  onResolve:  (tripId: string) => void;
+  trips:         TrackedTrip[];
+  selectedId:    string | null;
+  selectedTrip?: TrackedTrip | null;
+  onSelect:      (id: string) => void;
+  onReport:      (tripId: string, type: IncidentType) => void;
+  onResolve:     (tripId: string) => void;
 }
 
-export function TrackingMap({ trips, selectedId, onSelect, onReport, onResolve }: Props) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const mapRef       = useRef<Leaflet.Map | null>(null);
-  const markersRef   = useRef<Map<string, Leaflet.Marker>>(new Map());
-  const libRef       = useRef<typeof Leaflet | null>(null);
+export function TrackingMap({ trips, selectedId, selectedTrip, onSelect, onReport, onResolve }: Props) {
+  const containerRef  = useRef<HTMLDivElement>(null);
+  const mapRef        = useRef<Leaflet.Map | null>(null);
+  const markersRef    = useRef<Map<string, Leaflet.Marker>>(new Map());
+  const libRef        = useRef<typeof Leaflet | null>(null);
+  const tripPtsRef    = useRef<Leaflet.Marker[]>([]);
+  const routeLineRef  = useRef<Leaflet.Polyline | null>(null);
+  const [libLoaded,   setLibLoaded] = useState(false);
 
   // ── Handle popup button clicks ────────────────────────────────────────────
   const handlePopupClick = useCallback((e: MouseEvent) => {
@@ -129,6 +172,7 @@ export function TrackingMap({ trips, selectedId, onSelect, onReport, onResolve }
     ensureLeaflet().then((lib) => {
       if (!mounted || !containerRef.current || mapRef.current) return;
       libRef.current = lib;
+      setLibLoaded(true);
 
       const map = lib.map(containerRef.current, {
         center:             [6.8702, 2.4100],
@@ -167,6 +211,12 @@ export function TrackingMap({ trips, selectedId, onSelect, onReport, onResolve }
     const seen = new Set<string>();
 
     trips.forEach((t) => {
+      if (!t.position.hasGps) {
+        // Trip not yet started — no real GPS coordinates, skip marker
+        const stale = markersRef.current.get(t.id);
+        if (stale) { stale.remove(); markersRef.current.delete(t.id); }
+        return;
+      }
       seen.add(t.id);
       const icon = makeIcon(lib, t.status);
 
@@ -201,6 +251,89 @@ export function TrackingMap({ trips, selectedId, onSelect, onReport, onResolve }
       marker.openPopup();
     }
   }, [selectedId]);
+
+  // ── Draw trip route + passenger pickup/dropoff when a trip is selected ────
+  useEffect(() => {
+    const map = mapRef.current;
+    const lib = libRef.current;
+
+    // Clear previous trip points
+    tripPtsRef.current.forEach((m) => m.remove());
+    tripPtsRef.current = [];
+    if (routeLineRef.current) { routeLineRef.current.remove(); routeLineRef.current = null; }
+
+    if (!map || !lib || !selectedTrip) return;
+
+    const allCoords: [number, number][] = [];
+
+    const addMarker = (latlng: [number, number], type: PointType, popupHtml: string) => {
+      const m = lib.marker(latlng, { icon: makePointIcon(lib, type), zIndexOffset: 500 })
+        .addTo(map)
+        .bindPopup(popupHtml, { maxWidth: 240 });
+      tripPtsRef.current.push(m);
+      allCoords.push(latlng);
+    };
+
+    // Departure
+    const depCoords = getCoords(selectedTrip.fromCoords, selectedTrip.departurePoint);
+    if (depCoords) {
+      addMarker(depCoords, 'departure',
+        `<div style="font-family:system-ui;font-size:13px;">
+           <strong style="color:#059669">Départ</strong><br/>
+           ${selectedTrip.from}
+         </div>`);
+    }
+
+    // Arrival
+    const arrCoords = getCoords(selectedTrip.toCoords, selectedTrip.arrivalPoint);
+    if (arrCoords) {
+      addMarker(arrCoords, 'arrival',
+        `<div style="font-family:system-ui;font-size:13px;">
+           <strong style="color:#DC2626">Arrivée</strong><br/>
+           ${selectedTrip.to}
+         </div>`);
+    }
+
+    // Route line departure → arrival
+    if (depCoords && arrCoords) {
+      routeLineRef.current = lib.polyline([depCoords, arrCoords], {
+        color: '#2563EB', weight: 2, dashArray: '7 5', opacity: 0.65,
+      }).addTo(map);
+    }
+
+    // Passenger pickup + dropoff markers
+    selectedTrip.passengers?.forEach((p) => {
+      const pkCoords = getCoords(p.pickupCoords, p.pickup);
+      if (pkCoords) {
+        addMarker(pkCoords, 'pickup',
+          `<div style="font-family:system-ui;font-size:12px;">
+             <strong style="color:#0891B2">Prise en charge</strong><br/>
+             ${p.name}<br/>
+             <span style="color:#6B7280;font-size:11px;">${p.pickupAddress}</span>
+             ${p.pickedUp ? '<br/><span style="color:#059669">✓ Embarqué</span>' : ''}
+           </div>`);
+      }
+
+      const drCoords = getCoords(p.dropoffCoords, p.dropoff);
+      if (drCoords) {
+        addMarker(drCoords, 'dropoff',
+          `<div style="font-family:system-ui;font-size:12px;">
+             <strong style="color:#EA580C">Dépôt</strong><br/>
+             ${p.name}<br/>
+             <span style="color:#6B7280;font-size:11px;">${p.dropoffAddress}</span>
+           </div>`);
+      }
+    });
+
+    // Fit bounds to show all trip points (+ driver marker if GPS available)
+    if (selectedTrip.position.hasGps) {
+      allCoords.push([selectedTrip.position.lat, selectedTrip.position.lng]);
+    }
+    if (allCoords.length > 0) {
+      const bounds = lib.latLngBounds(allCoords);
+      map.fitBounds(bounds, { padding: [55, 55], maxZoom: 13, animate: true });
+    }
+  }, [selectedTrip, libLoaded]); // libLoaded ensures lib is ready
 
   return (
     <div

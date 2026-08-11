@@ -84,7 +84,17 @@ function normalizeTrip(raw: any): TrackedTrip {
     price:           raw.price,
     priceUnit:       raw.priceUnit ?? raw.price_unit ?? 'FCFA',
     status:          raw.status ?? 'en_attente',
-    position:        raw.position ?? { lat: 0, lng: 0, speed: 0, updatedAt: new Date().toISOString() },
+    position: (() => {
+      const rawPos = raw.position;
+      return {
+        lat:       rawPos?.lat   ?? 0,
+        lng:       rawPos?.lng   ?? 0,
+        speed:     rawPos?.speed ?? 0,
+        heading:   rawPos?.heading,
+        updatedAt: raw.location_updated_at ?? rawPos?.updatedAt,
+        hasGps:    rawPos?.lat != null && rawPos?.lng != null,
+      };
+    })(),
     incident: raw.incident
       ? { ...raw.incident, id: raw.incident.uuid ?? raw.incident.id ?? '' }
       : undefined,
@@ -352,44 +362,47 @@ export function useTracking() {
       per_page: 100,
     };
     try {
-      const [tripsRes, statsRes] = await Promise.all([
+      const [tripsResult, statsResult] = await Promise.allSettled([
         trackingService.getAllTrips(params),
         trackingService.getStats(),
       ]);
 
-      const trips = extractTrips(tripsRes.data);
-      if (trips !== null) {
-        // trips peut être [] (filtre sans résultat) → on l'affiche tel quel, pas de mock
-        setAllTrips(trips);
-        setUsingMock(false);
-        setError(null);
+      if (tripsResult.status === 'fulfilled') {
+        const trips = extractTrips(tripsResult.value.data);
+        if (trips !== null) {
+          setAllTrips(trips);
+          setUsingMock(false);
+          setError(null);
+        } else {
+          setAllTrips(MOCK_TRIPS.map(enrichTrip));
+          setUsingMock(true);
+          setError('Format de réponse inattendu — données de démo affichées');
+        }
       } else {
-        // Format de réponse totalement inconnu → mock fallback
         setAllTrips(MOCK_TRIPS.map(enrichTrip));
         setUsingMock(true);
-        setError('Format de réponse inattendu — données de démo affichées');
+        setError(tripsResult.reason instanceof Error ? tripsResult.reason.message : 'API indisponible — données de démo');
       }
 
-      const statsBody = statsRes.data?.body ?? statsRes.data;
-      if (statsBody && typeof statsBody === 'object') {
-        setApiStats({
-          activeTrips:     statsBody.active_trips   ?? statsBody.activeTrips   ?? 0,
-          pendingTrips:    statsBody.pending_trips   ?? statsBody.pendingTrips  ?? 0,
-          delayedTrips:    statsBody.late_trips      ?? statsBody.delayedTrips  ?? 0,
-          incidents:       statsBody.incidents       ?? 0,
-          pannes:          statsBody.pannes          ?? 0,
-          driversOnline:   statsBody.drivers_online  ?? statsBody.driversOnline ?? 0,
-          tripsToday:      statsBody.trips_today     ?? statsBody.tripsToday    ?? 0,
-          completedToday:  statsBody.completed_today ?? statsBody.completedToday ?? 0,
-          cancelledToday:  statsBody.cancelled_today ?? statsBody.cancelledToday ?? 0,
-          flaggedTrips:    statsBody.flagged_trips   ?? statsBody.flaggedTrips  ?? 0,
-          passengersToday: statsBody.passengers_today ?? statsBody.passengersToday ?? 0,
-        });
+      if (statsResult.status === 'fulfilled') {
+        const statsBody = statsResult.value.data?.body ?? statsResult.value.data;
+        if (statsBody && typeof statsBody === 'object') {
+          setApiStats({
+            activeTrips:     statsBody.active_trips    ?? statsBody.activeTrips    ?? 0,
+            pendingTrips:    statsBody.pending_trips    ?? statsBody.pendingTrips   ?? 0,
+            delayedTrips:    statsBody.late_trips       ?? statsBody.delayedTrips   ?? 0,
+            incidents:       statsBody.incidents        ?? 0,
+            pannes:          statsBody.pannes           ?? 0,
+            driversOnline:   statsBody.drivers_online   ?? statsBody.driversOnline  ?? 0,
+            tripsToday:      statsBody.trips_today      ?? statsBody.tripsToday     ?? 0,
+            completedToday:  statsBody.completed_today  ?? statsBody.completedToday ?? 0,
+            cancelledToday:  statsBody.cancelled_today  ?? statsBody.cancelledToday ?? 0,
+            flaggedTrips:    statsBody.flagged_trips    ?? statsBody.flaggedTrips   ?? 0,
+            passengersToday: statsBody.passengers_today ?? statsBody.passengersToday ?? 0,
+          });
+        }
       }
-    } catch (err) {
-      setAllTrips(MOCK_TRIPS.map(enrichTrip));
-      setUsingMock(true);
-      setError(err instanceof Error ? err.message : 'API indisponible — données de démo');
+      // stats 500 → silencieux, computedStats calcule depuis allTrips
     } finally {
       setLoading(false);
     }
