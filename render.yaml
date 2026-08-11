@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: minizon-admin-web
+    runtime: static
+    buildCommand: npm run build
+    staticPublishPath: ./dist
+    pullRequestPreviewsEnabled: false
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://minizon-api-iubm.onrender.com/api
+      - key: VITE_APP_ENV
+        value: production
