@@ -40,4 +40,11 @@ export const messagingService = {
   // DELETE /admin/messaging/messages/{uuid}
   deleteMessage: (messageUuid: string) =>
     api.delete(`/admin/messaging/messages/${messageUuid}`),
+
+  // POST /admin/messaging/conversations/{uuid}/messages  (multipart — audio blob)
+  sendAudioMessage: (uuid: string, audioBlob: Blob) => {
+    const form = new FormData();
+    form.append('audio', audioBlob, `voice-${Date.now()}.webm`);
+    return api.post(`/admin/messaging/conversations/${uuid}/messages`, form);
+  },
 };

@@ -2,8 +2,26 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import type {
   Conversation, ChatMessage, BroadcastTarget, BroadcastResult,
   ConvStatusFilter, RoleFilter, UserSearchResult, SendToSelectedResult,
+  AttachmentType,
 } from '../models/messaging.model';
 import { messagingService } from '../services/messaging_service';
+
+// Normalize a raw API message into ChatMessage — handles multiple backend field conventions
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizeMessage(m: any): ChatMessage {
+  if (m.attachment) return m as ChatMessage;
+  // audio_url / file_url field names
+  if (m.audio_url)
+    return { ...m, content: m.content || '', attachment: { url: m.audio_url, type: 'audio' as AttachmentType } };
+  if (m.file_url && m.file_type)
+    return { ...m, attachment: { url: m.file_url, type: m.file_type as AttachmentType } };
+  // content is a raw audio URL (no attachment wrapper sent by backend)
+  if (m.content && /\.(mp3|ogg|wav|webm|m4a|aac|mpeg)(\?.*)?$/i.test(m.content))
+    return { ...m, content: '', attachment: { url: m.content, type: 'audio' as AttachmentType } };
+  if (m.content && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(m.content))
+    return { ...m, content: '', attachment: { url: m.content, type: 'image' as AttachmentType } };
+  return m as ChatMessage;
+}
 
 const POLL_MS = 10_000;
 
@@ -116,7 +134,7 @@ export function useMessaging() {
       const raw  = res.data as any;
       const body = raw?.body ?? raw;
       const conv     = body?.conversation ?? {};
-      const messages: ChatMessage[] = body?.messages ?? [];
+      const messages: ChatMessage[] = (body?.messages ?? []).map(normalizeMessage);
       setConversations((prev) => prev.map((c) =>
         c.id === id ? { ...c, ...conv, messages, unreadCount: 0 } : c
       ));
@@ -131,7 +149,7 @@ export function useMessaging() {
       const raw  = res.data as any;
       const body = raw?.body ?? raw;
       const conv     = body?.conversation ?? {};
-      const messages: ChatMessage[] = body?.messages ?? [];
+      const messages: ChatMessage[] = (body?.messages ?? []).map(normalizeMessage);
       setConversations((prev) => prev.map((c) =>
         c.id === id ? { ...c, ...conv, messages, unreadCount: 0 } : c
       ));
@@ -170,7 +188,7 @@ export function useMessaging() {
         setConversations((prev) => prev.map((c) =>
           c.id !== selectedId ? c : {
             ...c,
-            messages: (c.messages ?? []).map((m) => m.id === tempId ? { ...realMsg } : m),
+            messages: (c.messages ?? []).map((m) => m.id === tempId ? normalizeMessage(realMsg) : m),
           }
         ));
       }
@@ -286,6 +304,43 @@ export function useMessaging() {
     } catch { return false; }
   }, []);
 
+  // ── Send audio message ─────────────────────────────────────────────────────
+
+  const sendAudioMessage = useCallback(async (audioBlob: Blob) => {
+    if (!selectedId) return;
+    const tempId  = `temp-audio-${Date.now()}`;
+    const tempUrl = URL.createObjectURL(audioBlob);
+    const tempMsg: ChatMessage = {
+      id: tempId, conversationId: selectedId,
+      sender: 'admin', content: '',
+      sentAt: new Date().toISOString(), status: 'envoyé',
+      attachment: { url: tempUrl, type: 'audio' },
+    };
+    setConversations((prev) => prev.map((c) =>
+      c.id !== selectedId ? c : {
+        ...c,
+        messages:      [...(c.messages ?? []), tempMsg],
+        lastMessage:   '',
+        lastMessageAt: tempMsg.sentAt,
+      }
+    ));
+    setSending(true);
+    try {
+      const res     = await messagingService.sendAudioMessage(selectedId, audioBlob);
+      const raw     = res.data as any;
+      const realMsg = raw?.body?.message ?? raw?.message;
+      if (realMsg) {
+        setConversations((prev) => prev.map((c) =>
+          c.id !== selectedId ? c : {
+            ...c,
+            messages: (c.messages ?? []).map((m) => m.id === tempId ? normalizeMessage(realMsg) : m),
+          }
+        ));
+      }
+    } catch { /* keep optimistic */ }
+    finally { setSending(false); }
+  }, [selectedId]);
+
   // ── Send to selected ───────────────────────────────────────────────────────
 
   const sendToSelected = useCallback(async (
@@ -317,5 +372,7 @@ export function useMessaging() {
     broadcastMessage,
     // send to selected
     sendToSelected,
+    // audio
+    sendAudioMessage,
   };
 }

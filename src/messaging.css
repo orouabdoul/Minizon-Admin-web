@@ -710,6 +710,46 @@
 
 .msg-chat__send-btn--active:hover { background: #1D4ED8; }
 
+/* ── Mic button (voice recording trigger) ── */
+.msg-chat__mic-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid #E5E7EB;
+  background: #F9FAFB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+  margin-bottom: 2px;
+}
+.msg-chat__mic-btn:hover { background: #F3F4F6; border-color: #D1D5DB; }
+
+/* ── Cancel / trash button during recording ── */
+.msg-chat__mic-cancel {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  border: 1.5px solid #FEE2E2;
+  background: #FEF2F2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.msg-chat__mic-cancel:hover { background: #FEE2E2; }
+
+/* ── Recording / preview bar variants ── */
+.msg-chat__input-bar--recording,
+.msg-chat__input-bar--preview {
+  align-items: center;
+  min-height: 64px;
+}
+
 /* ── Empty / no-selection state ── */
 
 .msg-chat__empty {

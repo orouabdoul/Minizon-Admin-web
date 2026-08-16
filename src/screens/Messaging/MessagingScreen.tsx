@@ -32,7 +32,7 @@ export function MessagingScreen() {
     totalUnread, loading, loadingMessages, sending, error,
     roleFilter, setRoleFilter,
     statusFilter, setStatusFilter,
-    selectConversation, refreshMessages, sendMessage,
+    selectConversation, refreshMessages, sendMessage, sendAudioMessage,
     editMessage, deleteMessage,
     userSearchResults, userSearchLoading, startingConv,
     searchUsersForNew, clearUserSearch, startNewConversation,
@@ -177,6 +177,7 @@ export function MessagingScreen() {
           sending={sending}
           loadingMessages={loadingMessages}
           onSend={sendMessage}
+          onSendAudio={sendAudioMessage}
           onRefresh={refreshMessages}
           onEdit={(msgId, content) => selectedId && editMessage(selectedId, msgId, content)}
           onDelete={(msgId) => selectedId && deleteMessage(selectedId, msgId)}

@@ -114,17 +114,80 @@ interface Props {
   sending:         boolean;
   loadingMessages: boolean;
   onSend:          (content: string) => void;
+  onSendAudio:     (blob: Blob) => void;
   onRefresh:       (id: string) => void;
   onEdit:          (msgId: string, content: string) => void;
   onDelete:        (msgId: string) => void;
 }
 
-export function ChatWindow({ conversation, sending, loadingMessages, onSend, onRefresh, onEdit, onDelete }: Props) {
+export function ChatWindow({ conversation, sending, loadingMessages, onSend, onSendAudio, onRefresh, onEdit, onDelete }: Props) {
   const [input, setInput]             = useState('');
   const [editingId, setEditingId]     = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null);
   const [copied, setCopied]           = useState(false);
+
+  // ── Audio recording ──────────────────────────────────────────────────────
+  const [recording, setRecording]       = useState(false);
+  const [recordSecs, setRecordSecs]     = useState(0);
+  const [audioBlob, setAudioBlob]       = useState<Blob | null>(null);
+  const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
+  const mediaRecRef  = useRef<MediaRecorder | null>(null);
+  const timerRef     = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chunksRef    = useRef<Blob[]>([]);
+
+  const fmtRec = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mr = new MediaRecorder(stream);
+      chunksRef.current = [];
+      mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
+      mr.onstop = () => {
+        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+        const url  = URL.createObjectURL(blob);
+        setAudioBlob(blob);
+        setPreviewUrl(url);
+        stream.getTracks().forEach((t) => t.stop());
+      };
+      mr.start();
+      mediaRecRef.current = mr;
+      setRecording(true);
+      setRecordSecs(0);
+      timerRef.current = setInterval(() => setRecordSecs((s) => s + 1), 1000);
+    } catch { /* microphone denied */ }
+  };
+
+  const stopRecording = () => {
+    mediaRecRef.current?.stop();
+    if (timerRef.current) clearInterval(timerRef.current);
+    setRecording(false);
+  };
+
+  const cancelRecording = () => {
+    mediaRecRef.current?.stop();
+    if (timerRef.current) clearInterval(timerRef.current);
+    setRecording(false);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setAudioBlob(null);
+    setPreviewUrl(null);
+    chunksRef.current = [];
+  };
+
+  const handleSendAudio = () => {
+    if (!audioBlob) return;
+    onSendAudio(audioBlob);
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setAudioBlob(null);
+    setPreviewUrl(null);
+  };
+
+  useEffect(() => () => {
+    if (timerRef.current) clearInterval(timerRef.current);
+  }, []);
+  // ────────────────────────────────────────────────────────────────────────
+
   const messagesEndRef                = useRef<HTMLDivElement>(null);
   const textareaRef                   = useRef<HTMLTextAreaElement>(null);
   const editInputRef                  = useRef<HTMLTextAreaElement>(null);
@@ -420,26 +483,77 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
       </div>
 
       {/* ── Input bar ────────────────────────────────────────────────────────── */}
-      <div className="msg-chat__input-bar">
-        <textarea
-          ref={textareaRef}
-          className="msg-chat__textarea"
-          placeholder="Écrire un message… (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)"
-          value={input}
-          rows={2}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-        />
-        <button
-          type="button"
-          className={`msg-chat__send-btn${input.trim() && !sending ? ' msg-chat__send-btn--active' : ''}`}
-          onClick={handleSend}
-          disabled={!input.trim() || sending}
-          title="Envoyer (Entrée)"
-        >
-          <AppIcon icon={Send} size={18} color={input.trim() && !sending ? '#fff' : '#9CA3AF'} />
-        </button>
-      </div>
+
+      {/* State 1 — Recording in progress */}
+      {recording && (
+        <div className="msg-chat__input-bar msg-chat__input-bar--recording">
+          <style>{`@keyframes rec-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
+          <button type="button" className="msg-chat__mic-cancel" onClick={cancelRecording} title="Annuler">
+            <AppIcon icon={X} size={16} color="#EF4444" />
+          </button>
+          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444', animation: 'rec-pulse 1s infinite', flexShrink: 0 }} />
+            <span style={{ fontSize: 16, fontWeight: 700, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{fmtRec(recordSecs)}</span>
+            <span style={{ fontSize: 12, color: '#9CA3AF' }}>Enregistrement en cours…</span>
+          </div>
+          <button type="button" className="msg-chat__send-btn msg-chat__send-btn--active" onClick={stopRecording} title="Arrêter et prévisualiser">
+            <AppIcon icon={Check} size={18} color="#fff" />
+          </button>
+        </div>
+      )}
+
+      {/* State 2 — Preview recorded audio */}
+      {!recording && audioBlob && previewUrl && (
+        <div className="msg-chat__input-bar msg-chat__input-bar--preview">
+          <button type="button" className="msg-chat__mic-cancel" onClick={cancelRecording} title="Supprimer">
+            <AppIcon icon={Trash2} size={16} color="#EF4444" />
+          </button>
+          <div style={{ flex: 1 }}>
+            <VoiceMessage url={previewUrl} isAdmin={true} />
+          </div>
+          <button
+            type="button"
+            className="msg-chat__send-btn msg-chat__send-btn--active"
+            onClick={handleSendAudio}
+            disabled={sending}
+            title="Envoyer le message vocal"
+          >
+            <AppIcon icon={Send} size={18} color="#fff" />
+          </button>
+        </div>
+      )}
+
+      {/* State 3 — Normal text input */}
+      {!recording && !audioBlob && (
+        <div className="msg-chat__input-bar">
+          <button
+            type="button"
+            className="msg-chat__mic-btn"
+            onClick={startRecording}
+            title="Enregistrer un message vocal"
+          >
+            <AppIcon icon={Mic} size={18} color="#6B7280" />
+          </button>
+          <textarea
+            ref={textareaRef}
+            className="msg-chat__textarea"
+            placeholder="Écrire un message… (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)"
+            value={input}
+            rows={2}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+          />
+          <button
+            type="button"
+            className={`msg-chat__send-btn${input.trim() && !sending ? ' msg-chat__send-btn--active' : ''}`}
+            onClick={handleSend}
+            disabled={!input.trim() || sending}
+            title="Envoyer (Entrée)"
+          >
+            <AppIcon icon={Send} size={18} color={input.trim() && !sending ? '#fff' : '#9CA3AF'} />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
