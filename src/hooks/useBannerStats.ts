@@ -11,13 +11,11 @@ export interface BannerStat {
 
 // Valeurs statiques affichées immédiatement et tant que l'API n'a pas répondu
 const FALLBACK: BannerStat[] = [
-  { id: 'users',  value: '24,573', label: 'Utilisateurs actifs',     badge: 'LIVE'                     },
-  { id: 'trips',  value: '1,847',  label: 'Trajets quotidiens',       badge: 'TODAY'                    },
-  { id: 'secure', value: '99.9%',  label: 'Transactions sécurisées',  badge: 'SECURE'                   },
+  { id: 'users',  value: '500+',   label: 'Utilisateurs actifs',     badge: 'LIVE'                     },
+  { id: 'trips',  value: '1 000+', label: 'Trajets réalisés',         badge: 'ALL TIME'                 },
+  { id: 'secure', value: '98%',    label: 'Satisfaction client',      badge: 'SECURE'                   },
   { id: 'uptime', value: '100%',   label: 'Disponibilité plateforme', badge: 'UP', badgeColor: '#4ADE80' },
 ];
-
-const POLL_MS = 60_000; // 60s — recommandé par l'API
 
 // value peut être un nombre (ex: 3) ou une chaîne déjà formatée (ex: "99.0%")
 function fmtValue(v: number | string): string {
@@ -71,10 +69,9 @@ export function useBannerStats(): { stats: BannerStat[]; loading: boolean } {
     }
   }, []);
 
+  // Les données sont maintenant statiques côté API — un seul fetch au montage suffit
   useEffect(() => {
     fetchStats();
-    const timer = setInterval(fetchStats, POLL_MS);
-    return () => clearInterval(timer);
   }, [fetchStats]);
 
   return { stats, loading };

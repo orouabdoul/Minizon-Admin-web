@@ -239,7 +239,35 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
                   </div>
                 ) : (
                   <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
-                    <p className="msg-bubble__text">{msg.content}</p>
+                    {msg.content && <p className="msg-bubble__text">{msg.content}</p>}
+                    {msg.attachment && (
+                      <div className="msg-bubble__attachment">
+                        {msg.attachment.type === 'audio' ? (
+                          <audio
+                            controls
+                            preload="metadata"
+                            style={{ width: '100%', maxWidth: 260, marginTop: msg.content ? 6 : 0 }}
+                          >
+                            <source src={msg.attachment.url} />
+                          </audio>
+                        ) : msg.attachment.type === 'image' ? (
+                          <img
+                            src={msg.attachment.url}
+                            alt="pièce jointe"
+                            style={{ maxWidth: 220, maxHeight: 160, borderRadius: 8, marginTop: msg.content ? 6 : 0, display: 'block' }}
+                          />
+                        ) : (
+                          <a
+                            href={msg.attachment.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ fontSize: 12, color: isAdmin ? 'rgba(255,255,255,0.85)' : '#2563EB', display: 'flex', alignItems: 'center', gap: 4, marginTop: msg.content ? 6 : 0 }}
+                          >
+                            📄 Télécharger le document
+                          </a>
+                        )}
+                      </div>
+                    )}
                     {isAdmin && msg.is_edited === true && (
                       <p style={{ fontSize: 10, fontStyle: 'italic', opacity: 0.6, margin: '2px 0 0', lineHeight: 1.2 }}>
                         (modifié)

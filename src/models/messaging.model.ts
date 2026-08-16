@@ -1,4 +1,10 @@
 export type DriverStatus     = 'en_ligne' | 'hors_ligne' | 'en_trajet';
+export type AttachmentType   = 'image' | 'document' | 'audio';
+
+export interface MessageAttachment {
+  url:  string;
+  type: AttachmentType;
+}
 export type UserRole         = 'driver' | 'passenger';
 export type MessageSender    = 'admin' | 'user';
 export type MessageStatus    = 'envoyé' | 'lu';
@@ -17,6 +23,7 @@ export interface ChatMessage {
   is_read?:        boolean;
   is_edited?:      boolean;
   edited_at?:      string;
+  attachment?:     MessageAttachment;
 }
 
 export interface Conversation {
