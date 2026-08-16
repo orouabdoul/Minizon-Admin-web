@@ -23,9 +23,9 @@ const CARDS: {
   },
   {
     key: 'actif', label: 'Véhicules actifs',
-    icon: CheckCircle, iconBg: 'rgba(0,168,107,0.10)', iconColor: '#00A86B',
+    icon: CheckCircle, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
     badge: () => 'En service',
-    badgeBg: 'rgba(0,168,107,0.10)', badgeColor: '#00A86B',
+    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
   },
   {
     key: 'inspection', label: 'En inspection',

@@ -29,7 +29,7 @@ function getCoords(
 // ── Marker icon factory ───────────────────────────────────────────────────────
 
 function makeIcon(lib: typeof Leaflet, status: TrackedTrip['status']): Leaflet.DivIcon {
-  const color = status === 'incident' ? '#E53935' : '#00A86B';
+  const color = status === 'incident' ? '#E53935' : '#7C3AED';
   const pulse  = status === 'actif'
     ? `<div style="position:absolute;inset:-6px;border-radius:50%;background:${color}22;animation:tracking-pulse 2s infinite;"></div>`
     : '';

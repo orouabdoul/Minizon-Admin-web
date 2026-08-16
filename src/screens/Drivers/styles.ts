@@ -12,6 +12,6 @@ export const scoreTrack: CSSProperties = {
 export const scoreFill = (score: number): CSSProperties => ({
   width: `${score}%`,
   height: 8,
-  background: '#00A86B',
+  background: '#7C3AED',
   borderRadius: 9999,
 });

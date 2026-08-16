@@ -43,7 +43,7 @@
 .modal-form-footer { display: flex; gap: 12px; padding-top: 8px; }
 
 .modal-btn-save {
-  flex: 1; padding: 12px 16px; background: #00A86B; border: none;
+  flex: 1; padding: 12px 16px; background: #7C3AED; border: none;
   border-radius: 8px; color: #fff; font-size: 14px; font-weight: 600;
   font-family: inherit; cursor: pointer; transition: opacity 0.15s;
 }
@@ -83,16 +83,16 @@
 }
 .profile-panel__header {
   padding: 18px 16px;
-  background: linear-gradient(135deg, rgba(0,168,107,0.06), rgba(37,99,235,0.04));
+  background: linear-gradient(135deg, rgba(124,58,237,0.06), rgba(37,99,235,0.04));
   border-bottom: 1px solid #F3F4F6;
   display: flex; align-items: center; gap: 12px;
 }
 .profile-panel__avatar {
   width: 44px; height: 44px; border-radius: 50%; object-fit: cover;
-  border: 2px solid rgba(0,168,107,0.25); flex-shrink: 0;
+  border: 2px solid rgba(124,58,237,0.25); flex-shrink: 0;
 }
 .profile-panel__name  { font-size: 14px; font-weight: 700; color: #111827; margin: 0; line-height: 20px; }
-.profile-panel__role  { font-size: 12px; color: #00A86B; font-weight: 600; margin: 0; line-height: 18px; }
+.profile-panel__role  { font-size: 12px; color: #7C3AED; font-weight: 600; margin: 0; line-height: 18px; }
 .profile-panel__email { font-size: 11px; color: #9CA3AF; margin: 0; line-height: 16px; }
 .profile-panel__menu  { padding: 6px; display: flex; flex-direction: column; gap: 1px; }
 .profile-panel__item {
@@ -112,7 +112,7 @@
 ═══════════════════════════════════════════════════════ */
 .users-table-add-btn {
   display: flex; align-items: center; gap: 6px;
-  padding: 8px 14px; background: #00A86B; border: none;
+  padding: 8px 14px; background: #7C3AED; border: none;
   border-radius: 8px; color: #fff; font-size: 13px; font-weight: 600;
   font-family: inherit; cursor: pointer; transition: opacity 0.15s;
   white-space: nowrap; flex-shrink: 0;
@@ -127,7 +127,7 @@
 }
 .settings-add-btn {
   display: flex; align-items: center; gap: 5px;
-  padding: 7px 12px; background: #00A86B; border: none;
+  padding: 7px 12px; background: #7C3AED; border: none;
   border-radius: 8px; color: #fff; font-size: 12px; font-weight: 600;
   font-family: inherit; cursor: pointer; transition: opacity 0.15s;
 }

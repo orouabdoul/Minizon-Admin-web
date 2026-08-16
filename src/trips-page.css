@@ -39,7 +39,7 @@
   align-items:   center;
   gap:           8px;
   padding:       12px 24px;
-  background:    #00A86B;
+  background:    #7C3AED;
   color:         #fff;
   border:        none;
   border-radius: 12px;
@@ -48,10 +48,10 @@
   font-family:   inherit;
   cursor:        pointer;
   white-space:   nowrap;
-  box-shadow:    0 10px 15px rgba(0,168,107,0.30), 0 4px 6px rgba(0,168,107,0.30);
+  box-shadow:    0 10px 15px rgba(124,58,237,0.30), 0 4px 6px rgba(124,58,237,0.30);
   transition:    background 0.15s;
 }
-.trips-create-btn:hover { background: #008F5A; }
+.trips-create-btn:hover { background: #6D28D9; }
 
 /* ── KPI metrics grid (4 cards) ── */
 .trips-metrics {
@@ -104,7 +104,7 @@
 .trips-filter-btn {
   height:        46px;
   padding:       0 24px;
-  background:    #00A86B;
+  background:    #7C3AED;
   color:         #fff;
   border:        none;
   border-radius: 12px;
@@ -118,7 +118,7 @@
   white-space:   nowrap;
   transition:    background 0.15s;
 }
-.trips-filter-btn:hover { background: #008F5A; }
+.trips-filter-btn:hover { background: #6D28D9; }
 
 /* ── Table card ── */
 .trips-table-card {
@@ -204,7 +204,7 @@
 .trip-datetime__time { font-size: 14px; color: #6B7280; line-height: 20px; }
 
 .trip-seats   { font-size: 14px; font-weight: 600; color: #111827; }
-.trip-price   { font-size: 14px; font-weight: 700; color: #00A86B; }
+.trip-price   { font-size: 14px; font-weight: 700; color: #7C3AED; }
 .trip-revenue { font-size: 14px; font-weight: 700; color: #111827; }
 
 .trip-passengers {
@@ -478,9 +478,9 @@
 .reservations-pagination__btn:hover:not(:disabled) { background: #F3F4F6; }
 .reservations-pagination__btn:disabled { opacity: 0.4; cursor: not-allowed; }
 .reservations-pagination__btn--active {
-  background: #00A86B;
+  background: #7C3AED;
   color:      #fff;
-  border-color: #00A86B;
+  border-color: #7C3AED;
 }
 
 /* ── Bottom action bar ── */
@@ -514,7 +514,7 @@
   transition:    opacity 0.15s;
 }
 .reservations-action-btn:hover    { opacity: 0.9; }
-.reservations-action-btn--green   { background: #00A86B; }
+.reservations-action-btn--green   { background: #7C3AED; }
 .reservations-action-btn--yellow  { background: #F4B400; }
 .reservations-action-btn--blue    { background: #2563EB; }
 
@@ -1031,7 +1031,7 @@
   flex-shrink:   0;
   margin-top:    4px;
 }
-.dispute-tl__dot--done    { background: #00A86B; }
+.dispute-tl__dot--done    { background: #7C3AED; }
 .dispute-tl__dot--pending { background: #E5E7EB; border: 2px solid #D1D5DB; }
 .dispute-tl__line {
   width:      2px;
@@ -1100,7 +1100,7 @@
 .dispute-action-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .dispute-action-btn:hover:not(:disabled) { opacity: 0.88; }
 .dispute-action-btn--refund { background: #2563EB; color: #fff; }
-.dispute-action-btn--pay    { background: #00A86B; color: #fff; }
+.dispute-action-btn--pay    { background: #7C3AED; color: #fff; }
 
 /* ═══════════════════════════════════════════════════════
    DISPUTES — RESPONSIVE
@@ -1202,7 +1202,7 @@
   transition:    opacity 0.15s;
 }
 .support-btn:hover { opacity: 0.88; }
-.support-btn--primary   { background: #00A86B; color: #fff; }
+.support-btn--primary   { background: #7C3AED; color: #fff; }
 .support-btn--secondary { background: #F3F4F6; color: #374151; }
 
 /* ── Table card ── */
@@ -1243,7 +1243,7 @@
 .support-ticket-id {
   font-size:   14px;
   font-weight: 500;
-  color:       #00A86B;
+  color:       #7C3AED;
   font-family: monospace;
   line-height: 24px;
 }
@@ -1329,7 +1329,7 @@
 }
 .support-pagination__btn:hover:not(:disabled) { background: #F3F4F6; }
 .support-pagination__btn:disabled             { opacity: 0.4; cursor: not-allowed; }
-.support-pagination__btn--active { background: #00A86B; color: #fff; border-color: #00A86B; }
+.support-pagination__btn--active { background: #7C3AED; color: #fff; border-color: #7C3AED; }
 
 /* ── Responsive ── */
 @media (max-width: 1280px) { .support-metrics { grid-template-columns: repeat(2, 1fr); gap: 16px; } }
@@ -1426,7 +1426,7 @@
   outline:       none;
   transition:    border-color 0.15s;
 }
-.settings-input:focus { border-color: #00A86B; }
+.settings-input:focus { border-color: #7C3AED; }
 .settings-select {
   height:        48px;
   padding:       0 16px;
@@ -1593,7 +1593,7 @@
   margin-bottom: -1px;
 }
 .notif-tab:hover                          { color: #111827; }
-.notif-tab--active                        { color: #00A86B; border-bottom-color: #00A86B; font-weight: 600; }
+.notif-tab--active                        { color: #7C3AED; border-bottom-color: #7C3AED; font-weight: 600; }
 .notif-tab__count {
   padding:       1px 7px;
   border-radius: 9999px;
@@ -1602,7 +1602,7 @@
   font-weight:   600;
   color:         #6B7280;
 }
-.notif-tab--active .notif-tab__count      { background: rgba(0,168,107,0.12); color: #00A86B; }
+.notif-tab--active .notif-tab__count      { background: rgba(124,58,237,0.12); color: #7C3AED; }
 
 .notif-mark-all-btn {
   margin-left:   auto;
@@ -1703,8 +1703,8 @@
 }
 .notif-item:hover              { background: #F9FAFB; }
 .notif-item--unread            { background: rgba(37,99,235,0.02); }
-.notif-item--active            { background: rgba(0,168,107,0.04) !important; }
-.notif-item--active:hover      { background: rgba(0,168,107,0.07) !important; }
+.notif-item--active            { background: rgba(124,58,237,0.04) !important; }
+.notif-item--active:hover      { background: rgba(124,58,237,0.07) !important; }
 
 .notif-item__bubble {
   width:           36px;
@@ -1941,7 +1941,7 @@
 .notif-action-btn:disabled          { opacity: 0.5; cursor: not-allowed; }
 .notif-action-btn:hover:not(:disabled) { opacity: 0.88; }
 .notif-action-btn--link   { background: #2563EB; color: #fff; }
-.notif-action-btn--handle { background: #00A86B; color: #fff; }
+.notif-action-btn--handle { background: #7C3AED; color: #fff; }
 
 .notif-detail__handled-state {
   display:         flex;

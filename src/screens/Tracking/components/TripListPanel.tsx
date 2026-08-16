@@ -29,7 +29,7 @@ const INCIDENT_LABEL: Record<string, string> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  actif:      { label: '● En cours',   color: '#00A86B', bg: 'rgba(0,168,107,0.10)' },
+  actif:      { label: '● En cours',   color: '#7C3AED', bg: 'rgba(124,58,237,0.10)' },
   en_attente: { label: '◷ En attente', color: '#D97706', bg: '#FEF9C3' },
   retard:     { label: '⚠ Retard',     color: '#E53935', bg: '#FEE2E2' },
   incident:   { label: '✕ Incident',   color: '#E53935', bg: '#FEE2E2' },

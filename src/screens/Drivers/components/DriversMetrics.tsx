@@ -20,9 +20,9 @@ const CARDS: {
 }[] = [
   {
     key: 'total', label: 'Total conducteurs',
-    Icon: Users, iconBg: 'rgba(0,168,107,0.10)', iconColor: '#00A86B',
+    Icon: Users, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
     badge: (m) => `${m.validation_rate}%`,
-    badgeBg: 'rgba(0,168,107,0.10)', badgeColor: '#00A86B',
+    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
   },
   {
     key: 'pending', label: 'En attente',

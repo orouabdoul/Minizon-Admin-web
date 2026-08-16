@@ -12,7 +12,7 @@ import type { Review, ReviewStatus, ReviewDirection } from '../../models/review.
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string }> = {
-  visible: { label: 'Visible', color: '#00A86B', bg: '#DCFCE7' },
+  visible: { label: 'Visible', color: '#7C3AED', bg: '#EDE9FE' },
   masqué:  { label: 'Masqué',  color: '#6B7280', bg: '#F3F4F6' },
   signalé: { label: 'Signalé', color: '#E53935', bg: '#FEE2E2' },
 };
@@ -101,7 +101,7 @@ function ReviewCard({
 }) {
   const sc = STATUS_CONFIG[r.status];
   const isFlag   = r.status === 'signalé';
-  const accColor = isFlag ? '#E53935' : r.rating >= 4 ? '#00A86B' : r.rating === 3 ? '#F59E0B' : '#E53935';
+  const accColor = isFlag ? '#E53935' : r.rating >= 4 ? '#7C3AED' : r.rating === 3 ? '#F59E0B' : '#E53935';
 
   return (
     <div style={{
@@ -166,7 +166,7 @@ function ReviewCard({
           {r.status !== 'visible' && (
             <button type="button" onClick={() => onSetStatus(r.id, 'visible')} title="Rendre visible"
               style={{ width: 30, height: 30, borderRadius: 7, border: '1.5px solid #DCFCE7', background: '#F0FDF4', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Eye} size={13} color="#00A86B" />
+              <AppIcon icon={Eye} size={13} color="#7C3AED" />
             </button>
           )}
           {r.status !== 'masqué' && (

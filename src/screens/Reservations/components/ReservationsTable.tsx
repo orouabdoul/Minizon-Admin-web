@@ -36,7 +36,7 @@ const RISK_VARIANT: Record<ReservationRisk, BadgeVariant> = {
   Élevé:  'error',
 };
 const PAYMENT_COLOR: Record<PaymentStatus, string> = {
-  Payé:         '#00A86B',
+  Payé:         '#7C3AED',
   'En attente': '#F4B400',
   Échoué:       '#E53935',
   Remboursé:    '#6B7280',
@@ -161,7 +161,7 @@ export function ReservationsTable({
                       <img src={r.passengerAvatar} alt={r.passengerName} className="data-table__avatar" />
                       <div>
                         <div className="data-table__user-name">{r.passengerName}</div>
-                        <div className="data-table__user-phone" style={{ color: r.passengerVerified ? '#00A86B' : '#6B7280' }}>
+                        <div className="data-table__user-phone" style={{ color: r.passengerVerified ? '#7C3AED' : '#6B7280' }}>
                           {r.passengerVerified ? 'Vérifiée' : 'Nouveau'}
                         </div>
                       </div>

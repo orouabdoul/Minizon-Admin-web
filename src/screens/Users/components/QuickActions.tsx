@@ -11,7 +11,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
 };
 
 const ACTION_BG: Record<string, string> = {
-  approve: 'rgba(0,168,107,0.10)',
+  approve: 'rgba(124,58,237,0.10)',
   suspend: 'rgba(229,57,53,0.10)',
   resolve: 'rgba(251,140,0,0.10)',
 };

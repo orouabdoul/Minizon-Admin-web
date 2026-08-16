@@ -6,7 +6,7 @@ import type {
 } from '../../../models/messaging.model';
 
 const STATUS_DOT: Record<DriverStatus, { color: string; label: string }> = {
-  en_ligne:   { color: '#00A86B', label: 'En ligne'   },
+  en_ligne:   { color: '#7C3AED', label: 'En ligne'   },
   en_trajet:  { color: '#2563EB', label: 'En trajet'  },
   hors_ligne: { color: '#9CA3AF', label: 'Hors ligne' },
 };

@@ -44,7 +44,7 @@ export function RegionChart({ trips, bookings }: Props) {
     <div style={{ padding: '4px 0' }}>
       <SectionTitle>Trajets</SectionTitle>
       <BarRow label="Total"        value={trips.total}      max={maxTrips} color="#9333EA" />
-      <BarRow label="Actifs"       value={trips.active}     max={maxTrips} color="#00A86B" />
+      <BarRow label="Actifs"       value={trips.active}     max={maxTrips} color="#7C3AED" />
       <BarRow label="Terminés"     value={trips.completed}  max={maxTrips} color="#2563EB" />
       <BarRow label="Annulés"      value={trips.cancelled}  max={maxTrips} color="#E53935" />
       <BarRow label="Ce mois"      value={trips.this_month} max={maxTrips} color="#F59E0B" />
@@ -52,7 +52,7 @@ export function RegionChart({ trips, bookings }: Props) {
       <SectionTitle>Réservations</SectionTitle>
       <BarRow label="Total"        value={bookings.total}     max={maxBookings} color="#0D9488" />
       <BarRow label="En attente"   value={bookings.pending}   max={maxBookings} color="#F59E0B" />
-      <BarRow label="Acceptées"    value={bookings.accepted}  max={maxBookings} color="#00A86B" />
+      <BarRow label="Acceptées"    value={bookings.accepted}  max={maxBookings} color="#7C3AED" />
       <BarRow label="Annulées"     value={bookings.cancelled} max={maxBookings} color="#E53935" />
     </div>
   );

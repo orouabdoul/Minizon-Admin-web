@@ -4,7 +4,7 @@ import { AppIcon } from '../../../components/Common/AppIcon';
 import type { Conversation, DriverStatus } from '../../../models/messaging.model';
 
 const STATUS_CONFIG: Record<DriverStatus, { label: string; color: string; bg: string }> = {
-  en_ligne:   { label: 'En ligne',   color: '#00A86B', bg: 'rgba(0,168,107,0.10)'   },
+  en_ligne:   { label: 'En ligne',   color: '#16A34A', bg: 'rgba(22,163,74,0.10)'   },
   en_trajet:  { label: 'En trajet',  color: '#2563EB', bg: 'rgba(37,99,235,0.10)'   },
   hors_ligne: { label: 'Hors ligne', color: '#9CA3AF', bg: 'rgba(156,163,175,0.10)' },
 };

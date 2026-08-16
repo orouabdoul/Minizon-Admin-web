@@ -20,7 +20,7 @@ const VARIANT_STYLES: Record<BadgeVariant, CSSProperties> = {
   warning: { background: '#FEFCE8',               color: '#CA8A04' },
   neutral: { background: '#F3F4F6',               color: '#6B7280' },
   // ── Users page ───────────────────────────────────
-  primary: { background: 'rgba(0,168,107,0.10)',  color: '#00A86B' },
+  primary: { background: 'rgba(124,58,237,0.10)',  color: '#7C3AED' },
   info:    { background: 'rgba(37,99,235,0.10)',  color: '#2563EB' },
   purple:  { background: 'rgba(124,58,237,0.10)', color: '#7C3AED' },
   pending: { background: 'rgba(251,140,0,0.10)',  color: '#FB8C00' },
@@ -32,10 +32,10 @@ const VARIANT_STYLES: Record<BadgeVariant, CSSProperties> = {
   // ── Support page — gradient badges ───────────────────────
   'priority-haute':   { background: 'linear-gradient(135deg, #E53935 0%, #C62828 100%)', color: '#fff' },
   'priority-moyenne': { background: 'linear-gradient(135deg, #F4B400 0%, #FF8F00 100%)', color: '#fff' },
-  'priority-basse':   { background: 'linear-gradient(135deg, #00A86B 0%, #008F5A 100%)', color: '#fff' },
+  'priority-basse':   { background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', color: '#fff' },
   'ticket-nouveau':   { background: 'linear-gradient(135deg, #F4B400 0%, #FF8F00 100%)', color: '#fff' },
   'ticket-encours':   { background: 'linear-gradient(135deg, #2563EB 0%, #1E40AF 100%)', color: '#fff' },
-  'ticket-resolu':    { background: 'linear-gradient(135deg, #00A86B 0%, #008F5A 100%)', color: '#fff' },
+  'ticket-resolu':    { background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)', color: '#fff' },
 };
 
 const base: CSSProperties = {

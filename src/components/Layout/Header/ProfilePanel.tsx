@@ -12,8 +12,8 @@ function EditProfileModal({ onClose }: { onClose: () => void }) {
   const [email, setEmail] = useState<string>('admin@minizon.com');
 
   return (
-    <DetailModal title="Modifier le Profil" onClose={onClose} accentColor="#00A86B">
-      <div className="detail-hero" style={{ background: 'rgba(0,168,107,0.06)' }}>
+    <DetailModal title="Modifier le Profil" onClose={onClose} accentColor="#7C3AED">
+      <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
         <img src={ADMIN_USER.avatar} alt={ADMIN_USER.name} className="detail-hero__avatar" />
         <div>
           <p className="detail-hero__name">{ADMIN_USER.name}</p>

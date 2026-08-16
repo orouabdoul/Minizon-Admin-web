@@ -198,7 +198,7 @@
   border:     none;
   font-size:  11px;
   font-weight: 700;
-  color:      #00A86B;
+  color:      #7C3AED;
   cursor:     pointer;
   padding:    0;
 }
@@ -382,7 +382,7 @@
   border:     none;
   font-size:  11px;
   font-weight: 700;
-  color:      #00A86B;
+  color:      #7C3AED;
   cursor:     pointer;
   padding:    0;
   text-decoration: underline;
@@ -499,7 +499,7 @@
   border:      none;
   font-size:   12px;
   font-weight: 700;
-  color:       #00A86B;
+  color:       #7C3AED;
   cursor:      pointer;
   padding:     0;
 }
@@ -525,7 +525,7 @@
 .trk-detail-route__line {
   flex:        1;
   height:      2px;
-  background:  linear-gradient(90deg, #00A86B, #E53935);
+  background:  linear-gradient(90deg, #7C3AED, #E53935);
   border-radius: 2px;
 }
 
@@ -572,7 +572,7 @@
   flex-shrink:  0;
   margin-top:   2px;
 }
-.trk-timeline__dot--done    { border-color: #00A86B; background: #00A86B; }
+.trk-timeline__dot--done    { border-color: #7C3AED; background: #7C3AED; }
 .trk-timeline__dot--delayed { border-color: #E53935; background: #E53935; }
 
 .trk-timeline__connector {

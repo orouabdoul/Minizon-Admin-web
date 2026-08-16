@@ -1,9 +1,9 @@
 export const colors = {
-  primary: '#00A86B',
-  primaryDark: '#008F5A',
-  primaryLight: 'rgba(0, 168, 107, 0.10)',
-  primaryGlow: 'rgba(0, 168, 107, 0.31)',
-  primaryShadow: 'rgba(0, 168, 107, 0.45)',
+  primary: '#7C3AED',
+  primaryDark: '#6D28D9',
+  primaryLight: 'rgba(124, 58, 237, 0.10)',
+  primaryGlow: 'rgba(124, 58, 237, 0.31)',
+  primaryShadow: 'rgba(124, 58, 237, 0.45)',
 
   secondary: '#111111',
 
@@ -26,7 +26,7 @@ export const colors = {
   borderLight: '#E5E7EB',
   borderFaint: '#F3F4F6',
 
-  bannerBg: '#00A86B',
+  bannerBg: '#7C3AED',
   bannerCard: 'rgba(255, 255, 255, 0.10)',
   bannerCardBorder: 'rgba(255, 255, 255, 0.20)',
   bannerTextPrimary: '#FFFFFF',

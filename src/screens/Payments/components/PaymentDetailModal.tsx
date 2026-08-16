@@ -192,7 +192,7 @@ export function PaymentDetailModal({
           <span style={{ color: '#E53935' }}>-{p.commission}</span>
         </DetailRow>
         <DetailRow label="Net conducteur">
-          <span style={{ fontWeight: 700, color: '#00A86B' }}>{p.netAmount}</span>
+          <span style={{ fontWeight: 700, color: '#7C3AED' }}>{p.netAmount}</span>
         </DetailRow>
       </DetailSection>
 

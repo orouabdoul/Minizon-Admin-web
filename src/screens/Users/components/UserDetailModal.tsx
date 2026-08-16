@@ -355,10 +355,10 @@ export function UserDetailModal({ user, detailLoading, onClose, onApproveKyc, on
           <div style={{
             marginTop: 8, borderTop: '1px solid #F3F4F6', paddingTop: 16,
             display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(0,168,107,0.06)', borderRadius: 8, padding: '12px 16px',
+            background: 'rgba(124,58,237,0.06)', borderRadius: 8, padding: '12px 16px',
           }}>
             <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Check} size={14} color="#00A86B" />
+              <AppIcon icon={Check} size={14} color="#7C3AED" />
             </div>
             <span style={{ fontSize: 13, color: '#065F46', fontWeight: 600 }}>Compte vérifié — KYC approuvé</span>
           </div>

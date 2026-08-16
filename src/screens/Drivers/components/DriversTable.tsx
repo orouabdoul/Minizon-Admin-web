@@ -202,7 +202,7 @@ export function DriversTable() {
                           title="Voir"
                           onClick={() => setSelectedId(d.id)}
                         >
-                          <AppIcon icon={Eye} size={16} color="#00A86B" />
+                          <AppIcon icon={Eye} size={16} color="#7C3AED" />
                         </button>
 
                         {isPending ? (

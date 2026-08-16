@@ -37,8 +37,8 @@ export function DashboardKpis({ data, loading }: Props) {
       value: data ? String(data.users.drivers) : ph,
       badge: data ? `${data.users.drivers} actifs` : ph,
       badgeVariant: 'success' as const,
-      iconBg: '#DCFCE7', iconColor: '#00A86B',
-      icon: <AppIcon icon={Car} size={24} color="#00A86B" />,
+      iconBg: '#DCFCE7', iconColor: '#7C3AED',
+      icon: <AppIcon icon={Car} size={24} color="#7C3AED" />,
     },
     {
       id: 'trips-active', iconId: 'route',
@@ -91,8 +91,8 @@ export function DashboardKpis({ data, loading }: Props) {
       value: data ? String(data.trips.completed) : ph,
       badge: data ? `${data.trips.cancelled} annulés` : ph,
       badgeVariant: (data && data.trips.cancelled > 0 ? 'warning' : 'success') as 'warning' | 'success',
-      iconBg: '#DCFCE7', iconColor: '#00A86B',
-      icon: <AppIcon icon={Star} size={24} color="#00A86B" />,
+      iconBg: '#DCFCE7', iconColor: '#7C3AED',
+      icon: <AppIcon icon={Star} size={24} color="#7C3AED" />,
     },
   ];
 

@@ -165,7 +165,7 @@ export function PassengersTable({
                   {/* Réservations */}
                   <Td>
                     <span className="passenger-reservations">
-                      <AppIcon icon={TrendingUp} size={14} color="#00A86B" />
+                      <AppIcon icon={TrendingUp} size={14} color="#7C3AED" />
                       {p.reservations}
                     </span>
                   </Td>
@@ -200,7 +200,7 @@ export function PassengersTable({
                         disabled={busy}
                         onClick={() => onView(p.id)}
                       >
-                        <AppIcon icon={Eye} size={16} color="#00A86B" />
+                        <AppIcon icon={Eye} size={16} color="#7C3AED" />
                       </button>
                       {p.status !== 'Suspendu' ? (
                         <button
@@ -220,7 +220,7 @@ export function PassengersTable({
                           disabled={busy}
                           onClick={() => onUnsuspend(p.id)}
                         >
-                          <AppIcon icon={UserCheck} size={16} color={busy ? '#9CA3AF' : '#00A86B'} />
+                          <AppIcon icon={UserCheck} size={16} color={busy ? '#9CA3AF' : '#7C3AED'} />
                         </button>
                       )}
                     </div>

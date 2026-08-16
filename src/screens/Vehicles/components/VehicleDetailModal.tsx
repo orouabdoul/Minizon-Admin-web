@@ -349,7 +349,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
             <div className="detail-hero__badge">
               <Badge label={v.status} variant={STATUS_VARIANT[v.status] ?? 'neutral'} />
               {allDocsOk && (
-                <span style={{ marginLeft: 8, fontSize: 11, color: '#00A86B', fontWeight: 600 }}>
+                <span style={{ marginLeft: 8, fontSize: 11, color: '#7C3AED', fontWeight: 600 }}>
                   ✓ Documents valides
                 </span>
               )}
@@ -517,7 +517,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
                   onClick={() => run(() => onApprove(v.id))}
                   style={{
                     flex: 1, minWidth: 130, height: 38, borderRadius: 8,
-                    border: 'none', background: '#00A86B', color: '#fff',
+                    border: 'none', background: '#7C3AED', color: '#fff',
                     fontWeight: 600, fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}

@@ -64,7 +64,7 @@ function AdminFormModal({
     <DetailModal
       title={isEdit ? "Modifier l'Administrateur" : 'Ajouter un Administrateur'}
       onClose={onClose}
-      accentColor={isEdit ? '#2563EB' : '#00A86B'}
+      accentColor={isEdit ? '#2563EB' : '#7C3AED'}
     >
       {isEdit && admin && (
         <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
@@ -76,9 +76,9 @@ function AdminFormModal({
         </div>
       )}
       {!isEdit && (
-        <div className="detail-hero" style={{ background: 'rgba(0,168,107,0.06)' }}>
-          <div className="modal-icon-bubble" style={{ background: 'rgba(0,168,107,0.12)' }}>
-            <AppIcon icon={UserPlus} size={24} color="#00A86B" />
+        <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
+          <div className="modal-icon-bubble" style={{ background: 'rgba(124,58,237,0.12)' }}>
+            <AppIcon icon={UserPlus} size={24} color="#7C3AED" />
           </div>
           <div>
             <p className="detail-hero__name">Nouvel Administrateur</p>

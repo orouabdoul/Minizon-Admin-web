@@ -6,8 +6,8 @@
 
 /* ── CSS Custom Properties ── */
 :root {
-  --color-primary:    #00A86B;
-  --color-primary-dk: #008F5A;
+  --color-primary:    #7C3AED;
+  --color-primary-dk: #6D28D9;
   --color-bg:         #F6F7FB;
   --color-surface:    #FFFFFF;
   --color-text:       #111111;
@@ -650,7 +650,7 @@ img    { display: block; max-width: 100%; }
 input:focus {
   outline: none;
   border-color: var(--color-primary) !important;
-  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.12);
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
 }
 button[type='submit']:not(:disabled):hover  { opacity: 0.92; }
 button[type='submit']:not(:disabled):active { transform: scale(0.99); }
@@ -1104,11 +1104,11 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   color: white;
 }
 .driver-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.driver-btn--view      { background: #00A86B; }
+.driver-btn--view      { background: #7C3AED; }
 .driver-btn--validate  { background: #16A34A; }
 .driver-btn--reject    { background: #DC2626; }
 .driver-btn--validated { background: #9CA3AF; }
-.driver-btn--view:not(:disabled):hover     { background: #008F5A; }
+.driver-btn--view:not(:disabled):hover     { background: #6D28D9; }
 .driver-btn--validate:not(:disabled):hover { background: #15803D; }
 .driver-btn--reject:not(:disabled):hover   { background: #B91C1C; }
 
@@ -1177,7 +1177,7 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   gap:          6px;
   height:       40px;
   padding:      0 16px;
-  background:   #00A86B;
+  background:   #7C3AED;
   color:        #fff;
   border:       none;
   border-radius:8px;
@@ -1188,7 +1188,7 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   white-space:  nowrap;
   transition:   background 0.15s;
 }
-.passengers-reset-btn:hover { background: #008F5A; }
+.passengers-reset-btn:hover { background: #6D28D9; }
 
 /* ── Table card ── */
 .passengers-table-card {
@@ -1336,7 +1336,7 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   font-size:   12px;
   font-weight: 500;
 }
-.passenger-activity__status--online  { color: #00A86B; }
+.passenger-activity__status--online  { color: #16A34A; }
 .passenger-activity__status--offline { color: #9CA3AF; }
 .passenger-activity__dot {
   width:        8px;
@@ -1368,10 +1368,10 @@ button[type='submit']:not(:disabled):active { transform: scale(0.99); }
   color:        #fff;
 }
 .passenger-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-.passenger-btn--view      { background: #00A86B; }
+.passenger-btn--view      { background: #7C3AED; }
 .passenger-btn--suspend   { background: #F97316; }
 .passenger-btn--unsuspend { background: #2563EB; }
-.passenger-btn--view:not(:disabled):hover      { background: #008F5A; }
+.passenger-btn--view:not(:disabled):hover      { background: #6D28D9; }
 .passenger-btn--suspend:not(:disabled):hover   { background: #EA6C00; }
 .passenger-btn--unsuspend:not(:disabled):hover { background: #1D4ED8; }
 

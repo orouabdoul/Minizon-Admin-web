@@ -71,7 +71,7 @@
 .dispute-notes-modal__confirm:disabled { opacity: 0.5; cursor: not-allowed; }
 .dispute-notes-modal__confirm--refund  { background: #E53935; color: #fff; }
 .dispute-notes-modal__confirm--refund:hover:not(:disabled) { background: #C62828; }
-.dispute-notes-modal__confirm--pay     { background: #00A86B; color: #fff; }
+.dispute-notes-modal__confirm--pay     { background: #7C3AED; color: #fff; }
 .dispute-notes-modal__confirm--pay:hover:not(:disabled) { background: #00875A; }
 
 /* Vehicles page */
@@ -120,7 +120,7 @@
 
 .support-filter-apply {
   width: 36px; height: 40px; border-radius: 8px; border: none;
-  background: #00A86B; cursor: pointer;
+  background: #7C3AED; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   transition: background 0.15s; flex-shrink: 0;
 }
@@ -162,14 +162,14 @@
   font-size: 14px; font-family: inherit; color: #111827; outline: none;
   background: #F9FAFB; width: 100%; box-sizing: border-box;
 }
-.support-modal__input:focus, .support-modal__select:focus { border-color: #00A86B; background: #fff; }
+.support-modal__input:focus, .support-modal__select:focus { border-color: #7C3AED; background: #fff; }
 .support-modal__textarea {
   padding: 10px 12px;
   border: 1px solid #E5E7EB; border-radius: 8px;
   font-size: 14px; font-family: inherit; color: #111827; outline: none;
   background: #F9FAFB; width: 100%; box-sizing: border-box; resize: vertical;
 }
-.support-modal__textarea:focus { border-color: #00A86B; background: #fff; }
+.support-modal__textarea:focus { border-color: #7C3AED; background: #fff; }
 .support-modal__error {
   font-size: 13px; color: #E53935; background: #FEF2F2;
   border: 1px solid #FECACA; border-radius: 8px; padding: 10px 12px;
@@ -182,7 +182,7 @@
 }
 .support-modal__submit {
   height: 40px; padding: 0 20px; border-radius: 8px; border: none;
-  background: #00A86B; color: #fff; font-size: 14px; font-weight: 600;
+  background: #7C3AED; color: #fff; font-size: 14px; font-weight: 600;
   cursor: pointer; font-family: inherit; transition: background 0.15s;
 }
 .support-modal__submit:hover:not(:disabled) { background: #00875A; }

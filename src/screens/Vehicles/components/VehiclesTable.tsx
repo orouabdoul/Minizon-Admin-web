@@ -261,7 +261,7 @@ export function VehiclesTable({
                       style={{ opacity: v.status === 'Actif' ? 0.3 : 1 }}
                       onClick={() => onApprove(v.id)}
                     >
-                      <AppIcon icon={CheckCircle} size={15} color="#00A86B" />
+                      <AppIcon icon={CheckCircle} size={15} color="#7C3AED" />
                     </button>
                     <button
                       type="button"

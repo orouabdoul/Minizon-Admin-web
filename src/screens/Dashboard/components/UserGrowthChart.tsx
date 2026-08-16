@@ -45,12 +45,12 @@ export function UserGrowthChart({ users }: Props) {
   return (
     <div style={{ padding: '4px 0' }}>
       <ProportionalBar segments={[
-        { pct: (users.drivers    / t) * 100, color: '#00A86B' },
+        { pct: (users.drivers    / t) * 100, color: '#7C3AED' },
         { pct: (users.passengers / t) * 100, color: '#2563EB' },
         { pct: (users.blocked    / t) * 100, color: '#E53935' },
       ]} />
       <StatRow label="Total inscrits"    value={platformTotal}        color="#374151" dot={false} />
-      <StatRow label="Conducteurs"       value={users.drivers}        color="#00A86B" />
+      <StatRow label="Conducteurs"       value={users.drivers}        color="#7C3AED" />
       <StatRow label="Passagers"         value={users.passengers}     color="#2563EB" />
       <StatRow label="Nouveaux ce mois"  value={users.new_this_month} color="#A855F7" />
       <StatRow label="KYC en attente"    value={users.pending_kyc}    color="#F59E0B" />

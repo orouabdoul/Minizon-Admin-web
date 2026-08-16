@@ -252,7 +252,7 @@ export function UsersTable() {
                           title="Voir"
                           onClick={() => setSelectedId(u.id)}
                         >
-                          <AppIcon icon={Eye} size={16} color="#00A86B" />
+                          <AppIcon icon={Eye} size={16} color="#7C3AED" />
                         </button>
                         <button
                           type="button"
@@ -272,7 +272,7 @@ export function UsersTable() {
                               disabled={busy}
                               onClick={() => approveKyc(u.id)}
                             >
-                              <AppIcon icon={CheckCircle} size={16} color={busy ? '#9CA3AF' : '#00A86B'} />
+                              <AppIcon icon={CheckCircle} size={16} color={busy ? '#9CA3AF' : '#7C3AED'} />
                             </button>
                             <button
                               type="button"
@@ -304,7 +304,7 @@ export function UsersTable() {
                             disabled={busy}
                             onClick={() => setConfirmAction({ id: u.id, action: 'unsuspend' })}
                           >
-                            <AppIcon icon={UserCheck} size={16} color={busy ? '#9CA3AF' : '#00A86B'} />
+                            <AppIcon icon={UserCheck} size={16} color={busy ? '#9CA3AF' : '#7C3AED'} />
                           </button>
                         )}
 

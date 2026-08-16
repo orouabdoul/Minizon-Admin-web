@@ -16,16 +16,16 @@ interface Props {
 }
 
 const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
-  actif:      { label: 'En cours',   color: '#00A86B', bg: 'rgba(0,168,107,0.12)' },
+  actif:      { label: 'En cours',   color: '#7C3AED', bg: 'rgba(124,58,237,0.12)' },
   en_attente: { label: 'En attente', color: '#D97706', bg: '#FEF9C3' },
   retard:     { label: 'Retard',     color: '#E53935', bg: '#FEE2E2' },
   incident:   { label: 'Incident',   color: '#E53935', bg: '#FEE2E2' },
-  terminé:    { label: 'Terminé',    color: '#00A86B', bg: '#D1FAE5' },
+  terminé:    { label: 'Terminé',    color: '#7C3AED', bg: '#D1FAE5' },
   annulé:     { label: 'Annulé',     color: '#9CA3AF', bg: '#F3F4F6' },
 };
 
 const BOOKING_CFG: Record<string, { color: string; label: string }> = {
-  confirmé:   { color: '#00A86B', label: 'Confirmé'   },
+  confirmé:   { color: '#7C3AED', label: 'Confirmé'   },
   en_attente: { color: '#D97706', label: 'En attente' },
   annulé:     { color: '#E53935', label: 'Annulé'     },
 };
@@ -59,8 +59,8 @@ function PassengerCard({ p }: { p: PassengerStop }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
           {p.pickedUp != null && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
-              color: p.pickedUp ? '#00A86B' : '#9CA3AF',
-              background: p.pickedUp ? 'rgba(0,168,107,0.10)' : '#F3F4F6' }}>
+              color: p.pickedUp ? '#7C3AED' : '#9CA3AF',
+              background: p.pickedUp ? 'rgba(124,58,237,0.10)' : '#F3F4F6' }}>
               {p.pickedUp ? '✓ Embarqué' : '⏳ Attente'}
             </span>
           )}
@@ -75,9 +75,9 @@ function PassengerCard({ p }: { p: PassengerStop }) {
       {open && (
         <div className="trk-detail-passenger__stops">
           <div className="trk-detail-passenger__stop trk-detail-passenger__stop--pickup">
-            <AppIcon icon={MapPin} size={13} color="#00A86B" />
+            <AppIcon icon={MapPin} size={13} color="#7C3AED" />
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#00A86B', textTransform: 'uppercase', letterSpacing: 0.3 }}>Prise en charge</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 0.3 }}>Prise en charge</div>
               <div style={{ fontSize: 12, color: '#374151' }}>{p.pickupAddress}</div>
               {pCoords && <div style={{ fontSize: 10, color: '#9CA3AF', fontFamily: 'monospace' }}>{pCoords.lat.toFixed(5)}, {pCoords.lng.toFixed(5)}</div>}
             </div>
@@ -215,7 +215,7 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
           <div className="trk-detail-card__label">Itinéraire</div>
           <div className="trk-detail-route">
             <div className="trk-detail-route__city trk-detail-route__city--from">
-              <AppIcon icon={MapPin} size={14} color="#00A86B" /><span>{trip.from}</span>
+              <AppIcon icon={MapPin} size={14} color="#7C3AED" /><span>{trip.from}</span>
             </div>
             <div className="trk-detail-route__line" />
             <div className="trk-detail-route__city trk-detail-route__city--to">
@@ -242,9 +242,9 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
             )}
             {trip.startedAt && (
               <div className="trk-detail-info-item">
-                <AppIcon icon={CheckCircle} size={13} color="#00A86B" />
+                <AppIcon icon={CheckCircle} size={13} color="#7C3AED" />
                 <span className="trk-detail-info-item__k">Démarré à</span>
-                <span className="trk-detail-info-item__v" style={{ color: '#00A86B' }}>{trip.startedAt}</span>
+                <span className="trk-detail-info-item__v" style={{ color: '#7C3AED' }}>{trip.startedAt}</span>
               </div>
             )}
             <div className="trk-detail-info-item">

@@ -55,11 +55,11 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
           {users ? (
             <>
               <StatItem
-                icon={<AppIcon icon={UserPlus} size={15} color="#00A86B" />}
+                icon={<AppIcon icon={UserPlus} size={15} color="#7C3AED" />}
                 bg="#DCFCE7"
                 label="Total inscrits"
                 value={users.drivers + users.passengers}
-                color="#00A86B"
+                color="#7C3AED"
               />
               <StatItem
                 icon={<AppIcon icon={UserPlus} size={15} color="#A855F7" />}
@@ -121,11 +121,11 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
                 color="#374151"
               />
               <StatItem
-                icon={<AppIcon icon={CreditCard} size={15} color="#00A86B" />}
+                icon={<AppIcon icon={CreditCard} size={15} color="#7C3AED" />}
                 bg="#DCFCE7"
                 label="Revenus plateforme"
                 value={formatFcfa(payments.platform_revenue_fcfa)}
-                color="#00A86B"
+                color="#7C3AED"
               />
               <StatItem
                 icon={<AppIcon icon={CreditCard} size={15} color="#2563EB" />}
@@ -173,11 +173,11 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
                 color="#E53935"
               />
               <StatItem
-                icon={<AppIcon icon={AlertTriangle} size={15} color="#00A86B" />}
+                icon={<AppIcon icon={AlertTriangle} size={15} color="#7C3AED" />}
                 bg="#DCFCE7"
                 label="Résolus"
                 value={disputes.resolved}
-                color="#00A86B"
+                color="#7C3AED"
               />
             </>
           ) : (

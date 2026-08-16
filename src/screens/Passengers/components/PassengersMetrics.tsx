@@ -18,7 +18,7 @@ const CARDS: {
 }[] = [
   {
     key: 'total', label: 'Total Passagers',
-    Icon: Users, iconBg: 'rgba(0,168,107,0.10)', iconColor: '#00A86B',
+    Icon: Users, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
     badge: (m) => String(m.total),
   },
   {

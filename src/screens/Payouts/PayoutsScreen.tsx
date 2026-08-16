@@ -13,7 +13,7 @@ import type { PayoutMethod, PayoutStatus } from '../../models/payout.model';
 const STATUS_CONFIG: Record<PayoutStatus, { label: string; color: string; bg: string; icon: typeof CheckCircle }> = {
   en_attente:    { label: 'En attente',    color: '#D97706', bg: '#FEF3C7', icon: Clock        },
   en_traitement: { label: 'En traitement', color: '#2563EB', bg: '#DBEAFE', icon: RefreshCw    },
-  payé:          { label: 'Payé',          color: '#00A86B', bg: '#DCFCE7', icon: CheckCircle  },
+  payé:          { label: 'Payé',          color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
   échoué:        { label: 'Échoué',        color: '#E53935', bg: '#FEE2E2', icon: AlertCircle  },
 };
 
@@ -38,7 +38,7 @@ function ProcessModal({
           <div style={{ background: '#F9FAFB', borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Conducteur</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{name}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#00A86B', marginTop: 4 }}>{fmt(netAmount)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#7C3AED', marginTop: 4 }}>{fmt(netAmount)}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Méthode de paiement</span>
@@ -52,7 +52,7 @@ function ProcessModal({
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Annuler</button>
-          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#00A86B', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Confirmer le virement</button>
+          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#7C3AED', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Confirmer le virement</button>
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@ export function PayoutsScreen() {
         {[
           { label: 'Montant à verser',     value: fmt(summary.totalPending),     color: '#D97706', bg: '#FEF3C7', icon: Clock        },
           { label: 'Virements en attente', value: String(summary.pendingAmount), color: '#D97706', bg: '#FEF3C7', icon: Clock        },
-          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),        color: '#00A86B', bg: '#DCFCE7', icon: CheckCircle  },
+          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),        color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
           { label: 'Conducteurs actifs',   value: String(summary.totalDrivers),  color: '#2563EB', bg: '#DBEAFE', icon: DollarSign   },
         ].map((k) => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6' }}>
@@ -242,7 +242,7 @@ export function PayoutsScreen() {
                 <span style={{ fontSize: 12, color: '#E53935' }}>−{fmt(p.commission)}</span>
 
                 {/* Net */}
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#00A86B' }}>{fmt(p.netAmount)}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#7C3AED' }}>{fmt(p.netAmount)}</span>
 
                 {/* Method */}
                 <span style={{ fontSize: 11, color: '#6B7280' }}>{p.method}</span>
@@ -258,7 +258,7 @@ export function PayoutsScreen() {
                       type="button"
                       disabled={isProcessing}
                       onClick={() => setModalFor(p.id)}
-                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#00A86B', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7C3AED', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                     >
                       {isProcessing ? <AppIcon icon={Loader} size={11} color="#fff" /> : null}
                       Verser

@@ -26,12 +26,12 @@ const ACTION_COLOR: Record<AuditActionType, { color: string; bg: string }> = {
   connexion:             { color: '#2563EB', bg: '#DBEAFE' },
   deconnexion:           { color: '#6B7280', bg: '#F3F4F6' },
   suspension:            { color: '#E53935', bg: '#FEE2E2' },
-  reactivation:          { color: '#00A86B', bg: '#DCFCE7' },
+  reactivation:          { color: '#7C3AED', bg: '#EDE9FE' },
   remboursement:         { color: '#D97706', bg: '#FEF3C7' },
   modif_parametre:       { color: '#7C3AED', bg: '#F3E8FF' },
   creation_admin:        { color: '#C62828', bg: '#FFCDD2' },
-  resolution_litige:     { color: '#00A86B', bg: '#DCFCE7' },
-  approbation_conducteur:{ color: '#00A86B', bg: '#DCFCE7' },
+  resolution_litige:     { color: '#7C3AED', bg: '#EDE9FE' },
+  approbation_conducteur:{ color: '#7C3AED', bg: '#EDE9FE' },
   rejet_conducteur:      { color: '#E53935', bg: '#FEE2E2' },
   suppression:           { color: '#C62828', bg: '#FFCDD2' },
   export_donnees:        { color: '#0891B2', bg: '#CFFAFE' },
@@ -62,7 +62,7 @@ export function AuditScreen() {
         {[
           { label: "Actions aujourd'hui", value: stats.today_count,    color: '#2563EB', bg: '#DBEAFE', icon: FileText      },
           { label: 'Événements critiques', value: stats.critique_count, color: '#E53935', bg: '#FEE2E2', icon: AlertTriangle },
-          { label: 'Administrateurs',      value: admins.length,        color: '#00A86B', bg: '#DCFCE7', icon: Users         },
+          { label: 'Administrateurs',      value: admins.length,        color: '#7C3AED', bg: '#EDE9FE', icon: Users         },
           { label: 'Total entrées',        value: stats.total,          color: '#7C3AED', bg: '#F3E8FF', icon: BarChart2     },
         ].map((k) => (
           <div key={k.label} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: '#fff', borderRadius: 10, outline: '1px solid #F3F4F6' }}>

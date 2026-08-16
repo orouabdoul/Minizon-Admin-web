@@ -170,8 +170,8 @@ export function ReportsScreen() {
                   {kpi.value}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <AppIcon icon={kpi.up ? TrendingUp : TrendingDown} size={13} color={kpi.up ? '#00A86B' : '#E53935'} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: kpi.up ? '#00A86B' : '#E53935' }}>{kpi.trend}</span>
+                  <AppIcon icon={kpi.up ? TrendingUp : TrendingDown} size={13} color={kpi.up ? '#7C3AED' : '#E53935'} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: kpi.up ? '#7C3AED' : '#E53935' }}>{kpi.trend}</span>
                   <span style={{ fontSize: 11, color: '#9CA3AF' }}>vs période préc.</span>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export function ReportsScreen() {
                           </span>
                         </div>
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#00A86B', flexShrink: 0 }}>{d.revenue}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED', flexShrink: 0 }}>{d.revenue}</div>
                     </div>
                   ))}
                 </div>

@@ -134,7 +134,7 @@ export function TrackingScreen() {
 
       {/* ── KPI row 1 — principaux ──────────────────────────────────────────── */}
       <div className="tracking-stats-bar" style={{ marginBottom: 8 }}>
-        <KpiCard label="En cours"          value={stats.activeTrips}   color="#00A86B" bg="rgba(0,168,107,0.10)" icon={Navigation}   />
+        <KpiCard label="En cours"          value={stats.activeTrips}   color="#7C3AED" bg="rgba(124,58,237,0.10)" icon={Navigation}   />
         <KpiCard label="En attente"        value={stats.pendingTrips}  color="#D97706" bg="#FEF9C3"              icon={Clock}         />
         <KpiCard label="Retards"           value={stats.delayedTrips}  color="#F59E0B" bg="#FEF3C7"              icon={Clock}         />
         <KpiCard label="Incidents actifs"  value={stats.incidents}     color="#E53935" bg="#FEE2E2"              icon={AlertTriangle} />
