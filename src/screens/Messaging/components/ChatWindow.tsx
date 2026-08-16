@@ -1,7 +1,83 @@
 import { useState, useEffect, useRef } from 'react';
-import { Phone, Send, MessageSquare, ChevronRight, RefreshCw, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Phone, Send, MessageSquare, ChevronRight, RefreshCw, Pencil, Trash2, Check, X, Mic, Play, Pause } from 'lucide-react';
 import { AppIcon } from '../../../components/Common/AppIcon';
 import type { Conversation, DriverStatus } from '../../../models/messaging.model';
+
+// Simulated waveform bar heights (30 bars, 0-100%)
+const WAVE_BARS = [40,65,80,55,72,90,62,48,78,88,52,68,95,72,58,82,60,76,92,66,52,70,86,60,77,54,82,67,73,44];
+
+function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
+  const [playing, setPlaying]       = useState(false);
+  const [progress, setProgress]     = useState(0);
+  const [duration, setDuration]     = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+  const audioRef = useRef<HTMLAudioElement>(null);
+
+  const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
+
+  const toggle = () => {
+    const a = audioRef.current;
+    if (!a) return;
+    if (playing) { a.pause(); setPlaying(false); }
+    else { a.play().catch(() => {}); setPlaying(true); }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    const a = audioRef.current;
+    if (!a || !a.duration) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
+  };
+
+  const accent     = isAdmin ? '#fff' : '#7C3AED';
+  const accentFade = isAdmin ? 'rgba(255,255,255,0.30)' : 'rgba(124,58,237,0.25)';
+  const bg         = isAdmin ? 'rgba(255,255,255,0.12)' : 'rgba(124,58,237,0.07)';
+  const btnBg      = isAdmin ? 'rgba(255,255,255,0.90)' : '#7C3AED';
+  const btnIcon    = isAdmin ? '#7C3AED' : '#fff';
+  const timeColor  = isAdmin ? 'rgba(255,255,255,0.65)' : '#9CA3AF';
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 10px', borderRadius: 14, background: bg, minWidth: 220, maxWidth: 280 }}>
+      <audio
+        ref={audioRef}
+        src={url}
+        preload="metadata"
+        onLoadedMetadata={() => audioRef.current && setDuration(audioRef.current.duration)}
+        onTimeUpdate={() => {
+          const a = audioRef.current;
+          if (!a) return;
+          setCurrentTime(a.currentTime);
+          setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+        }}
+        onEnded={() => { setPlaying(false); setProgress(0); setCurrentTime(0); }}
+      />
+
+      {/* Play / Pause button */}
+      <button
+        type="button"
+        onClick={toggle}
+        style={{ width: 38, height: 38, borderRadius: '50%', border: 'none', background: btnBg, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
+        <AppIcon icon={playing ? Pause : Play} size={16} color={btnIcon} />
+      </button>
+
+      {/* Waveform + time */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
+        <div onClick={handleSeek} style={{ display: 'flex', alignItems: 'center', gap: 2, height: 26, cursor: 'pointer' }}>
+          {WAVE_BARS.map((h, i) => (
+            <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 2, background: (i / WAVE_BARS.length) * 100 <= progress ? accent : accentFade, transition: 'background 0.08s' }} />
+          ))}
+        </div>
+        <span style={{ fontSize: 11, color: timeColor, fontWeight: 500, lineHeight: 1 }}>
+          {currentTime > 0 ? fmt(currentTime) : (duration > 0 ? fmt(duration) : '0:00')}
+        </span>
+      </div>
+
+      {/* Mic badge */}
+      <AppIcon icon={Mic} size={13} color={isAdmin ? 'rgba(255,255,255,0.50)' : '#C4B5FD'} />
+    </div>
+  );
+}
 
 const STATUS_CONFIG: Record<DriverStatus, { label: string; color: string; bg: string }> = {
   en_ligne:   { label: 'En ligne',   color: '#16A34A', bg: 'rgba(22,163,74,0.10)'   },
@@ -250,13 +326,9 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
                     {msg.attachment && (
                       <div className="msg-bubble__attachment">
                         {msg.attachment.type === 'audio' ? (
-                          <audio
-                            controls
-                            preload="metadata"
-                            style={{ width: '100%', maxWidth: 260, marginTop: msg.content ? 6 : 0 }}
-                          >
-                            <source src={msg.attachment.url} />
-                          </audio>
+                          <div style={{ marginTop: msg.content ? 8 : 0 }}>
+                            <VoiceMessage url={msg.attachment.url} isAdmin={isAdmin} />
+                          </div>
                         ) : msg.attachment.type === 'image' ? (
                           <img
                             src={msg.attachment.url}

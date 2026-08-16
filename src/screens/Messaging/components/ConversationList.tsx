@@ -218,7 +218,7 @@ export function ConversationList({
                 <div className="msg-conv-item__meta">{c.roleLabel}</div>
                 <div className="msg-conv-item__preview-row">
                   <span className={`msg-conv-item__preview${hasUnread ? ' msg-conv-item__preview--unread' : ''}`}>
-                    {c.lastMessage}
+                    {c.lastMessage || '🎤 Message vocal'}
                   </span>
                   {hasUnread && (
                     <span className="msg-conv-item__unread-badge">{c.unreadCount}</span>
