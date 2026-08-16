@@ -48,6 +48,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
   const [editingId, setEditingId]     = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [hoveredMsgId, setHoveredMsgId] = useState<string | null>(null);
+  const [copied, setCopied]           = useState(false);
   const messagesEndRef                = useRef<HTMLDivElement>(null);
   const textareaRef                   = useRef<HTMLTextAreaElement>(null);
   const editInputRef                  = useRef<HTMLTextAreaElement>(null);
@@ -157,14 +158,20 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
             <AppIcon icon={RefreshCw} size={14} color="#6B7280" />
           </button>
           {phone && (
-            <a
-              href={`tel:${phone}`}
+            <button
+              type="button"
               className="msg-chat__call-btn"
-              title={`Appeler ${name} — ${phone}`}
+              title={`Copier le numéro de ${name} : ${phone}`}
+              onClick={() => {
+                navigator.clipboard.writeText(phone).then(() => {
+                  setCopied(true);
+                  setTimeout(() => setCopied(false), 2000);
+                });
+              }}
             >
               <AppIcon icon={Phone} size={14} color="#fff" />
-              Appeler
-            </a>
+              {copied ? 'Copié !' : phone}
+            </button>
           )}
         </div>
       </div>
@@ -172,7 +179,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onR
       {/* Phone hint */}
       {phone && (
         <div className="msg-chat__phone-hint">
-          📞 {phone} — cliquez sur Appeler pour ouvrir le téléphone
+          📞 Cliquez sur le numéro pour le copier dans le presse-papiers
         </div>
       )}
 
