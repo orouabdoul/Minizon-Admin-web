@@ -710,45 +710,13 @@
 
 .msg-chat__send-btn--active:hover { background: #1D4ED8; }
 
-/* ── Mic button (voice recording trigger) ── */
-.msg-chat__mic-btn {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1.5px solid #E5E7EB;
-  background: #F9FAFB;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+/* ── Mic button (replaces Send when input is empty, like WhatsApp) ── */
+.msg-chat__send-btn--mic {
+  background: #7C3AED;
   cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s;
-  margin-bottom: 2px;
+  box-shadow: 0 2px 8px rgba(124, 58, 237, 0.35);
 }
-.msg-chat__mic-btn:hover { background: #F3F4F6; border-color: #D1D5DB; }
-
-/* ── Cancel / trash button during recording ── */
-.msg-chat__mic-cancel {
-  width: 38px;
-  height: 38px;
-  border-radius: 10px;
-  border: 1.5px solid #FEE2E2;
-  background: #FEF2F2;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  flex-shrink: 0;
-  transition: all 0.15s;
-}
-.msg-chat__mic-cancel:hover { background: #FEE2E2; }
-
-/* ── Recording / preview bar variants ── */
-.msg-chat__input-bar--recording,
-.msg-chat__input-bar--preview {
-  align-items: center;
-  min-height: 64px;
-}
+.msg-chat__send-btn--mic:hover { background: #6D28D9; }
 
 /* ── Empty / no-selection state ── */
 

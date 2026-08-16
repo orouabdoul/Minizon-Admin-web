@@ -483,75 +483,90 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
       </div>
 
       {/* ── Input bar ────────────────────────────────────────────────────────── */}
+      <style>{`
+        @keyframes rec-pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(0.85)} }
+        @keyframes rec-wave  { 0%,100%{height:4px} 50%{height:22px} }
+        .rec-wave-bar { width:3px; background:#EF4444; border-radius:2px; animation:rec-wave 0.7s ease-in-out infinite; }
+        .rec-wave-bar:nth-child(2){animation-delay:0.1s}
+        .rec-wave-bar:nth-child(3){animation-delay:0.2s}
+        .rec-wave-bar:nth-child(4){animation-delay:0.3s}
+        .rec-wave-bar:nth-child(5){animation-delay:0.4s}
+        .rec-wave-bar:nth-child(6){animation-delay:0.15s}
+        .rec-wave-bar:nth-child(7){animation-delay:0.25s}
+        .rec-wave-bar:nth-child(8){animation-delay:0.35s}
+        .rec-wave-bar:nth-child(9){animation-delay:0.05s}
+        .rec-wave-bar:nth-child(10){animation-delay:0.45s}
+      `}</style>
 
-      {/* State 1 — Recording in progress */}
+      {/* ── State 1 : Enregistrement en cours ── */}
       {recording && (
-        <div className="msg-chat__input-bar msg-chat__input-bar--recording">
-          <style>{`@keyframes rec-pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }`}</style>
-          <button type="button" className="msg-chat__mic-cancel" onClick={cancelRecording} title="Annuler">
-            <AppIcon icon={X} size={16} color="#EF4444" />
+        <div style={{ display:'flex', alignItems:'center', gap:12, padding:'10px 14px 14px', background:'#fff', borderTop:'1px solid #F3F4F6' }}>
+          {/* Annuler */}
+          <button type="button" onClick={cancelRecording} title="Annuler l'enregistrement"
+            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#FEF2F2', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <AppIcon icon={X} size={18} color="#EF4444" />
           </button>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#EF4444', animation: 'rec-pulse 1s infinite', flexShrink: 0 }} />
-            <span style={{ fontSize: 16, fontWeight: 700, color: '#EF4444', fontVariantNumeric: 'tabular-nums' }}>{fmtRec(recordSecs)}</span>
-            <span style={{ fontSize: 12, color: '#9CA3AF' }}>Enregistrement en cours…</span>
+
+          {/* Waveform + timer */}
+          <div style={{ flex:1, display:'flex', alignItems:'center', gap:10, background:'#FEF2F2', borderRadius:24, padding:'0 14px', height:44 }}>
+            <div style={{ width:10, height:10, borderRadius:'50%', background:'#EF4444', flexShrink:0, animation:'rec-pulse 1s ease-in-out infinite' }} />
+            <span style={{ fontSize:14, fontWeight:700, color:'#EF4444', fontVariantNumeric:'tabular-nums', flexShrink:0 }}>{fmtRec(recordSecs)}</span>
+            <div style={{ flex:1, display:'flex', alignItems:'center', justifyContent:'center', gap:3, height:28 }}>
+              {Array.from({length:10}).map((_, i) => <div key={i} className="rec-wave-bar" />)}
+            </div>
           </div>
-          <button type="button" className="msg-chat__send-btn msg-chat__send-btn--active" onClick={stopRecording} title="Arrêter et prévisualiser">
-            <AppIcon icon={Check} size={18} color="#fff" />
+
+          {/* Stop + envoyer */}
+          <button type="button" onClick={stopRecording} title="Arrêter et prévisualiser"
+            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#EF4444', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <AppIcon icon={Check} size={20} color="#fff" />
           </button>
         </div>
       )}
 
-      {/* State 2 — Preview recorded audio */}
+      {/* ── State 2 : Aperçu avant envoi ── */}
       {!recording && audioBlob && previewUrl && (
-        <div className="msg-chat__input-bar msg-chat__input-bar--preview">
-          <button type="button" className="msg-chat__mic-cancel" onClick={cancelRecording} title="Supprimer">
-            <AppIcon icon={Trash2} size={16} color="#EF4444" />
+        <div style={{ display:'flex', alignItems:'center', gap:10, padding:'10px 14px 14px', background:'#fff', borderTop:'1px solid #F3F4F6' }}>
+          <button type="button" onClick={cancelRecording} title="Supprimer"
+            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#FEF2F2', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <AppIcon icon={Trash2} size={18} color="#EF4444" />
           </button>
-          <div style={{ flex: 1 }}>
-            <VoiceMessage url={previewUrl} isAdmin={true} />
+          <div style={{ flex:1 }}>
+            <VoiceMessage url={previewUrl} isAdmin={false} />
           </div>
-          <button
-            type="button"
-            className="msg-chat__send-btn msg-chat__send-btn--active"
-            onClick={handleSendAudio}
-            disabled={sending}
-            title="Envoyer le message vocal"
-          >
+          <button type="button" onClick={handleSendAudio} disabled={sending} title="Envoyer le message vocal"
+            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#7C3AED', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
             <AppIcon icon={Send} size={18} color="#fff" />
           </button>
         </div>
       )}
 
-      {/* State 3 — Normal text input */}
+      {/* ── State 3 : Saisie normale ── */}
       {!recording && !audioBlob && (
         <div className="msg-chat__input-bar">
-          <button
-            type="button"
-            className="msg-chat__mic-btn"
-            onClick={startRecording}
-            title="Enregistrer un message vocal"
-          >
-            <AppIcon icon={Mic} size={18} color="#6B7280" />
-          </button>
           <textarea
             ref={textareaRef}
             className="msg-chat__textarea"
-            placeholder="Écrire un message… (Entrée pour envoyer, Maj+Entrée pour nouvelle ligne)"
+            placeholder="Écrire un message…"
             value={input}
             rows={2}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
           />
-          <button
-            type="button"
-            className={`msg-chat__send-btn${input.trim() && !sending ? ' msg-chat__send-btn--active' : ''}`}
-            onClick={handleSend}
-            disabled={!input.trim() || sending}
-            title="Envoyer (Entrée)"
-          >
-            <AppIcon icon={Send} size={18} color={input.trim() && !sending ? '#fff' : '#9CA3AF'} />
-          </button>
+          {/* Mic quand vide, Send quand texte — comme WhatsApp */}
+          {input.trim() ? (
+            <button type="button"
+              className="msg-chat__send-btn msg-chat__send-btn--active"
+              onClick={handleSend} disabled={sending} title="Envoyer (Entrée)">
+              <AppIcon icon={Send} size={18} color="#fff" />
+            </button>
+          ) : (
+            <button type="button"
+              className="msg-chat__send-btn msg-chat__send-btn--mic"
+              onClick={startRecording} title="Enregistrer un message vocal">
+              <AppIcon icon={Mic} size={20} color="#fff" />
+            </button>
+          )}
         </div>
       )}
     </div>
