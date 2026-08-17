@@ -186,7 +186,7 @@ export function SupportTable({
                   <Td>
                     <div className="trip-actions">
                       <button type="button" className="trip-action-btn" title="Voir" onClick={() => onView(t.id)}>
-                        <AppIcon icon={Eye} size={14} color="#2563EB" />
+                        <AppIcon icon={Eye} size={14} color="#1A5FB4" />
                       </button>
                       {isOpen && (
                         <button type="button" className="trip-action-btn" title="Résoudre" disabled={busy} onClick={() => onResolve(t.id)}>

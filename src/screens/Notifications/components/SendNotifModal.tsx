@@ -18,9 +18,9 @@ const TARGETS: { id: NotifTarget; label: string; icon: typeof Users; desc: strin
 ];
 
 const TYPES: { id: NotifPushType; label: string; color: string; bg: string }[] = [
-  { id: 'info',    label: 'Information', color: '#2563EB', bg: '#DBEAFE' },
+  { id: 'info',    label: 'Information', color: '#1A5FB4', bg: '#D6E8F7' },
   { id: 'warning', label: 'Avertissement', color: '#D97706', bg: '#FEF3C7' },
-  { id: 'promo',   label: 'Promotion',  color: '#7C3AED', bg: '#F3E8FF' },
+  { id: 'promo',   label: 'Promotion',  color: '#1A5FB4', bg: '#F3E8FF' },
   { id: 'system',  label: 'Système',    color: '#E53935', bg: '#FEE2E2' },
 ];
 
@@ -50,8 +50,8 @@ export function SendNotifModal({ onClose, onSend, sending }: SendNotifModalProps
         {/* Header */}
         <div style={{ position: 'sticky', top: 0, background: '#fff', padding: '16px 20px', borderBottom: '1px solid #F3F4F6', display: 'flex', alignItems: 'center', justifyContent: 'space-between', zIndex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Bell} size={18} color="#2563EB" />
+            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#D6E8F7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <AppIcon icon={Bell} size={18} color="#1A5FB4" />
             </div>
             <div>
               <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>Envoyer une notification push</div>
@@ -84,11 +84,11 @@ export function SendNotifModal({ onClose, onSend, sending }: SendNotifModalProps
                   key={t.id}
                   type="button"
                   onClick={() => setTarget(t.id)}
-                  style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: `2px solid ${target === t.id ? '#2563EB' : '#E5E7EB'}`, background: target === t.id ? '#EFF6FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}
+                  style={{ flex: 1, padding: '10px 12px', borderRadius: 10, border: `2px solid ${target === t.id ? '#1A5FB4' : '#E5E7EB'}`, background: target === t.id ? '#EFF6FF' : '#fff', cursor: 'pointer', textAlign: 'left' }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}>
-                    <AppIcon icon={t.icon} size={13} color={target === t.id ? '#2563EB' : '#6B7280'} />
-                    <span style={{ fontSize: 12, fontWeight: 700, color: target === t.id ? '#2563EB' : '#374151' }}>{t.label}</span>
+                    <AppIcon icon={t.icon} size={13} color={target === t.id ? '#1A5FB4' : '#6B7280'} />
+                    <span style={{ fontSize: 12, fontWeight: 700, color: target === t.id ? '#1A5FB4' : '#374151' }}>{t.label}</span>
                   </div>
                   <div style={{ fontSize: 10, color: '#9CA3AF' }}>{t.desc}</div>
                 </button>
@@ -150,7 +150,7 @@ export function SendNotifModal({ onClose, onSend, sending }: SendNotifModalProps
               <div style={{ fontSize: 10, fontWeight: 700, color: '#9CA3AF', textTransform: 'uppercase', letterSpacing: 0.5, marginBottom: 8 }}>Aperçu notification mobile</div>
               <div style={{ background: '#111827', borderRadius: 10, padding: '10px 14px', maxWidth: 280 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-                  <div style={{ width: 18, height: 18, borderRadius: 5, background: '#2563EB', flexShrink: 0 }} />
+                  <div style={{ width: 18, height: 18, borderRadius: 5, background: '#1A5FB4', flexShrink: 0 }} />
                   <span style={{ fontSize: 10, color: '#9CA3AF' }}>MINIZON · Maintenant</span>
                 </div>
                 <div style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 2 }}>{title || '…'}</div>
@@ -169,7 +169,7 @@ export function SendNotifModal({ onClose, onSend, sending }: SendNotifModalProps
             type="button"
             disabled={!canSend || sending}
             onClick={() => onSend({ title, body, target, type })}
-            style={{ padding: '9px 24px', borderRadius: 8, border: 'none', background: canSend && !sending ? '#2563EB' : '#93C5FD', fontSize: 13, fontWeight: 700, color: '#fff', cursor: canSend && !sending ? 'pointer' : 'not-allowed' }}
+            style={{ padding: '9px 24px', borderRadius: 8, border: 'none', background: canSend && !sending ? '#1A5FB4' : '#93C5FD', fontSize: 13, fontWeight: 700, color: '#fff', cursor: canSend && !sending ? 'pointer' : 'not-allowed' }}
           >
             {sending ? 'Envoi…' : `Envoyer à ${TARGETS.find((t) => t.id === target)?.label}`}
           </button>

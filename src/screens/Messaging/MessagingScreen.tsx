@@ -459,7 +459,7 @@ export function MessagingScreen() {
 
                 {/* Selected count */}
                 {selectedUuids.size > 0 && (
-                  <p style={{ fontSize: 12, color: '#2563EB', padding: '0 16px', margin: '4px 0 0', fontWeight: 600 }}>
+                  <p style={{ fontSize: 12, color: '#1A5FB4', padding: '0 16px', margin: '4px 0 0', fontWeight: 600 }}>
                     {selectedUuids.size} sélectionné(s)
                   </p>
                 )}
@@ -485,7 +485,7 @@ export function MessagingScreen() {
                               type="checkbox"
                               readOnly
                               checked={checked}
-                              style={{ accentColor: '#2563EB', width: 14, height: 14, flexShrink: 0 }}
+                              style={{ accentColor: '#1A5FB4', width: 14, height: 14, flexShrink: 0 }}
                             />
                             {u.avatar ? (
                               <img src={u.avatar} alt={u.name} className="msg-user-result__avatar" />

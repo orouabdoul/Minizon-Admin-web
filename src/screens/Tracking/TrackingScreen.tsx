@@ -67,7 +67,7 @@ function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: ViewMode
             display: 'flex', alignItems: 'center', gap: 5, padding: '6px 12px',
             border: 'none', borderLeft: m === 'map' ? '1.5px solid #E5E7EB' : 'none',
             fontSize: 12, fontWeight: 600, cursor: 'pointer',
-            background: mode === m ? '#2563EB' : '#fff',
+            background: mode === m ? '#1A5FB4' : '#fff',
             color:      mode === m ? '#fff'    : '#6B7280',
           }}
         >
@@ -134,12 +134,12 @@ export function TrackingScreen() {
 
       {/* ── KPI row 1 — principaux ──────────────────────────────────────────── */}
       <div className="tracking-stats-bar" style={{ marginBottom: 8 }}>
-        <KpiCard label="En cours"          value={stats.activeTrips}   color="#7C3AED" bg="rgba(124,58,237,0.10)" icon={Navigation}   />
+        <KpiCard label="En cours"          value={stats.activeTrips}   color="#1A5FB4" bg="rgba(26,95,180,0.10)" icon={Navigation}   />
         <KpiCard label="En attente"        value={stats.pendingTrips}  color="#D97706" bg="#FEF9C3"              icon={Clock}         />
         <KpiCard label="Retards"           value={stats.delayedTrips}  color="#F59E0B" bg="#FEF3C7"              icon={Clock}         />
         <KpiCard label="Incidents actifs"  value={stats.incidents}     color="#E53935" bg="#FEE2E2"              icon={AlertTriangle} />
-        <KpiCard label="Conducteurs en ligne" value={stats.driversOnline} color="#2563EB" bg="#DBEAFE"           icon={Car}           />
-        <KpiCard label="Trajets aujourd'hui" value={stats.tripsToday}  color="#7C3AED" bg="#F3E8FF"              icon={TrendingUp}    />
+        <KpiCard label="Conducteurs en ligne" value={stats.driversOnline} color="#1A5FB4" bg="#D6E8F7"           icon={Car}           />
+        <KpiCard label="Trajets aujourd'hui" value={stats.tripsToday}  color="#1A5FB4" bg="#F3E8FF"              icon={TrendingUp}    />
       </div>
 
       {/* ── KPI row 2 — secondaires ─────────────────────────────────────────── */}
@@ -147,7 +147,7 @@ export function TrackingScreen() {
         <KpiCard label="Pannes actives"      value={stats.pannes}          color="#DC2626" bg="#FEE2E2" icon={Wrench}      small />
         <KpiCard label="Terminés aujourd'hui" value={stats.completedToday} color="#059669" bg="#D1FAE5" icon={CheckCircle} small />
         <KpiCard label="Passagers aujourd'hui" value={stats.passengersToday} color="#0891B2" bg="#CFFAFE" icon={Users}    small />
-        <KpiCard label="Signalés"            value={stats.flaggedTrips}    color="#7C3AED" bg="#F3E8FF" icon={Flag}       small />
+        <KpiCard label="Signalés"            value={stats.flaggedTrips}    color="#1A5FB4" bg="#F3E8FF" icon={Flag}       small />
       </div>
 
       {/* ── View toggle ─────────────────────────────────────────────────────── */}

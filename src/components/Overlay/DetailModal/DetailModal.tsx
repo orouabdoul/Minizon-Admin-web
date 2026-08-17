@@ -12,7 +12,7 @@ interface DetailModalProps {
 }
 
 export function DetailModal({
-  title, onClose, children, accentColor = '#7C3AED',
+  title, onClose, children, accentColor = '#1A5FB4',
 }: DetailModalProps) {
   useEffect(() => {
     const h = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
@@ -65,7 +65,7 @@ export function DetailRow({ label, children }: { label: string; children: ReactN
 }
 
 // ── Progress bar ─────────────────────────────────────────
-export function DetailBar({ value, color = '#7C3AED' }: { value: number; color?: string }) {
+export function DetailBar({ value, color = '#1A5FB4' }: { value: number; color?: string }) {
   return (
     <div className="detail-bar-wrap">
       <div className="detail-bar-track">

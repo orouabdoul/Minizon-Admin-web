@@ -152,9 +152,9 @@ export function PaymentsTable({
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 6,
               padding: '7px 14px', borderRadius: 9,
-              border: '1.5px solid #2563EB',
+              border: '1.5px solid #1A5FB4',
               background: syncAllLoading ? '#F9FAFB' : '#EFF6FF',
-              color: syncAllLoading ? '#9CA3AF' : '#2563EB',
+              color: syncAllLoading ? '#9CA3AF' : '#1A5FB4',
               fontSize: 12, fontWeight: 700,
               cursor: syncAllLoading ? 'not-allowed' : 'pointer',
               transition: 'all 0.15s', fontFamily: 'inherit',
@@ -162,7 +162,7 @@ export function PaymentsTable({
           >
             {syncAllLoading
               ? <AppIcon icon={Loader} size={13} color="#9CA3AF" />
-              : <AppIcon icon={Zap}    size={13} color="#2563EB" />}
+              : <AppIcon icon={Zap}    size={13} color="#1A5FB4" />}
             {syncAllLoading ? 'Synchronisation…' : 'Sync FedaPay'}
           </button>
         </div>
@@ -240,7 +240,7 @@ export function PaymentsTable({
                             <span className="data-table__user-name">{p.passengerName}</span>
                             {p.passengerVerified && (
                               <span title="Compte vérifié">
-                                <AppIcon icon={BadgeCheck} size={13} color="#2563EB" />
+                                <AppIcon icon={BadgeCheck} size={13} color="#1A5FB4" />
                               </span>
                             )}
                           </div>

@@ -14,8 +14,8 @@ const STATUS_VARIANT: Record<TripStatus, BadgeVariant> = {
 };
 
 const STATUS_ACTIONS: { api: ApiTripStatus; label: string; color: string }[] = [
-  { api: 'active',    label: 'Activer',    color: '#7C3AED' },
-  { api: 'completed', label: 'Terminer',   color: '#2563EB' },
+  { api: 'active',    label: 'Activer',    color: '#1A5FB4' },
+  { api: 'completed', label: 'Terminer',   color: '#1A5FB4' },
   { api: 'cancelled', label: 'Annuler',    color: '#E53935' },
   { api: 'pending',   label: 'En attente', color: '#F4B400' },
 ];
@@ -120,7 +120,7 @@ export function TripDetailModal({ trip: t, onClose, detailLoading, onUpdateStatu
           <DetailRow label="Réservations"><span>{t.bookingsCount}</span></DetailRow>
         )}
         <DetailRow label="Revenus">
-          <span style={{ fontWeight: 700, color: '#7C3AED' }}>{t.revenue}</span>
+          <span style={{ fontWeight: 700, color: '#1A5FB4' }}>{t.revenue}</span>
         </DetailRow>
       </DetailSection>
 

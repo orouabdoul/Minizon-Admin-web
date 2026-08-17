@@ -146,7 +146,7 @@ export function NotificationsScreen() {
         {viewPaymentLoading && (
           <div className="payments-confirm-overlay" style={{ zIndex: 8999 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#fff', padding: '20px 28px', borderRadius: 14, boxShadow: '0 8px 32px rgba(0,0,0,0.12)' }}>
-              <AppIcon icon={Loader} size={20} color="#2563EB" />
+              <AppIcon icon={Loader} size={20} color="#1A5FB4" />
               <span style={{ fontSize: 14, color: '#374151', fontWeight: 600 }}>Chargement du paiement…</span>
             </div>
           </div>
@@ -174,7 +174,7 @@ export function NotificationsScreen() {
           <button
             type="button"
             onClick={() => setShowSendModal(true)}
-            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#2563EB', fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(37,99,235,0.3)' }}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '9px 18px', borderRadius: 10, border: 'none', background: '#1A5FB4', fontSize: 13, fontWeight: 700, color: '#fff', cursor: 'pointer', boxShadow: '0 2px 8px rgba(26,95,180,0.3)' }}
           >
             <AppIcon icon={Bell} size={15} color="#fff" />
             Envoyer une notification push

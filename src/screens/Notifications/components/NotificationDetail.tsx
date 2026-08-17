@@ -16,8 +16,8 @@ interface NotificationDetailProps {
 
 const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: string; label: string }> = {
   system:         { icon: AlertTriangle, color: '#E53935', bg: 'rgba(229,57,53,0.10)',   label: 'Système'        },
-  user:           { icon: UserCheck,     color: '#2563EB', bg: 'rgba(37,99,235,0.10)',   label: 'Utilisateur'    },
-  payment:        { icon: CreditCard,    color: '#7C3AED', bg: 'rgba(124,58,237,0.10)',   label: 'Paiement'       },
+  user:           { icon: UserCheck,     color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Utilisateur'    },
+  payment:        { icon: CreditCard,    color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Paiement'       },
   dispute:        { icon: AlertCircle,   color: '#F4B400', bg: 'rgba(244,180,0,0.10)',   label: 'Litige'         },
   driver:         { icon: Car,           color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  label: 'Conducteur'     },
   critical_review:{ icon: AlertCircle,   color: '#DC2626', bg: 'rgba(220,38,38,0.10)',   label: 'Avis critique'  },

@@ -95,14 +95,14 @@ export interface KpiCardData {
 }
 
 export const DASHBOARD_KPIS: KpiCardData[] = [
-  { id: 'total-users',    label: "Utilisateurs Totaux",       value: '24,856',   badge: '+12.5%',   badgeVariant: 'success', iconBg: '#DBEAFE', iconColor: '#2563EB', iconId: 'users' },
-  { id: 'drivers',        label: 'Conducteurs Actifs',        value: '3,247',    badge: '+8.2%',    badgeVariant: 'success', iconBg: '#DCFCE7', iconColor: '#7C3AED', iconId: 'car' },
+  { id: 'total-users',    label: "Utilisateurs Totaux",       value: '24,856',   badge: '+12.5%',   badgeVariant: 'success', iconBg: '#D6E8F7', iconColor: '#1A5FB4', iconId: 'users' },
+  { id: 'drivers',        label: 'Conducteurs Actifs',        value: '3,247',    badge: '+8.2%',    badgeVariant: 'success', iconBg: '#DCFCE7', iconColor: '#1A5FB4', iconId: 'car' },
   { id: 'trips-today',    label: "Trajets Aujourd'hui",       value: '1,842',    badge: '+24.1%',   badgeVariant: 'success', iconBg: '#F3E8FF', iconColor: '#9333EA', iconId: 'route' },
   { id: 'revenue',        label: 'Revenus Plateforme',        value: '2.4M FCFA', badge: '+18.7%', badgeVariant: 'success', iconBg: '#FEF9C3', iconColor: '#F4B400', iconId: 'trending' },
   { id: 'passengers',     label: 'Passagers Actifs',          value: '21,609',   badge: '+15.3%',   badgeVariant: 'success', iconBg: '#E0E7FF', iconColor: '#4F46E5', iconId: 'users' },
   { id: 'transactions',   label: "Transactions Aujourd'hui",  value: '4,521',    badge: '+31.2%',   badgeVariant: 'success', iconBg: '#CCFBF1', iconColor: '#0D9488', iconId: 'credit' },
   { id: 'disputes',       label: 'Litiges Ouverts',           value: '8',        badge: '8 Ouverts', badgeVariant: 'error',  iconBg: '#FEE2E2', iconColor: '#E53935', iconId: 'alert' },
-  { id: 'satisfaction',   label: 'Taux Satisfaction',         value: '4.8/5',    badge: 'Excellent', badgeVariant: 'success', iconBg: '#DCFCE7', iconColor: '#7C3AED', iconId: 'star' },
+  { id: 'satisfaction',   label: 'Taux Satisfaction',         value: '4.8/5',    badge: 'Excellent', badgeVariant: 'success', iconBg: '#DCFCE7', iconColor: '#1A5FB4', iconId: 'star' },
 ];
 
 // ── Users page — KPI metrics ─────────────────────────────
@@ -118,9 +118,9 @@ export interface UserPageMetric {
 }
 
 export const USER_PAGE_METRICS: UserPageMetric[] = [
-  { id: 'active-users', label: 'Utilisateurs Actifs',  value: '12,847',   trend: '+8.2% ce mois',     trendColor: '#7C3AED', iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'users'    },
-  { id: 'daily-trips',  label: "Trajets Aujourd'hui",  value: '1,234',    trend: '+15.3% vs hier',    trendColor: '#2563EB', iconBg: 'rgba(37,99,235,0.10)',  iconColor: '#2563EB', iconId: 'route'    },
-  { id: 'revenue',      label: 'Revenus',              value: '2.4M FCFA', trend: '+12.5% ce mois',  trendColor: '#7C3AED', iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'trending' },
+  { id: 'active-users', label: 'Utilisateurs Actifs',  value: '12,847',   trend: '+8.2% ce mois',     trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'users'    },
+  { id: 'daily-trips',  label: "Trajets Aujourd'hui",  value: '1,234',    trend: '+15.3% vs hier',    trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'route'    },
+  { id: 'revenue',      label: 'Revenus',              value: '2.4M FCFA', trend: '+12.5% ce mois',  trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'trending' },
   { id: 'disputes',     label: 'Litiges Ouverts',      value: '23',       trend: 'Nécessite attention', trendColor: '#FB8C00', iconBg: 'rgba(251,140,0,0.10)', iconColor: '#FB8C00', iconId: 'alert'   },
 ];
 
@@ -136,7 +136,7 @@ export const MOCK_PLATFORM_USERS: PlatformUser[] = [
 
 // ── Users page — quick actions ────────────────────────────
 export const USER_QUICK_ACTIONS = [
-  { id: 'approve', label: 'Approuver Conducteur',  iconColor: '#7C3AED', iconId: 'usercheck' },
+  { id: 'approve', label: 'Approuver Conducteur',  iconColor: '#1A5FB4', iconId: 'usercheck' },
   { id: 'suspend', label: 'Suspendre Utilisateur', iconColor: '#E53935', iconId: 'userx'     },
   { id: 'resolve', label: 'Résoudre Litige',       iconColor: '#FB8C00', iconId: 'alert'     },
 ] as const;
@@ -145,20 +145,20 @@ export const USER_QUICK_ACTIONS = [
 export const USER_SYSTEM_ALERTS = [
   { id: '1', title: 'Tentative de fraude détectée', time: 'Il y a 15 min', dotColor: '#E53935' },
   { id: '2', title: "Pic d'activité inhabituel",    time: 'Il y a 1h',     dotColor: '#FB8C00' },
-  { id: '3', title: 'Nouveau conducteur inscrit',   time: 'Il y a 2h',     dotColor: '#7C3AED' },
+  { id: '3', title: 'Nouveau conducteur inscrit',   time: 'Il y a 2h',     dotColor: '#1A5FB4' },
 ] as const;
 
 // ── Users page — performance metrics ─────────────────────
 export const USER_PERFORMANCE_METRICS = [
-  { id: 'satisfaction', label: 'Satisfaction Client', value: '4.8/5', percent: 96, color: '#7C3AED' },
-  { id: 'response',     label: 'Temps Réponse',       value: '2.3s',  percent: 75, color: '#2563EB' },
+  { id: 'satisfaction', label: 'Satisfaction Client', value: '4.8/5', percent: 96, color: '#1A5FB4' },
+  { id: 'response',     label: 'Temps Réponse',       value: '2.3s',  percent: 75, color: '#1A5FB4' },
 ] as const;
 
 // ── Drivers page — KPI metrics ───────────────────────────
 export const DRIVER_PAGE_METRICS: UserPageMetric[] = [
-  { id: 'active-drivers',  label: 'Utilisateurs Actifs', value: '12,847',    trend: '+12.5% ce mois', trendColor: '#7C3AED', iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED', iconId: 'users'    },
-  { id: 'daily-trips',     label: "Trajets Aujourd'hui", value: '1,234',     trend: '+8.2% vs hier',  trendColor: '#7C3AED', iconBg: 'rgba(37,99,235,0.10)', iconColor: '#2563EB', iconId: 'route'    },
-  { id: 'monthly-revenue', label: 'Revenus Mensuels',    value: '2.4M FCFA', trend: '+15.3% ce mois', trendColor: '#7C3AED', iconBg: '#DCFCE7',              iconColor: '#16A34A', iconId: 'trending' },
+  { id: 'active-drivers',  label: 'Utilisateurs Actifs', value: '12,847',    trend: '+12.5% ce mois', trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4', iconId: 'users'    },
+  { id: 'daily-trips',     label: "Trajets Aujourd'hui", value: '1,234',     trend: '+8.2% vs hier',  trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4', iconId: 'route'    },
+  { id: 'monthly-revenue', label: 'Revenus Mensuels',    value: '2.4M FCFA', trend: '+15.3% ce mois', trendColor: '#1A5FB4', iconBg: '#DCFCE7',              iconColor: '#16A34A', iconId: 'trending' },
   { id: 'open-disputes',   label: 'Litiges Ouverts',     value: '23',        trend: '-5.1% ce mois',  trendColor: '#E53935', iconBg: '#FEE2E2',              iconColor: '#E53935', iconId: 'alert'    },
 ];
 
@@ -215,8 +215,8 @@ export interface PassengerKpiData {
 }
 
 export const PASSENGER_KPI_DATA: PassengerKpiData[] = [
-  { id: 'total',        label: 'Total Passagers',         value: '2,487',  badge: '+12.5%',   iconBg: 'rgba(124,58,237,0.10)',   iconColor: '#7C3AED', iconId: 'users'        },
-  { id: 'active-today', label: "Actifs Aujourd'hui",      value: '342',    badge: 'Actifs',   iconBg: 'rgba(37,99,235,0.10)',   iconColor: '#2563EB', iconId: 'usercheck'    },
+  { id: 'total',        label: 'Total Passagers',         value: '2,487',  badge: '+12.5%',   iconBg: 'rgba(26,95,180,0.10)',   iconColor: '#1A5FB4', iconId: 'users'        },
+  { id: 'active-today', label: "Actifs Aujourd'hui",      value: '342',    badge: 'Actifs',   iconBg: 'rgba(26,95,180,0.10)',   iconColor: '#1A5FB4', iconId: 'usercheck'    },
   { id: 'new',          label: 'Nouvelles Inscriptions',  value: '47',     badge: '+8.2%',    iconBg: 'rgba(168,85,247,0.10)',  iconColor: '#A855F7', iconId: 'userplus'     },
   { id: 'reservations', label: "Réservations Aujourd'hui",value: '189',    badge: 'Live',     iconBg: 'rgba(249,115,22,0.10)', iconColor: '#F97316', iconId: 'calendar'     },
   { id: 'cancellation', label: "Taux Annulation",         value: '8.3%',   badge: '-2.1%',    iconBg: 'rgba(229,57,53,0.10)',  iconColor: '#E53935', iconId: 'trendingdown' },
@@ -309,11 +309,11 @@ export const ACTIVITY_DISPUTES = [
 
 // ── Trips page — KPI data ────────────────────────────────
 export const TRIP_KPI_DATA: PassengerKpiData[] = [
-  { id: 'active',    label: 'Trajets Actifs',   value: '342',          badge: '+12%',  iconBg: 'rgba(124,58,237,0.10)',   iconColor: '#7C3AED', iconId: 'navigation' },
-  { id: 'completed', label: 'Trajets Terminés', value: '1,847',        badge: '+8%',   iconBg: 'rgba(37,99,235,0.10)',   iconColor: '#2563EB', iconId: 'checkCircle' },
+  { id: 'active',    label: 'Trajets Actifs',   value: '342',          badge: '+12%',  iconBg: 'rgba(26,95,180,0.10)',   iconColor: '#1A5FB4', iconId: 'navigation' },
+  { id: 'completed', label: 'Trajets Terminés', value: '1,847',        badge: '+8%',   iconBg: 'rgba(26,95,180,0.10)',   iconColor: '#1A5FB4', iconId: 'checkCircle' },
   { id: 'flagged',   label: 'Trajets Signalés', value: '23',           badge: '+3',    iconBg: 'rgba(244,180,0,0.10)',  iconColor: '#F4B400', iconId: 'alertTriangle',
     badgeBg: 'rgba(229,57,53,0.10)', badgeColor: '#E53935' },
-  { id: 'revenue',   label: 'Revenus Générés',  value: '428,500 FCFA', badge: '+24%',  iconBg: 'rgba(124,58,237,0.10)',   iconColor: '#7C3AED', iconId: 'trendingUp' },
+  { id: 'revenue',   label: 'Revenus Générés',  value: '428,500 FCFA', badge: '+24%',  iconBg: 'rgba(26,95,180,0.10)',   iconColor: '#1A5FB4', iconId: 'trendingUp' },
 ];
 
 // ── Trips page — filter options ──────────────────────────
@@ -341,10 +341,10 @@ export const TRIP_STATUS_OPTIONS = [
 
 // ── Reservations page — KPI data ─────────────────────────
 export const RESERVATION_KPI_DATA: PassengerKpiData[] = [
-  { id: 'today',    label: "Réservations Aujourd'hui", value: '2,847',        badge: '+12.5%', iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'calendar'    },
-  { id: 'active',   label: 'Réservations Actives',     value: '1,234',        badge: '+8.2%',  iconBg: 'rgba(37,99,235,0.10)',  iconColor: '#2563EB', iconId: 'checkCircle' },
-  { id: 'revenue',  label: 'Revenus Générés',          value: '47,829 FCFA',  badge: '+15.8%', iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'trendingUp'  },
-  { id: 'confirm',  label: 'Taux Confirmation',        value: '94.2%',        badge: '+2.1%',  iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'star'        },
+  { id: 'today',    label: "Réservations Aujourd'hui", value: '2,847',        badge: '+12.5%', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'calendar'    },
+  { id: 'active',   label: 'Réservations Actives',     value: '1,234',        badge: '+8.2%',  iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'checkCircle' },
+  { id: 'revenue',  label: 'Revenus Générés',          value: '47,829 FCFA',  badge: '+15.8%', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'trendingUp'  },
+  { id: 'confirm',  label: 'Taux Confirmation',        value: '94.2%',        badge: '+2.1%',  iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'star'        },
 ];
 
 // ── Reservations page — filter options ───────────────────
@@ -424,8 +424,8 @@ export const MOCK_RESERVATIONS: Reservation[] = [
 
 // ── Payments page — KPI data ─────────────────────────────
 export const PAYMENT_KPI_DATA: PassengerKpiData[] = [
-  { id: 'today',    label: "Transactions Aujourd'hui", value: '4,521',         badge: '+31.2%', iconBg: 'rgba(37,99,235,0.10)',  iconColor: '#2563EB', iconId: 'creditCard'  },
-  { id: 'volume',   label: 'Volume Total',             value: '2.4M FCFA',     badge: '+18.7%', iconBg: 'rgba(124,58,237,0.10)',  iconColor: '#7C3AED', iconId: 'trendingUp'  },
+  { id: 'today',    label: "Transactions Aujourd'hui", value: '4,521',         badge: '+31.2%', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'creditCard'  },
+  { id: 'volume',   label: 'Volume Total',             value: '2.4M FCFA',     badge: '+18.7%', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'trendingUp'  },
   { id: 'success',  label: 'Taux de Succès',           value: '97.8%',         badge: '+1.2%',  iconBg: 'rgba(34,197,94,0.10)',  iconColor: '#22C55E', iconId: 'checkCircle' },
   { id: 'refunds',  label: 'Remboursements',           value: '12',            badge: '3',      iconBg: 'rgba(229,57,53,0.10)', iconColor: '#E53935', iconId: 'alertTriangle',
     badgeBg: 'rgba(229,57,53,0.10)', badgeColor: '#E53935' },
@@ -465,8 +465,8 @@ export interface DisputeKpiData {
 
 export const DISPUTE_KPI_DATA: DisputeKpiData[] = [
   { id: 'active', label: 'Litiges Actifs',         value: '42',          trend: '+12%',  trendColor: '#E53935', iconBg: 'rgba(244,180,0,0.10)',  iconColor: '#F4B400', iconId: 'alertTriangle', suffix: 'vs semaine dernière' },
-  { id: 'amount', label: 'Montant Bloqué',          value: '1,245K FCFA', trend: '-5%',   trendColor: '#7C3AED', iconBg: '#F3F4F6',               iconColor: '#4B5563', iconId: 'lock',          suffix: 'vs semaine dernière' },
-  { id: 'time',   label: 'Temps Résolution Moyen',  value: '4.2h',        trend: '-1.1h', trendColor: '#7C3AED', iconBg: 'rgba(37,99,235,0.10)',  iconColor: '#2563EB', iconId: 'clock',         suffix: 'vs semaine dernière' },
+  { id: 'amount', label: 'Montant Bloqué',          value: '1,245K FCFA', trend: '-5%',   trendColor: '#1A5FB4', iconBg: '#F3F4F6',               iconColor: '#4B5563', iconId: 'lock',          suffix: 'vs semaine dernière' },
+  { id: 'time',   label: 'Temps Résolution Moyen',  value: '4.2h',        trend: '-1.1h', trendColor: '#1A5FB4', iconBg: 'rgba(26,95,180,0.10)',  iconColor: '#1A5FB4', iconId: 'clock',         suffix: 'vs semaine dernière' },
 ];
 
 // ── Disputes page — filter options ───────────────────────
@@ -597,7 +597,7 @@ export const MOCK_DISPUTES = [
 // ── Support page — KPI data ──────────────────────────────
 export const SUPPORT_KPI_DATA: UserPageMetric[] = [
   { id: 'new-tickets',    label: 'Tickets Nouveaux',    value: '24', trend: '+12% vs hier',    trendColor: '#EF4444', iconBg: '#FEF9C3', iconColor: '#CA8A04', iconId: 'alertTriangle' },
-  { id: 'in-progress',   label: 'En Cours',            value: '18', trend: 'Temps moyen: 2h', trendColor: '#3B82F6', iconBg: '#DBEAFE', iconColor: '#2563EB', iconId: 'messageCircle' },
+  { id: 'in-progress',   label: 'En Cours',            value: '18', trend: 'Temps moyen: 2h', trendColor: '#3B82F6', iconBg: '#D6E8F7', iconColor: '#1A5FB4', iconId: 'messageCircle' },
   { id: 'resolved-today',label: "Résolus Aujourd'hui", value: '42', trend: '95% satisfaction', trendColor: '#22C55E', iconBg: '#DCFCE7', iconColor: '#16A34A', iconId: 'checkCircle'  },
   { id: 'escalated',     label: 'Escaladés',           value: '3',  trend: 'Priorité haute',  trendColor: '#EF4444', iconBg: '#FEE2E2', iconColor: '#DC2626', iconId: 'alertTriangle' },
 ];
@@ -671,7 +671,7 @@ export const MOCK_TICKETS = [
 
 // ── Notifications page — KPI data ───────────────────────
 export const NOTIF_SUMMARY_DATA: SettingsSummaryItem[] = [
-  { id: 'total',   label: 'Total Notifications',   value: '128', iconBg: '#DBEAFE', iconColor: '#2563EB', iconId: 'bell'          },
+  { id: 'total',   label: 'Total Notifications',   value: '128', iconBg: '#D6E8F7', iconColor: '#1A5FB4', iconId: 'bell'          },
   { id: 'unread',  label: 'Non Lues',              value: '24',  valueColor: '#DC2626', iconBg: '#FEE2E2', iconColor: '#DC2626', iconId: 'mail' },
   { id: 'urgent',  label: 'Urgentes',              value: '7',   valueColor: '#CA8A04', iconBg: '#FEF9C3', iconColor: '#CA8A04', iconId: 'alertTriangle' },
   { id: 'handled', label: "Traitées Aujourd'hui",  value: '43',  iconBg: '#DCFCE7', iconColor: '#16A34A', iconId: 'checkCircle'   },
@@ -780,7 +780,7 @@ export interface SettingsSummaryItem {
 }
 
 export const SETTINGS_SUMMARY_DATA: SettingsSummaryItem[] = [
-  { id: 'active',   label: 'Paramètres Actifs',  value: '247',    iconBg: '#DBEAFE', iconColor: '#2563EB', iconId: 'settings'    },
+  { id: 'active',   label: 'Paramètres Actifs',  value: '247',    iconBg: '#D6E8F7', iconColor: '#1A5FB4', iconId: 'settings'    },
   { id: 'apis',     label: 'APIs Connectées',     value: '12',     iconBg: '#DCFCE7', iconColor: '#16A34A', iconId: 'link2'       },
   { id: 'security', label: 'Niveau Sécurité',     value: 'Élevé',  valueColor: '#16A34A', iconBg: '#DCFCE7', iconColor: '#16A34A', iconId: 'shieldCheck' },
   { id: 'revenue',  label: 'Revenus Plateforme',  value: '€45.2K', iconBg: '#FEF9C3', iconColor: '#CA8A04', iconId: 'banknote'   },
@@ -814,7 +814,7 @@ export const SETTINGS_ADMINS = [
 // ── Settings page — analytics BI ────────────────────────
 export const SETTINGS_ANALYTICS = [
   { id: 'growth',     label: 'Croissance Utilisateurs', value: '+24.5%', valueColor: '#16A34A', period: 'Ce mois'       },
-  { id: 'retention',  label: 'Taux Rétention',          value: '87.3%',  valueColor: '#2563EB', period: '30 jours'     },
+  { id: 'retention',  label: 'Taux Rétention',          value: '87.3%',  valueColor: '#1A5FB4', period: '30 jours'     },
   { id: 'conversion', label: 'Conversion',              value: '12.8%',  valueColor: '#9333EA', period: 'Réservations' },
 ] as const;
 

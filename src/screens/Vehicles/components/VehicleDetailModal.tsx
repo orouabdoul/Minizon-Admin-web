@@ -102,7 +102,7 @@ function Lightbox({ images, index, onClose, onNav }: {
               onClick={() => onNav(i)}
               style={{
                 width: 52, height: 38,
-                border: `2px solid ${i === index ? '#7C3AED' : 'transparent'}`,
+                border: `2px solid ${i === index ? '#1A5FB4' : 'transparent'}`,
                 borderRadius: 6, overflow: 'hidden', padding: 0,
                 cursor: 'pointer', opacity: i === index ? 1 : 0.5, background: '#222',
               }}
@@ -332,16 +332,16 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
         loading={actionLoading}
       />
 
-      <DetailModal title="Détail Véhicule" onClose={onClose} accentColor="#7C3AED">
+      <DetailModal title="Détail Véhicule" onClose={onClose} accentColor="#1A5FB4">
 
         {/* Hero */}
-        <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
+        <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
           <div style={{
             width: 56, height: 56, borderRadius: 14,
-            background: 'rgba(124,58,237,0.12)',
+            background: 'rgba(26,95,180,0.12)',
             display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
           }}>
-            <AppIcon icon={Truck} size={28} color="#7C3AED" />
+            <AppIcon icon={Truck} size={28} color="#1A5FB4" />
           </div>
           <div>
             <p className="detail-hero__name">{v.make} {v.model} {v.year}</p>
@@ -349,7 +349,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
             <div className="detail-hero__badge">
               <Badge label={v.status} variant={STATUS_VARIANT[v.status] ?? 'neutral'} />
               {allDocsOk && (
-                <span style={{ marginLeft: 8, fontSize: 11, color: '#7C3AED', fontWeight: 600 }}>
+                <span style={{ marginLeft: 8, fontSize: 11, color: '#1A5FB4', fontWeight: 600 }}>
                   ✓ Documents valides
                 </span>
               )}
@@ -467,7 +467,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
         <DetailSection title="Statistiques">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
             {[
-              { icon: Navigation, label: 'Trajets effectués', value: String(v.trips),  color: '#7C3AED' },
+              { icon: Navigation, label: 'Trajets effectués', value: String(v.trips),  color: '#1A5FB4' },
               { icon: Star,       label: 'Note moyenne',      value: v.rating > 0 ? v.rating.toFixed(1) : '—', color: '#F59E0B' },
             ].map((s) => (
               <div key={s.label} style={{
@@ -517,7 +517,7 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
                   onClick={() => run(() => onApprove(v.id))}
                   style={{
                     flex: 1, minWidth: 130, height: 38, borderRadius: 8,
-                    border: 'none', background: '#7C3AED', color: '#fff',
+                    border: 'none', background: '#1A5FB4', color: '#fff',
                     fontWeight: 600, fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}
@@ -533,12 +533,12 @@ export function VehicleDetailModal({ vehicle: v, onClose, onApprove, onReject, o
                   onClick={() => run(() => onReinstate(v.id))}
                   style={{
                     flex: 1, minWidth: 130, height: 38, borderRadius: 8,
-                    border: '1.5px solid #7C3AED', background: '#fff', color: '#7C3AED',
+                    border: '1.5px solid #1A5FB4', background: '#fff', color: '#1A5FB4',
                     fontWeight: 600, fontSize: 12, cursor: 'pointer',
                     display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
                   }}
                 >
-                  <AppIcon icon={RotateCcw} size={14} color="#7C3AED" />
+                  <AppIcon icon={RotateCcw} size={14} color="#1A5FB4" />
                   Remettre en attente
                 </button>
               )}

@@ -12,7 +12,7 @@ import type { Review, ReviewStatus, ReviewDirection } from '../../models/review.
 // ── Config ────────────────────────────────────────────────────────────────────
 
 const STATUS_CONFIG: Record<ReviewStatus, { label: string; color: string; bg: string }> = {
-  visible: { label: 'Visible', color: '#7C3AED', bg: '#EDE9FE' },
+  visible: { label: 'Visible', color: '#1A5FB4', bg: '#D6E8F7' },
   masqué:  { label: 'Masqué',  color: '#6B7280', bg: '#F3F4F6' },
   signalé: { label: 'Signalé', color: '#E53935', bg: '#FEE2E2' },
 };
@@ -101,7 +101,7 @@ function ReviewCard({
 }) {
   const sc = STATUS_CONFIG[r.status];
   const isFlag   = r.status === 'signalé';
-  const accColor = isFlag ? '#E53935' : r.rating >= 4 ? '#7C3AED' : r.rating === 3 ? '#F59E0B' : '#E53935';
+  const accColor = isFlag ? '#E53935' : r.rating >= 4 ? '#1A5FB4' : r.rating === 3 ? '#F59E0B' : '#E53935';
 
   return (
     <div style={{
@@ -166,7 +166,7 @@ function ReviewCard({
           {r.status !== 'visible' && (
             <button type="button" onClick={() => onSetStatus(r.id, 'visible')} title="Rendre visible"
               style={{ width: 30, height: 30, borderRadius: 7, border: '1.5px solid #DCFCE7', background: '#F0FDF4', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Eye} size={13} color="#7C3AED" />
+              <AppIcon icon={Eye} size={13} color="#1A5FB4" />
             </button>
           )}
           {r.status !== 'masqué' && (
@@ -298,7 +298,7 @@ export function ReviewsScreen() {
       {/* ── Stats ─────────────────────────────────────────────────────────────── */}
       <div style={{ display: 'flex', gap: 12, marginBottom: 20, flexWrap: 'wrap' }}>
         {[
-          { label: 'Total avis',    value: String(stats.total),    color: '#2563EB', bg: '#DBEAFE', icon: MessageSquare },
+          { label: 'Total avis',    value: String(stats.total),    color: '#1A5FB4', bg: '#D6E8F7', icon: MessageSquare },
           { label: 'Note moyenne',  value: `⭐ ${stats.avgRating}`, color: '#F59E0B', bg: '#FEF3C7', icon: Star         },
           { label: 'Avis signalés', value: String(stats.signalé),  color: '#E53935', bg: '#FEE2E2', icon: Flag         },
           { label: 'Avis masqués',  value: String(stats.masqué),   color: '#6B7280', bg: '#F3F4F6', icon: EyeOff       },
@@ -370,12 +370,12 @@ export function ReviewsScreen() {
                 padding: '5px 10px', borderRadius: 7, border: 'none',
                 fontSize: 12, fontWeight: 600, cursor: 'pointer',
                 background: groupByDriver === id ? '#fff'    : 'transparent',
-                color:      groupByDriver === id ? '#2563EB' : '#6B7280',
+                color:      groupByDriver === id ? '#1A5FB4' : '#6B7280',
                 boxShadow:  groupByDriver === id ? '0 1px 4px rgba(0,0,0,0.08)' : 'none',
                 transition: 'all .15s',
               }}
             >
-              <AppIcon icon={icon} size={13} color={groupByDriver === id ? '#2563EB' : '#6B7280'} />
+              <AppIcon icon={icon} size={13} color={groupByDriver === id ? '#1A5FB4' : '#6B7280'} />
               {label}
             </button>
           ))}

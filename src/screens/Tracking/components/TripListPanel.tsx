@@ -19,7 +19,7 @@ interface Props {
 const INCIDENT_COLOR: Record<string, string> = {
   panne:   '#E53935',
   urgence: '#F59E0B',
-  autre:   '#2563EB',
+  autre:   '#1A5FB4',
 };
 
 const INCIDENT_LABEL: Record<string, string> = {
@@ -29,7 +29,7 @@ const INCIDENT_LABEL: Record<string, string> = {
 };
 
 const STATUS_CONFIG: Record<string, { label: string; color: string; bg: string }> = {
-  actif:      { label: '● En cours',   color: '#7C3AED', bg: 'rgba(124,58,237,0.10)' },
+  actif:      { label: '● En cours',   color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)' },
   en_attente: { label: '◷ En attente', color: '#D97706', bg: '#FEF9C3' },
   retard:     { label: '⚠ Retard',     color: '#E53935', bg: '#FEE2E2' },
   incident:   { label: '✕ Incident',   color: '#E53935', bg: '#FEE2E2' },
@@ -128,7 +128,7 @@ export function TripListPanel({
 
           const isDelayed   = t.status === 'retard';
           const isPending   = t.status === 'en_attente';
-          const borderColor = t.isFlagged ? '#7C3AED'
+          const borderColor = t.isFlagged ? '#1A5FB4'
             : hasIncident ? INCIDENT_COLOR[t.incident!.type]
             : statusCfg.color;
 
@@ -146,7 +146,7 @@ export function TripListPanel({
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                       <div className="tracking-trip-card__driver">{t.driverName}</div>
-                      {t.isFlagged && <AppIcon icon={Flag} size={11} color="#7C3AED" />}
+                      {t.isFlagged && <AppIcon icon={Flag} size={11} color="#1A5FB4" />}
                     </div>
                     <div className="tracking-trip-card__tripid">{t.tripId}</div>
                   </div>
@@ -196,8 +196,8 @@ export function TripListPanel({
 
               {/* Moderation note */}
               {t.isFlagged && t.moderationNote && (
-                <div style={{ marginTop: 5, padding: '4px 8px', background: '#F3E8FF', borderRadius: 6, fontSize: 11, color: '#7C3AED' }}>
-                  <AppIcon icon={Flag} size={11} color="#7C3AED" /> {t.moderationNote}
+                <div style={{ marginTop: 5, padding: '4px 8px', background: '#F3E8FF', borderRadius: 6, fontSize: 11, color: '#1A5FB4' }}>
+                  <AppIcon icon={Flag} size={11} color="#1A5FB4" /> {t.moderationNote}
                 </div>
               )}
 
@@ -238,7 +238,7 @@ export function TripListPanel({
                     <AppIcon icon={AlertTriangle} size={10} color="#F59E0B" /> Urgence
                   </button>
                   <button type="button" className="tracking-trip-card__action-btn tracking-trip-card__action-btn--autre" onClick={() => onReport(t.id, 'autre')}>
-                    <AppIcon icon={Info} size={10} color="#2563EB" /> Autre
+                    <AppIcon icon={Info} size={10} color="#1A5FB4" /> Autre
                   </button>
                 </div>
               )}

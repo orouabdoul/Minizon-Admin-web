@@ -35,13 +35,13 @@ export function PaymentDetailModal({
   const isSecured   = p.status === 'Sécurisé';
 
   return (
-    <DetailModal title="Détail Transaction" onClose={onClose} accentColor="#2563EB">
+    <DetailModal title="Détail Transaction" onClose={onClose} accentColor="#1A5FB4">
       {detailLoading && (
         <p style={{ textAlign: 'center', fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>Chargement…</p>
       )}
 
       {/* Hero montant */}
-      <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)', borderRadius: 12, justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
+      <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)', borderRadius: 12, justifyContent: 'center', flexDirection: 'column', alignItems: 'center', gap: 6 }}>
         <span style={{ fontSize: 28, fontWeight: 700, color: '#111827' }}>{p.amount}</span>
         <span style={{ fontSize: 13, color: '#6B7280', fontFamily: 'monospace' }}>{p.paymentId}</span>
         <div style={{ marginTop: 4, display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -74,15 +74,15 @@ export function PaymentDetailModal({
               onClick={() => onSyncOne(p.id)}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 6,
-                padding: '4px 12px', border: '1px solid #2563EB',
+                padding: '4px 12px', border: '1px solid #1A5FB4',
                 borderRadius: 6, background: syncOneLoading ? '#F9FAFB' : '#EFF6FF',
-                color: '#2563EB', fontSize: 12, fontWeight: 600,
+                color: '#1A5FB4', fontSize: 12, fontWeight: 600,
                 cursor: syncOneLoading ? 'not-allowed' : 'pointer', fontFamily: 'inherit',
               }}
             >
               {syncOneLoading
-                ? <AppIcon icon={Loader} size={12} color="#2563EB" />
-                : <AppIcon icon={Zap} size={12} color="#2563EB" />}
+                ? <AppIcon icon={Loader} size={12} color="#1A5FB4" />
+                : <AppIcon icon={Zap} size={12} color="#1A5FB4" />}
               {syncOneLoading ? 'Vérification…' : 'Vérifier chez FedaPay'}
             </button>
           )}
@@ -115,7 +115,7 @@ export function PaymentDetailModal({
       </div>
 
       {/* Route */}
-      <div className="detail-route" style={{ background: 'rgba(37,99,235,0.04)', border: '1px solid rgba(37,99,235,0.15)' }}>
+      <div className="detail-route" style={{ background: 'rgba(26,95,180,0.04)', border: '1px solid rgba(26,95,180,0.15)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', flex: 1 }}>
           <span style={{ fontSize: 11, color: '#6B7280' }}>Départ</span>
           <span className="detail-route__city">{p.from}</span>
@@ -160,7 +160,7 @@ export function PaymentDetailModal({
                 {p.passengerName}
                 {p.passengerVerified && (
                   <span className="payment-detail-verified" title="Compte vérifié">
-                    <AppIcon icon={BadgeCheck} size={10} color="#2563EB" />
+                    <AppIcon icon={BadgeCheck} size={10} color="#1A5FB4" />
                     Vérifié
                   </span>
                 )}
@@ -192,7 +192,7 @@ export function PaymentDetailModal({
           <span style={{ color: '#E53935' }}>-{p.commission}</span>
         </DetailRow>
         <DetailRow label="Net conducteur">
-          <span style={{ fontWeight: 700, color: '#7C3AED' }}>{p.netAmount}</span>
+          <span style={{ fontWeight: 700, color: '#1A5FB4' }}>{p.netAmount}</span>
         </DetailRow>
       </DetailSection>
 

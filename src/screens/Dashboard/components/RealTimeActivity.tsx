@@ -55,11 +55,11 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
           {users ? (
             <>
               <StatItem
-                icon={<AppIcon icon={UserPlus} size={15} color="#7C3AED" />}
+                icon={<AppIcon icon={UserPlus} size={15} color="#1A5FB4" />}
                 bg="#DCFCE7"
                 label="Total inscrits"
                 value={users.drivers + users.passengers}
-                color="#7C3AED"
+                color="#1A5FB4"
               />
               <StatItem
                 icon={<AppIcon icon={UserPlus} size={15} color="#A855F7" />}
@@ -93,8 +93,8 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
           {topDrivers.length > 0 ? (
             topDrivers.map((d) => (
               <div key={d.id} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 0', borderBottom: '1px solid #F9FAFB' }}>
-                <div style={{ width: 32, height: 32, borderRadius: 8, background: '#DBEAFE', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <AppIcon icon={Car} size={15} color="#2563EB" />
+                <div style={{ width: 32, height: 32, borderRadius: 8, background: '#D6E8F7', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <AppIcon icon={Car} size={15} color="#1A5FB4" />
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: 13, fontWeight: 600, color: '#111827' }}>{d.name}</div>
@@ -121,18 +121,18 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
                 color="#374151"
               />
               <StatItem
-                icon={<AppIcon icon={CreditCard} size={15} color="#7C3AED" />}
+                icon={<AppIcon icon={CreditCard} size={15} color="#1A5FB4" />}
                 bg="#DCFCE7"
                 label="Revenus plateforme"
                 value={formatFcfa(payments.platform_revenue_fcfa)}
-                color="#7C3AED"
+                color="#1A5FB4"
               />
               <StatItem
-                icon={<AppIcon icon={CreditCard} size={15} color="#2563EB" />}
-                bg="#DBEAFE"
+                icon={<AppIcon icon={CreditCard} size={15} color="#1A5FB4" />}
+                bg="#D6E8F7"
                 label="En escrow"
                 value={formatFcfa(payments.escrow_locked_fcfa)}
-                color="#2563EB"
+                color="#1A5FB4"
               />
               <StatItem
                 icon={<AppIcon icon={CreditCard} size={15} color="#E53935" />}
@@ -173,11 +173,11 @@ export function RealTimeActivity({ users, payments, disputes, topDrivers = [] }:
                 color="#E53935"
               />
               <StatItem
-                icon={<AppIcon icon={AlertTriangle} size={15} color="#7C3AED" />}
+                icon={<AppIcon icon={AlertTriangle} size={15} color="#1A5FB4" />}
                 bg="#DCFCE7"
                 label="Résolus"
                 value={disputes.resolved}
-                color="#7C3AED"
+                color="#1A5FB4"
               />
             </>
           ) : (

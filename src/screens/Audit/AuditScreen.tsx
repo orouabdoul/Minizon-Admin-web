@@ -23,22 +23,22 @@ const ACTION_LABEL: Record<AuditActionType, string> = {
 };
 
 const ACTION_COLOR: Record<AuditActionType, { color: string; bg: string }> = {
-  connexion:             { color: '#2563EB', bg: '#DBEAFE' },
+  connexion:             { color: '#1A5FB4', bg: '#D6E8F7' },
   deconnexion:           { color: '#6B7280', bg: '#F3F4F6' },
   suspension:            { color: '#E53935', bg: '#FEE2E2' },
-  reactivation:          { color: '#7C3AED', bg: '#EDE9FE' },
+  reactivation:          { color: '#1A5FB4', bg: '#D6E8F7' },
   remboursement:         { color: '#D97706', bg: '#FEF3C7' },
-  modif_parametre:       { color: '#7C3AED', bg: '#F3E8FF' },
+  modif_parametre:       { color: '#1A5FB4', bg: '#F3E8FF' },
   creation_admin:        { color: '#C62828', bg: '#FFCDD2' },
-  resolution_litige:     { color: '#7C3AED', bg: '#EDE9FE' },
-  approbation_conducteur:{ color: '#7C3AED', bg: '#EDE9FE' },
+  resolution_litige:     { color: '#1A5FB4', bg: '#D6E8F7' },
+  approbation_conducteur:{ color: '#1A5FB4', bg: '#D6E8F7' },
   rejet_conducteur:      { color: '#E53935', bg: '#FEE2E2' },
   suppression:           { color: '#C62828', bg: '#FFCDD2' },
   export_donnees:        { color: '#0891B2', bg: '#CFFAFE' },
 };
 
 const SEVERITY_CONFIG: Record<AuditSeverity, { label: string; color: string; bg: string; dot: string }> = {
-  info:          { label: 'Info',          color: '#2563EB', bg: '#DBEAFE', dot: '#2563EB' },
+  info:          { label: 'Info',          color: '#1A5FB4', bg: '#D6E8F7', dot: '#1A5FB4' },
   avertissement: { label: 'Avertissement', color: '#D97706', bg: '#FEF3C7', dot: '#F59E0B' },
   critique:      { label: 'Critique',      color: '#C62828', bg: '#FFCDD2', dot: '#E53935' },
 };
@@ -60,10 +60,10 @@ export function AuditScreen() {
       {/* ── KPI summary ──────────────────────────────────────────────────────── */}
       <div className="audit-kpi-row">
         {[
-          { label: "Actions aujourd'hui", value: stats.today_count,    color: '#2563EB', bg: '#DBEAFE', icon: FileText      },
+          { label: "Actions aujourd'hui", value: stats.today_count,    color: '#1A5FB4', bg: '#D6E8F7', icon: FileText      },
           { label: 'Événements critiques', value: stats.critique_count, color: '#E53935', bg: '#FEE2E2', icon: AlertTriangle },
-          { label: 'Administrateurs',      value: admins.length,        color: '#7C3AED', bg: '#EDE9FE', icon: Users         },
-          { label: 'Total entrées',        value: stats.total,          color: '#7C3AED', bg: '#F3E8FF', icon: BarChart2     },
+          { label: 'Administrateurs',      value: admins.length,        color: '#1A5FB4', bg: '#D6E8F7', icon: Users         },
+          { label: 'Total entrées',        value: stats.total,          color: '#1A5FB4', bg: '#F3E8FF', icon: BarChart2     },
         ].map((k) => (
           <div key={k.label} style={{ flex: 1, display: 'flex', alignItems: 'center', gap: 10, padding: '10px 16px', background: '#fff', borderRadius: 10, outline: '1px solid #F3F4F6' }}>
             <div style={{ width: 34, height: 34, borderRadius: 9, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>

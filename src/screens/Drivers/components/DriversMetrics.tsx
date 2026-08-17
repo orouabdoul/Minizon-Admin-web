@@ -20,9 +20,9 @@ const CARDS: {
 }[] = [
   {
     key: 'total', label: 'Total conducteurs',
-    Icon: Users, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
+    Icon: Users, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: (m) => `${m.validation_rate}%`,
-    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'pending', label: 'En attente',
@@ -32,9 +32,9 @@ const CARDS: {
   },
   {
     key: 'verified', label: 'Vérifiés',
-    Icon: CheckCircle, iconBg: 'rgba(37,99,235,0.10)', iconColor: '#2563EB',
+    Icon: CheckCircle, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: () => 'Actifs',
-    badgeBg: 'rgba(37,99,235,0.10)', badgeColor: '#2563EB',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'suspended_rejected', label: 'Suspendus / Rejetés',

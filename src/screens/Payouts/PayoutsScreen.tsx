@@ -12,8 +12,8 @@ import type { PayoutMethod, PayoutStatus } from '../../models/payout.model';
 
 const STATUS_CONFIG: Record<PayoutStatus, { label: string; color: string; bg: string; icon: typeof CheckCircle }> = {
   en_attente:    { label: 'En attente',    color: '#D97706', bg: '#FEF3C7', icon: Clock        },
-  en_traitement: { label: 'En traitement', color: '#2563EB', bg: '#DBEAFE', icon: RefreshCw    },
-  payé:          { label: 'Payé',          color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
+  en_traitement: { label: 'En traitement', color: '#1A5FB4', bg: '#D6E8F7', icon: RefreshCw    },
+  payé:          { label: 'Payé',          color: '#1A5FB4', bg: '#D6E8F7', icon: CheckCircle  },
   échoué:        { label: 'Échoué',        color: '#E53935', bg: '#FEE2E2', icon: AlertCircle  },
 };
 
@@ -38,21 +38,21 @@ function ProcessModal({
           <div style={{ background: '#F9FAFB', borderRadius: 10, padding: 14, marginBottom: 16 }}>
             <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Conducteur</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{name}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#7C3AED', marginTop: 4 }}>{fmt(netAmount)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A5FB4', marginTop: 4 }}>{fmt(netAmount)}</div>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Méthode de paiement</span>
             {METHODS.map((m) => (
-              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: `2px solid ${method === m ? '#2563EB' : '#E5E7EB'}`, cursor: 'pointer', background: method === m ? '#EFF6FF' : '#fff' }}>
-                <input type="radio" name="method" value={m} checked={method === m} onChange={() => setMethod(m)} style={{ accentColor: '#2563EB' }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: method === m ? '#2563EB' : '#374151' }}>{m}</span>
+              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: `2px solid ${method === m ? '#1A5FB4' : '#E5E7EB'}`, cursor: 'pointer', background: method === m ? '#EFF6FF' : '#fff' }}>
+                <input type="radio" name="method" value={m} checked={method === m} onChange={() => setMethod(m)} style={{ accentColor: '#1A5FB4' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: method === m ? '#1A5FB4' : '#374151' }}>{m}</span>
               </label>
             ))}
           </div>
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Annuler</button>
-          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#7C3AED', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Confirmer le virement</button>
+          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1A5FB4', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Confirmer le virement</button>
         </div>
       </div>
     </div>
@@ -108,8 +108,8 @@ export function PayoutsScreen() {
         {[
           { label: 'Montant à verser',     value: fmt(summary.totalPending),     color: '#D97706', bg: '#FEF3C7', icon: Clock        },
           { label: 'Virements en attente', value: String(summary.pendingAmount), color: '#D97706', bg: '#FEF3C7', icon: Clock        },
-          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),        color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
-          { label: 'Conducteurs actifs',   value: String(summary.totalDrivers),  color: '#2563EB', bg: '#DBEAFE', icon: DollarSign   },
+          { label: 'Total versé (mois)',   value: fmt(summary.totalPaid),        color: '#1A5FB4', bg: '#D6E8F7', icon: CheckCircle  },
+          { label: 'Conducteurs actifs',   value: String(summary.totalDrivers),  color: '#1A5FB4', bg: '#D6E8F7', icon: DollarSign   },
         ].map((k) => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6' }}>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -145,9 +145,9 @@ export function PayoutsScreen() {
 
           {/* Batch actions */}
           {selected.size > 0 && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#EFF6FF', borderRadius: 8, border: '1.5px solid #BFDBFE' }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#2563EB' }}>{selected.size} sélectionné{selected.size > 1 ? 's' : ''}</span>
-              <button type="button" onClick={() => batchProcess('MTN Mobile Money')} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563EB', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 12px', background: '#EFF6FF', borderRadius: 8, border: '1.5px solid #B3D4F0' }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1A5FB4' }}>{selected.size} sélectionné{selected.size > 1 ? 's' : ''}</span>
+              <button type="button" onClick={() => batchProcess('MTN Mobile Money')} style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#1A5FB4', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}>
                 Verser tout (MTN)
               </button>
               <button type="button" onClick={clearSelection} style={{ border: 'none', background: 'none', fontSize: 12, color: '#6B7280', cursor: 'pointer' }}>×</button>
@@ -184,7 +184,7 @@ export function PayoutsScreen() {
         </div>
 
         {exportMsg && (
-          <div style={{ padding: '8px 16px', background: '#DBEAFE', borderTop: '1px solid #BFDBFE', fontSize: 12, fontWeight: 600, color: '#1D4ED8' }}>
+          <div style={{ padding: '8px 16px', background: '#D6E8F7', borderTop: '1px solid #B3D4F0', fontSize: 12, fontWeight: 600, color: '#0F4A9E' }}>
             ℹ️ {exportMsg}
           </div>
         )}
@@ -220,7 +220,7 @@ export function PayoutsScreen() {
                   checked={isSelected}
                   disabled={p.status !== 'en_attente'}
                   onChange={() => toggleSelect(p.id)}
-                  style={{ accentColor: '#2563EB', cursor: p.status === 'en_attente' ? 'pointer' : 'default' }}
+                  style={{ accentColor: '#1A5FB4', cursor: p.status === 'en_attente' ? 'pointer' : 'default' }}
                 />
 
                 {/* Driver */}
@@ -242,7 +242,7 @@ export function PayoutsScreen() {
                 <span style={{ fontSize: 12, color: '#E53935' }}>−{fmt(p.commission)}</span>
 
                 {/* Net */}
-                <span style={{ fontSize: 13, fontWeight: 800, color: '#7C3AED' }}>{fmt(p.netAmount)}</span>
+                <span style={{ fontSize: 13, fontWeight: 800, color: '#1A5FB4' }}>{fmt(p.netAmount)}</span>
 
                 {/* Method */}
                 <span style={{ fontSize: 11, color: '#6B7280' }}>{p.method}</span>
@@ -258,7 +258,7 @@ export function PayoutsScreen() {
                       type="button"
                       disabled={isProcessing}
                       onClick={() => setModalFor(p.id)}
-                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7C3AED', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#1A5FB4', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                     >
                       {isProcessing ? <AppIcon icon={Loader} size={11} color="#fff" /> : null}
                       Verser
@@ -269,7 +269,7 @@ export function PayoutsScreen() {
                     <button
                       type="button"
                       onClick={() => markPaid(p.id)}
-                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563EB', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}
+                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#1A5FB4', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}
                     >
                       Confirmer payé
                     </button>

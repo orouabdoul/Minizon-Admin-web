@@ -11,7 +11,7 @@ import {
   BANNER_SECURITY_FEATURES,
 } from '../../../../config/constants';
 
-// Fond = #7C3AED → icônes blanches pour contraste
+// Fond = #1A5FB4 → icônes blanches pour contraste
 const SECURITY_ICONS = {
   ssl:        <AppIcon icon={Lock}        size={14} color={colors.white} />,
   monitoring: <AppIcon icon={ShieldCheck} size={14} color={colors.white} />,

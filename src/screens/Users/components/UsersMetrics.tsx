@@ -16,15 +16,15 @@ const CARDS: {
 }[] = [
   {
     key: 'total_users', label: 'Total Utilisateurs',
-    Icon: Users, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
+    Icon: Users, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: () => 'Tous',
-    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'total_trips', label: 'Total Trajets',
-    Icon: Navigation, iconBg: 'rgba(37,99,235,0.10)', iconColor: '#2563EB',
+    Icon: Navigation, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: () => 'Effectués',
-    badgeBg: 'rgba(37,99,235,0.10)', badgeColor: '#2563EB',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'verification_rate', label: 'Taux de Vérification',

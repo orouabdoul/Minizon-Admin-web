@@ -44,10 +44,10 @@ function EditCommissionModal({
   };
 
   return (
-    <DetailModal title="Modifier la Commission" onClose={onClose} accentColor="#2563EB">
-      <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
-        <div className="modal-icon-bubble" style={{ background: 'rgba(37,99,235,0.12)' }}>
-          <AppIcon icon={Pencil} size={22} color="#2563EB" />
+    <DetailModal title="Modifier la Commission" onClose={onClose} accentColor="#1A5FB4">
+      <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
+        <div className="modal-icon-bubble" style={{ background: 'rgba(26,95,180,0.12)' }}>
+          <AppIcon icon={Pencil} size={22} color="#1A5FB4" />
         </div>
         <div>
           <p className="detail-hero__name">{displayLabel(commission)}</p>
@@ -169,7 +169,7 @@ export function SettingsCommissionsCard({ commissions, loading, onSaveCommission
                     title="Modifier"
                     onClick={() => setEditing(row)}
                   >
-                    <AppIcon icon={Pencil} size={14} color="#2563EB" />
+                    <AppIcon icon={Pencil} size={14} color="#1A5FB4" />
                   </button>
                 </Td>
               </TableRow>

@@ -34,8 +34,8 @@ interface NotificationsFeedProps {
 
 const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: string; label: string }> = {
   system:         { icon: AlertTriangle, color: '#E53935', bg: 'rgba(229,57,53,0.10)',   label: 'Système'         },
-  user:           { icon: UserCheck,     color: '#2563EB', bg: 'rgba(37,99,235,0.10)',   label: 'Utilisateur'     },
-  payment:        { icon: CreditCard,    color: '#7C3AED', bg: 'rgba(124,58,237,0.10)',   label: 'Paiement'        },
+  user:           { icon: UserCheck,     color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Utilisateur'     },
+  payment:        { icon: CreditCard,    color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Paiement'        },
   dispute:        { icon: AlertCircle,   color: '#F4B400', bg: 'rgba(244,180,0,0.10)',   label: 'Litige'          },
   driver:         { icon: Car,           color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  label: 'Conducteur'      },
   critical_review:{ icon: AlertOctagon,  color: '#DC2626', bg: 'rgba(220,38,38,0.10)',   label: 'Avis critique'   },
@@ -44,7 +44,7 @@ const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: stri
 const PRIORITY_BORDER: Record<NotifPriority, string> = {
   Urgente: '#E53935',
   Haute:   '#FB8C00',
-  Normale: '#2563EB',
+  Normale: '#1A5FB4',
   Basse:   '#E5E7EB',
 };
 
@@ -191,7 +191,7 @@ export function NotificationsFeed({
                         <div className="notif-item__actions">
                           {isUnread && (
                             <button type="button" className="notif-icon-btn" title="Marquer comme lue" onClick={() => onMarkRead(n.id)}>
-                              <AppIcon icon={Check} size={12} color="#2563EB" />
+                              <AppIcon icon={Check} size={12} color="#1A5FB4" />
                             </button>
                           )}
                           <button type="button" className="notif-icon-btn notif-icon-btn--danger" title="Supprimer" onClick={() => onDelete(n.id)}>
@@ -234,7 +234,7 @@ export function NotificationsFeed({
                             disabled={pas.loading}
                             onClick={() => onPaymentView(crd.payment_uuid, n.id)}
                           >
-                            <AppIcon icon={ExternalLink} size={12} color="#2563EB" />
+                            <AppIcon icon={ExternalLink} size={12} color="#1A5FB4" />
                             Voir le paiement
                           </button>
                         )}
@@ -275,7 +275,7 @@ export function NotificationsFeed({
                 <div
                   key={n.id}
                   className={`notif-item${isActive ? ' notif-item--active' : ''}${isUnread ? ' notif-item--unread' : ''}`}
-                  style={{ borderLeftColor: isActive ? '#7C3AED' : PRIORITY_BORDER[n.priority] }}
+                  style={{ borderLeftColor: isActive ? '#1A5FB4' : PRIORITY_BORDER[n.priority] }}
                   onClick={() => {
                     setSelectedId(n.id);
                     if (isUnread) onMarkRead(n.id);
@@ -295,7 +295,7 @@ export function NotificationsFeed({
                         <div className="notif-item__actions" onClick={(e) => e.stopPropagation()}>
                           {isUnread && (
                             <button type="button" className="notif-icon-btn" title="Marquer comme lue" onClick={() => onMarkRead(n.id)}>
-                              <AppIcon icon={Check} size={12} color="#2563EB" />
+                              <AppIcon icon={Check} size={12} color="#1A5FB4" />
                             </button>
                           )}
                           <button type="button" className="notif-icon-btn notif-icon-btn--danger" title="Supprimer" onClick={() => onDelete(n.id)}>

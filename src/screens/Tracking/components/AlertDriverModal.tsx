@@ -92,7 +92,7 @@ export function AlertDriverModal({ isOpen, trip, sending, onClose, onSend }: Pro
         <div className="trk-modal__header">
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div style={{ width: 32, height: 32, borderRadius: 9, background: '#EFF6FF', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Bell} size={16} color="#2563EB" />
+              <AppIcon icon={Bell} size={16} color="#1A5FB4" />
             </div>
             <div>
               <div style={{ fontSize: 14, fontWeight: 700, color: '#111827' }}>Notification push au conducteur</div>
@@ -126,7 +126,7 @@ export function AlertDriverModal({ isOpen, trip, sending, onClose, onSend }: Pro
                     <div style={{ fontSize: 11, color: '#9CA3AF', marginTop: 2 }}>{t.message.slice(0, 60)}…</div>
                   </div>
                   {selected === i && (
-                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#2563EB', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: '#1A5FB4', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                       <span style={{ color: '#fff', fontSize: 11, fontWeight: 700 }}>✓</span>
                     </div>
                   )}

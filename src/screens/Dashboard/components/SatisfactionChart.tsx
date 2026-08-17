@@ -47,8 +47,8 @@ export function SatisfactionChart({ payments, withdrawals }: Props) {
     <div style={{ padding: '4px 0' }}>
       <SectionTitle>Paiements</SectionTitle>
       <PaymentRow label="Volume total"          value={formatFcfa(payments.total_volume_fcfa)}      color="#374151" sub="Toutes transactions" />
-      <PaymentRow label="Revenus plateforme"    value={formatFcfa(payments.platform_revenue_fcfa)}  color="#7C3AED" />
-      <PaymentRow label="Fonds en escrow"       value={formatFcfa(payments.escrow_locked_fcfa)}     color="#2563EB" sub="Bloqués en attente" />
+      <PaymentRow label="Revenus plateforme"    value={formatFcfa(payments.platform_revenue_fcfa)}  color="#1A5FB4" />
+      <PaymentRow label="Fonds en escrow"       value={formatFcfa(payments.escrow_locked_fcfa)}     color="#1A5FB4" sub="Bloqués en attente" />
       <PaymentRow label="Remboursements"        value={formatFcfa(payments.refunded_fcfa)}          color="#E53935" />
       <PaymentRow label="Ce mois"               value={formatFcfa(payments.this_month_fcfa)}        color="#F59E0B" />
 

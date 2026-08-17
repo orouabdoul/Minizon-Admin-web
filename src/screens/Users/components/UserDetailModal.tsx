@@ -45,7 +45,7 @@ function LightboxThumb({ url, alt, active, onClick }: { url: string; alt: string
   return (
     <button type="button" onClick={onClick} style={{
       width: 52, height: 38,
-      border: `2px solid ${active ? '#2563EB' : 'transparent'}`,
+      border: `2px solid ${active ? '#1A5FB4' : 'transparent'}`,
       borderRadius: 6, overflow: 'hidden', padding: 0,
       cursor: 'pointer', opacity: active ? 1 : 0.5, background: '#222',
     }}>
@@ -137,7 +137,7 @@ function PhotoCard({
         onClick={() => hasImg && url && onOpen?.(url)}
       >
         {loadingImg ? (
-          <div style={{ width: 26, height: 26, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#2563EB', animation: 'spin .8s linear infinite' }} />
+          <div style={{ width: 26, height: 26, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#1A5FB4', animation: 'spin .8s linear infinite' }} />
         ) : hasImg ? (
           <>
             <img src={blobUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -176,7 +176,7 @@ function HeroAvatar({ url, name, onClick }: { url?: string; name: string; onClic
       src={blobUrl ?? 'https://placehold.co/64x64'}
       alt={name}
       className="detail-hero__avatar"
-      style={{ cursor: onClick ? 'zoom-in' : 'default', borderColor: '#2563EB' }}
+      style={{ cursor: onClick ? 'zoom-in' : 'default', borderColor: '#1A5FB4' }}
       onClick={onClick}
     />
   );
@@ -234,10 +234,10 @@ export function UserDetailModal({ user, detailLoading, onClose, onApproveKyc, on
         />
       )}
 
-      <DetailModal title="Détail Utilisateur" onClose={onClose} accentColor="#2563EB">
+      <DetailModal title="Détail Utilisateur" onClose={onClose} accentColor="#1A5FB4">
 
         {/* Hero */}
-        <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
+        <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
           <HeroAvatar
             url={user.avatar !== 'https://placehold.co/40x40' ? user.avatar : user.selfies?.front}
             name={user.name}
@@ -303,7 +303,7 @@ export function UserDetailModal({ user, detailLoading, onClose, onApproveKyc, on
           <DetailRow label="Fiabilité compte"><span /></DetailRow>
           <DetailBar
             value={user.verification === 'Vérifié' ? 90 : user.verification === 'En attente' ? 50 : 20}
-            color="#2563EB"
+            color="#1A5FB4"
           />
         </DetailSection>
 
@@ -340,7 +340,7 @@ export function UserDetailModal({ user, detailLoading, onClose, onApproveKyc, on
             )}
             <button type="button" disabled={busy} onClick={() => { onApproveKyc(user.id); onClose(); }} style={{
               flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-              background: '#2563EB', color: 'white', fontWeight: 600, fontSize: 13,
+              background: '#1A5FB4', color: 'white', fontWeight: 600, fontSize: 13,
               cursor: busy ? 'not-allowed' : 'pointer', opacity: busy ? 0.5 : 1,
               display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6,
             }}>
@@ -355,10 +355,10 @@ export function UserDetailModal({ user, detailLoading, onClose, onApproveKyc, on
           <div style={{
             marginTop: 8, borderTop: '1px solid #F3F4F6', paddingTop: 16,
             display: 'flex', alignItems: 'center', gap: 8,
-            background: 'rgba(124,58,237,0.06)', borderRadius: 8, padding: '12px 16px',
+            background: 'rgba(26,95,180,0.06)', borderRadius: 8, padding: '12px 16px',
           }}>
             <div style={{ width: 28, height: 28, borderRadius: '50%', background: '#D1FAE5', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <AppIcon icon={Check} size={14} color="#7C3AED" />
+              <AppIcon icon={Check} size={14} color="#1A5FB4" />
             </div>
             <span style={{ fontSize: 13, color: '#065F46', fontWeight: 600 }}>Compte vérifié — KYC approuvé</span>
           </div>

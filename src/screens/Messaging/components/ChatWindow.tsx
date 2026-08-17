@@ -29,11 +29,11 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
     a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
   };
 
-  const accent     = isAdmin ? '#fff' : '#7C3AED';
-  const accentFade = isAdmin ? 'rgba(255,255,255,0.30)' : 'rgba(124,58,237,0.25)';
-  const bg         = isAdmin ? 'rgba(255,255,255,0.12)' : 'rgba(124,58,237,0.07)';
-  const btnBg      = isAdmin ? 'rgba(255,255,255,0.90)' : '#7C3AED';
-  const btnIcon    = isAdmin ? '#7C3AED' : '#fff';
+  const accent     = isAdmin ? '#fff' : '#1A5FB4';
+  const accentFade = isAdmin ? 'rgba(255,255,255,0.30)' : 'rgba(26,95,180,0.25)';
+  const bg         = isAdmin ? 'rgba(255,255,255,0.12)' : 'rgba(26,95,180,0.07)';
+  const btnBg      = isAdmin ? 'rgba(255,255,255,0.90)' : '#1A5FB4';
+  const btnIcon    = isAdmin ? '#1A5FB4' : '#fff';
   const timeColor  = isAdmin ? 'rgba(255,255,255,0.65)' : '#9CA3AF';
 
   return (
@@ -74,14 +74,14 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
       </div>
 
       {/* Mic badge */}
-      <AppIcon icon={Mic} size={13} color={isAdmin ? 'rgba(255,255,255,0.50)' : '#C4B5FD'} />
+      <AppIcon icon={Mic} size={13} color={isAdmin ? 'rgba(255,255,255,0.50)' : '#93C0EB'} />
     </div>
   );
 }
 
 const STATUS_CONFIG: Record<DriverStatus, { label: string; color: string; bg: string }> = {
   en_ligne:   { label: 'En ligne',   color: '#16A34A', bg: 'rgba(22,163,74,0.10)'   },
-  en_trajet:  { label: 'En trajet',  color: '#2563EB', bg: 'rgba(37,99,235,0.10)'   },
+  en_trajet:  { label: 'En trajet',  color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)'   },
   hors_ligne: { label: 'Hors ligne', color: '#9CA3AF', bg: 'rgba(156,163,175,0.10)' },
 };
 
@@ -236,7 +236,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
       <div className="msg-chat">
         <div className="msg-chat__empty">
           <div className="msg-chat__empty-icon">
-            <AppIcon icon={MessageSquare} size={32} color="#2563EB" />
+            <AppIcon icon={MessageSquare} size={32} color="#1A5FB4" />
           </div>
           <p className="msg-chat__empty-title">Aucune conversation sélectionnée</p>
           <p className="msg-chat__empty-sub">
@@ -403,7 +403,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
                             href={msg.attachment.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            style={{ fontSize: 12, color: isAdmin ? 'rgba(255,255,255,0.85)' : '#2563EB', display: 'flex', alignItems: 'center', gap: 4, marginTop: msg.content ? 6 : 0 }}
+                            style={{ fontSize: 12, color: isAdmin ? 'rgba(255,255,255,0.85)' : '#1A5FB4', display: 'flex', alignItems: 'center', gap: 4, marginTop: msg.content ? 6 : 0 }}
                           >
                             📄 Télécharger le document
                           </a>
@@ -421,7 +421,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
                         <span
                           className="msg-bubble__ticks"
                           title={msg.status}
-                          style={{ color: msg.status === 'lu' ? '#2563EB' : '#9CA3AF' }}
+                          style={{ color: msg.status === 'lu' ? '#1A5FB4' : '#9CA3AF' }}
                         >
                           {msg.status === 'lu' ? '✓✓' : '✓'}
                         </span>
@@ -535,7 +535,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
             <VoiceMessage url={previewUrl} isAdmin={false} />
           </div>
           <button type="button" onClick={handleSendAudio} disabled={sending} title="Envoyer le message vocal"
-            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#7C3AED', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
+            style={{ width:42, height:42, borderRadius:'50%', border:'none', background:'#1A5FB4', cursor:'pointer', flexShrink:0, display:'flex', alignItems:'center', justifyContent:'center' }}>
             <AppIcon icon={Send} size={18} color="#fff" />
           </button>
         </div>

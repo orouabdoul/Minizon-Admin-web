@@ -19,7 +19,7 @@ export interface ConfirmDialogProps {
 const VS = {
   danger:  { iconBg: '#FEF2F2', iconColor: '#DC2626', btnBg: '#DC2626' },
   warning: { iconBg: '#FFFBEB', iconColor: '#F59E0B', btnBg: '#F59E0B' },
-  success: { iconBg: '#F0FDF4', iconColor: '#16A34A', btnBg: '#7C3AED' },
+  success: { iconBg: '#F0FDF4', iconColor: '#16A34A', btnBg: '#1A5FB4' },
 } as const;
 
 export function ConfirmDialog({

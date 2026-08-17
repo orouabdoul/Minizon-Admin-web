@@ -29,7 +29,7 @@ function getCoords(
 // ── Marker icon factory ───────────────────────────────────────────────────────
 
 function makeIcon(lib: typeof Leaflet, status: TrackedTrip['status']): Leaflet.DivIcon {
-  const color = status === 'incident' ? '#E53935' : '#7C3AED';
+  const color = status === 'incident' ? '#E53935' : '#1A5FB4';
   const pulse  = status === 'actif'
     ? `<div style="position:absolute;inset:-6px;border-radius:50%;background:${color}22;animation:tracking-pulse 2s infinite;"></div>`
     : '';
@@ -297,7 +297,7 @@ export function TrackingMap({ trips, selectedId, selectedTrip, onSelect, onRepor
     // Route line departure → arrival
     if (depCoords && arrCoords) {
       routeLineRef.current = lib.polyline([depCoords, arrCoords], {
-        color: '#2563EB', weight: 2, dashArray: '7 5', opacity: 0.65,
+        color: '#1A5FB4', weight: 2, dashArray: '7 5', opacity: 0.65,
       }).addTo(map);
     }
 

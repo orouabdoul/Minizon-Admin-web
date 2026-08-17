@@ -131,7 +131,7 @@ export function Header({ title, onMenuToggle }: HeaderProps) {
                     transition: 'background 0.1s',
                   }}
                 >
-                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: i === activeIndex ? '#2563EB' : '#D1D5DB', flexShrink: 0 }} />
+                  <span style={{ width: 6, height: 6, borderRadius: '50%', background: i === activeIndex ? '#1A5FB4' : '#D1D5DB', flexShrink: 0 }} />
                   {item.label}
                   <span style={{ marginLeft: 'auto', fontSize: 11, color: '#9CA3AF', fontWeight: 400 }}>
                     {item.path}

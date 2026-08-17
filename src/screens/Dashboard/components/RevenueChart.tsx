@@ -71,7 +71,7 @@ export function RevenueChart({ dailyRevenue }: Props) {
         const x    = X0 + i * step;
         return (
           <g key={i}>
-            <rect x={x} y={BOTTOM - barH} width={barW} height={barH} fill="#2563EB" rx={4} />
+            <rect x={x} y={BOTTOM - barH} width={barW} height={barH} fill="#1A5FB4" rx={4} />
             {d.amount > 0 && (
               <text
                 x={x + barW / 2}

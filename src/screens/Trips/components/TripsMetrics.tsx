@@ -32,7 +32,7 @@ export function TripsMetrics({ metrics, loading }: Props) {
     {
       id: 'completed', label: 'Trajets Terminés',
       value: v(metrics?.completed), badge: '',
-      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#7C3AED',
+      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#1A5FB4',
     },
     {
       id: 'reported', label: 'Trajets Signalés',
@@ -44,7 +44,7 @@ export function TripsMetrics({ metrics, loading }: Props) {
       id: 'revenue', label: 'Revenus Générés',
       value: loading ? '…' : `${(metrics?.total_revenue ?? 0).toLocaleString('fr-FR')} FCFA`,
       badge: '',
-      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#7C3AED',
+      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#1A5FB4',
     },
   ];
 

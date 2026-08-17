@@ -108,7 +108,7 @@ export function SettingsSecurityCard({ logs, loading }: Props) {
                   <Td><Badge label={log.riskLevel} variant={RISK_VARIANT[log.riskLevel] ?? 'neutral'} /></Td>
                   <Td>
                     <button type="button" className="trip-action-btn" title="Voir">
-                      <AppIcon icon={Eye} size={14} color="#2563EB" />
+                      <AppIcon icon={Eye} size={14} color="#1A5FB4" />
                     </button>
                   </Td>
                 </TableRow>

@@ -78,9 +78,9 @@
   transition:  all .15s;
 }
 .tracking-panel__tab--active {
-  border-color: #2563EB;
+  border-color: #1A5FB4;
   background:   #EFF6FF;
-  color:        #2563EB;
+  color:        #1A5FB4;
 }
 
 .tracking-panel__list {
@@ -114,7 +114,7 @@
   background:    #FAFAFA;
 }
 .tracking-trip-card:hover     { background: #F3F4F6; }
-.tracking-trip-card--selected { background: #EFF6FF; border-color: #BFDBFE; }
+.tracking-trip-card--selected { background: #EFF6FF; border-color: #B3D4F0; }
 
 .tracking-trip-card__head {
   display:         flex;
@@ -198,7 +198,7 @@
   border:     none;
   font-size:  11px;
   font-weight: 700;
-  color:      #7C3AED;
+  color:      #1A5FB4;
   cursor:     pointer;
   padding:    0;
 }
@@ -229,7 +229,7 @@
 .tracking-trip-card__action-btn--panne:hover   { background: #FEE2E2; }
 .tracking-trip-card__action-btn--urgence { border-color: #FDE68A; color: #F59E0B; }
 .tracking-trip-card__action-btn--urgence:hover { background: #FEF9C3; }
-.tracking-trip-card__action-btn--autre   { border-color: #BFDBFE; color: #2563EB; }
+.tracking-trip-card__action-btn--autre   { border-color: #B3D4F0; color: #1A5FB4; }
 .tracking-trip-card__action-btn--autre:hover   { background: #EFF6FF; }
 
 /* ── Map wrapper ─────────────────────────────────────────────── */
@@ -351,7 +351,7 @@
 
 .tracking-popup__action-btn--panne   { background: #FEE2E2; color: #E53935; }
 .tracking-popup__action-btn--urgence { background: #FEF9C3; color: #D97706; }
-.tracking-popup__action-btn--autre   { background: #EFF6FF; color: #2563EB; }
+.tracking-popup__action-btn--autre   { background: #EFF6FF; color: #1A5FB4; }
 
 .tracking-popup__action-btn:hover { opacity: 0.8; }
 
@@ -382,7 +382,7 @@
   border:     none;
   font-size:  11px;
   font-weight: 700;
-  color:      #7C3AED;
+  color:      #1A5FB4;
   cursor:     pointer;
   padding:    0;
   text-decoration: underline;
@@ -499,7 +499,7 @@
   border:      none;
   font-size:   12px;
   font-weight: 700;
-  color:       #7C3AED;
+  color:       #1A5FB4;
   cursor:      pointer;
   padding:     0;
 }
@@ -525,7 +525,7 @@
 .trk-detail-route__line {
   flex:        1;
   height:      2px;
-  background:  linear-gradient(90deg, #7C3AED, #E53935);
+  background:  linear-gradient(90deg, #1A5FB4, #E53935);
   border-radius: 2px;
 }
 
@@ -572,7 +572,7 @@
   flex-shrink:  0;
   margin-top:   2px;
 }
-.trk-timeline__dot--done    { border-color: #7C3AED; background: #7C3AED; }
+.trk-timeline__dot--done    { border-color: #1A5FB4; background: #1A5FB4; }
 .trk-timeline__dot--delayed { border-color: #E53935; background: #E53935; }
 
 .trk-timeline__connector {
@@ -664,11 +664,11 @@
 }
 
 .trk-detail-footer__btn--alert {
-  background: #2563EB;
+  background: #1A5FB4;
   color:      #fff;
   flex:       1;
 }
-.trk-detail-footer__btn--alert:hover { background: #1D4ED8; }
+.trk-detail-footer__btn--alert:hover { background: #0F4A9E; }
 
 .trk-detail-footer__btn--incident {
   background: #FEF2F2;
@@ -757,7 +757,7 @@
   height:        40px;
   border-radius: 9px;
   border:        none;
-  background:    #2563EB;
+  background:    #1A5FB4;
   color:         #fff;
   font-size:     13px;
   font-weight:   700;
@@ -769,7 +769,7 @@
   transition:    all .12s;
 }
 .trk-modal__send-btn:disabled { background: #93C5FD; cursor: not-allowed; }
-.trk-modal__send-btn:not(:disabled):hover { background: #1D4ED8; }
+.trk-modal__send-btn:not(:disabled):hover { background: #0F4A9E; }
 
 /* Alert templates */
 
@@ -786,8 +786,8 @@
   transition:  all .12s;
   width:       100%;
 }
-.trk-alert-template:hover         { border-color: #BFDBFE; background: #F0F9FF; }
-.trk-alert-template--selected     { border-color: #2563EB; background: #EFF6FF; }
+.trk-alert-template:hover         { border-color: #B3D4F0; background: #F0F9FF; }
+.trk-alert-template--selected     { border-color: #1A5FB4; background: #EFF6FF; }
 
 /* ── Responsive adjustments ──────────────────────────────────── */
 

@@ -16,16 +16,16 @@ interface Props {
 }
 
 const STATUS_CFG: Record<string, { label: string; color: string; bg: string }> = {
-  actif:      { label: 'En cours',   color: '#7C3AED', bg: 'rgba(124,58,237,0.12)' },
+  actif:      { label: 'En cours',   color: '#1A5FB4', bg: 'rgba(26,95,180,0.12)' },
   en_attente: { label: 'En attente', color: '#D97706', bg: '#FEF9C3' },
   retard:     { label: 'Retard',     color: '#E53935', bg: '#FEE2E2' },
   incident:   { label: 'Incident',   color: '#E53935', bg: '#FEE2E2' },
-  terminé:    { label: 'Terminé',    color: '#7C3AED', bg: '#D1FAE5' },
+  terminé:    { label: 'Terminé',    color: '#1A5FB4', bg: '#D1FAE5' },
   annulé:     { label: 'Annulé',     color: '#9CA3AF', bg: '#F3F4F6' },
 };
 
 const BOOKING_CFG: Record<string, { color: string; label: string }> = {
-  confirmé:   { color: '#7C3AED', label: 'Confirmé'   },
+  confirmé:   { color: '#1A5FB4', label: 'Confirmé'   },
   en_attente: { color: '#D97706', label: 'En attente' },
   annulé:     { color: '#E53935', label: 'Annulé'     },
 };
@@ -59,8 +59,8 @@ function PassengerCard({ p }: { p: PassengerStop }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginLeft: 'auto' }}>
           {p.pickedUp != null && (
             <span style={{ fontSize: 10, fontWeight: 700, padding: '2px 6px', borderRadius: 9999,
-              color: p.pickedUp ? '#7C3AED' : '#9CA3AF',
-              background: p.pickedUp ? 'rgba(124,58,237,0.10)' : '#F3F4F6' }}>
+              color: p.pickedUp ? '#1A5FB4' : '#9CA3AF',
+              background: p.pickedUp ? 'rgba(26,95,180,0.10)' : '#F3F4F6' }}>
               {p.pickedUp ? '✓ Embarqué' : '⏳ Attente'}
             </span>
           )}
@@ -75,9 +75,9 @@ function PassengerCard({ p }: { p: PassengerStop }) {
       {open && (
         <div className="trk-detail-passenger__stops">
           <div className="trk-detail-passenger__stop trk-detail-passenger__stop--pickup">
-            <AppIcon icon={MapPin} size={13} color="#7C3AED" />
+            <AppIcon icon={MapPin} size={13} color="#1A5FB4" />
             <div>
-              <div style={{ fontSize: 10, fontWeight: 700, color: '#7C3AED', textTransform: 'uppercase', letterSpacing: 0.3 }}>Prise en charge</div>
+              <div style={{ fontSize: 10, fontWeight: 700, color: '#1A5FB4', textTransform: 'uppercase', letterSpacing: 0.3 }}>Prise en charge</div>
               <div style={{ fontSize: 12, color: '#374151' }}>{p.pickupAddress}</div>
               {pCoords && <div style={{ fontSize: 10, color: '#9CA3AF', fontFamily: 'monospace' }}>{pCoords.lat.toFixed(5)}, {pCoords.lng.toFixed(5)}</div>}
             </div>
@@ -109,7 +109,7 @@ function FlagModal({ tripId: _tripId, current, onClose, onSave }: {
     <div className="trk-modal-backdrop" onClick={onClose}>
       <div className="trk-modal" style={{ maxWidth: 380 }} onClick={(e) => e.stopPropagation()}>
         <div className="trk-modal__header">
-          <span style={{ fontSize: 14, fontWeight: 700, color: current ? '#7C3AED' : '#374151' }}>
+          <span style={{ fontSize: 14, fontWeight: 700, color: current ? '#1A5FB4' : '#374151' }}>
             {current ? 'Retirer le signalement' : 'Signaler ce trajet'}
           </span>
           <button type="button" className="trk-modal__close" onClick={onClose}>✕</button>
@@ -130,7 +130,7 @@ function FlagModal({ tripId: _tripId, current, onClose, onSave }: {
           <button
             type="button"
             className="trk-modal__send-btn"
-            style={{ background: current ? '#6B7280' : '#7C3AED' }}
+            style={{ background: current ? '#6B7280' : '#1A5FB4' }}
             onClick={() => { onSave(!current, note); onClose(); }}
           >
             {current ? 'Retirer le signalement' : 'Signaler'}
@@ -193,7 +193,7 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
         <div style={{ flex: 1 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
             <span style={{ fontSize: 16, fontWeight: 700, color: '#111827' }}>{trip.driverName}</span>
-            {trip.isFlagged && <AppIcon icon={Flag} size={14} color="#7C3AED" />}
+            {trip.isFlagged && <AppIcon icon={Flag} size={14} color="#1A5FB4" />}
           </div>
           <div style={{ fontSize: 12, color: '#6B7280' }}>{trip.tripId}</div>
         </div>
@@ -215,7 +215,7 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
           <div className="trk-detail-card__label">Itinéraire</div>
           <div className="trk-detail-route">
             <div className="trk-detail-route__city trk-detail-route__city--from">
-              <AppIcon icon={MapPin} size={14} color="#7C3AED" /><span>{trip.from}</span>
+              <AppIcon icon={MapPin} size={14} color="#1A5FB4" /><span>{trip.from}</span>
             </div>
             <div className="trk-detail-route__line" />
             <div className="trk-detail-route__city trk-detail-route__city--to">
@@ -242,13 +242,13 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
             )}
             {trip.startedAt && (
               <div className="trk-detail-info-item">
-                <AppIcon icon={CheckCircle} size={13} color="#7C3AED" />
+                <AppIcon icon={CheckCircle} size={13} color="#1A5FB4" />
                 <span className="trk-detail-info-item__k">Démarré à</span>
-                <span className="trk-detail-info-item__v" style={{ color: '#7C3AED' }}>{trip.startedAt}</span>
+                <span className="trk-detail-info-item__v" style={{ color: '#1A5FB4' }}>{trip.startedAt}</span>
               </div>
             )}
             <div className="trk-detail-info-item">
-              <AppIcon icon={Clock} size={13} color="#2563EB" />
+              <AppIcon icon={Clock} size={13} color="#1A5FB4" />
               <span className="trk-detail-info-item__k">Arr. estimée</span>
               <span className="trk-detail-info-item__v">{trip.estimatedArrival}</span>
             </div>
@@ -339,8 +339,8 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
         {trip.isFlagged && trip.moderationNote && (
           <div style={{ padding: '10px 12px', background: '#F3E8FF', border: '1.5px solid #DDD6FE', borderRadius: 10 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 4 }}>
-              <AppIcon icon={Flag} size={13} color="#7C3AED" />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED' }}>Trajet signalé</span>
+              <AppIcon icon={Flag} size={13} color="#1A5FB4" />
+              <span style={{ fontSize: 12, fontWeight: 700, color: '#1A5FB4' }}>Trajet signalé</span>
             </div>
             <p style={{ fontSize: 12, color: '#6B7280', margin: 0 }}>{trip.moderationNote}</p>
           </div>
@@ -448,12 +448,12 @@ export function TripDetailPanel({ trip, loadingDetail, onAlertDriver, onReportIn
           onClick={() => setFlagOpen(true)}
           style={{
             background: trip.isFlagged ? '#F3E8FF' : '#F9FAFB',
-            color:      trip.isFlagged ? '#7C3AED' : '#6B7280',
+            color:      trip.isFlagged ? '#1A5FB4' : '#6B7280',
             border:     `1.5px solid ${trip.isFlagged ? '#DDD6FE' : '#E5E7EB'}`,
           }}
           title={trip.isFlagged ? 'Retirer le signalement' : 'Signaler'}
         >
-          <AppIcon icon={Flag} size={14} color={trip.isFlagged ? '#7C3AED' : '#6B7280'} />
+          <AppIcon icon={Flag} size={14} color={trip.isFlagged ? '#1A5FB4' : '#6B7280'} />
         </button>
       </div>
 

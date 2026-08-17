@@ -18,7 +18,7 @@ interface CardDef {
 const CARDS: CardDef[] = [
   {
     icon: CreditCard, label: 'Total Paiements', sub: 'toutes transactions',
-    iconBg: '#EFF6FF', iconColor: '#2563EB',
+    iconBg: '#EFF6FF', iconColor: '#1A5FB4',
     value: (m, l) => l ? '…' : (m?.total ?? 0).toLocaleString('fr-FR'),
   },
   {

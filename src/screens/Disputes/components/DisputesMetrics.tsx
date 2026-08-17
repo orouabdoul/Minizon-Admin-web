@@ -15,7 +15,7 @@ export function DisputesMetrics({ metrics, loading }: Props) {
     { id: 'critical',      label: 'Critiques',     value: n(metrics?.critical),      icon: Flame,         iconBg: '#FFF1F2', iconColor: '#BE123C' },
     { id: 'pending',       label: 'En attente',    value: n(metrics?.pending),       icon: Clock,         iconBg: '#FFF7ED', iconColor: '#F97316' },
     { id: 'investigating', label: 'En cours',      value: n(metrics?.investigating), icon: Search,        iconBg: '#FFFBEB', iconColor: '#F59E0B' },
-    { id: 'resolved',      label: 'Résolus',       value: n(metrics?.resolved),      icon: CheckCircle,   iconBg: '#F0FDF4', iconColor: '#7C3AED' },
+    { id: 'resolved',      label: 'Résolus',       value: n(metrics?.resolved),      icon: CheckCircle,   iconBg: '#F0FDF4', iconColor: '#1A5FB4' },
   ];
 
   return (

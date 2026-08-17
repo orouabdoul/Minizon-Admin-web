@@ -6,8 +6,8 @@ import type {
 } from '../../../models/messaging.model';
 
 const STATUS_DOT: Record<DriverStatus, { color: string; label: string }> = {
-  en_ligne:   { color: '#7C3AED', label: 'En ligne'   },
-  en_trajet:  { color: '#2563EB', label: 'En trajet'  },
+  en_ligne:   { color: '#16A34A', label: 'En ligne'   },   // vert sémantique
+  en_trajet:  { color: '#1A5FB4', label: 'En trajet'  },   // bleu MINIZON
   hors_ligne: { color: '#9CA3AF', label: 'Hors ligne' },
 };
 
@@ -114,7 +114,7 @@ export function ConversationList({
             <button
               type="button"
               className="msg-action-btn"
-              style={{ background: '#2563EB' }}
+              style={{ background: '#1A5FB4' }}
               onClick={onBroadcast}
             >
               <AppIcon icon={Radio} size={12} color="#fff" />

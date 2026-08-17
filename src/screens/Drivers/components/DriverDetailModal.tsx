@@ -56,7 +56,7 @@ function LightboxThumb({ url, alt, active, onClick }: { url: string; alt: string
   const { blobUrl } = useAuthImage(url);
   return (
     <button type="button" onClick={onClick} style={{
-      width: 52, height: 38, border: `2px solid ${active ? '#7C3AED' : 'transparent'}`,
+      width: 52, height: 38, border: `2px solid ${active ? '#1A5FB4' : 'transparent'}`,
       borderRadius: 6, overflow: 'hidden', padding: 0, cursor: 'pointer', opacity: active ? 1 : 0.5,
       background: '#222',
     }}>
@@ -154,7 +154,7 @@ function PhotoCard({
         onClick={() => hasImg && url && onOpen?.(url)}
       >
         {loadingImg ? (
-          <div style={{ width: 26, height: 26, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#7C3AED', animation: 'spin .8s linear infinite' }} />
+          <div style={{ width: 26, height: 26, borderRadius: '50%', border: '3px solid #E5E7EB', borderTopColor: '#1A5FB4', animation: 'spin .8s linear infinite' }} />
         ) : hasImg ? (
           <>
             <img src={blobUrl} alt={label} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
@@ -209,7 +209,7 @@ function DocumentCard({
       >
         {(externalLoading && !url) || (loadingImg && !isFilePdf) ? (
           <div style={{ textAlign: 'center' }}>
-            <div style={{ width: 26, height: 26, borderRadius: '50%', margin: '0 auto 6px', border: '3px solid #E5E7EB', borderTopColor: '#7C3AED', animation: 'spin .8s linear infinite' }} />
+            <div style={{ width: 26, height: 26, borderRadius: '50%', margin: '0 auto 6px', border: '3px solid #E5E7EB', borderTopColor: '#1A5FB4', animation: 'spin .8s linear infinite' }} />
             <span style={{ fontSize: 11, color: '#9CA3AF' }}>Chargement…</span>
           </div>
         ) : hasImg ? (
@@ -238,11 +238,11 @@ function DocumentCard({
               onClick={e => e.stopPropagation()}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 4,
-                fontSize: 11, color: '#2563EB', textDecoration: 'none',
+                fontSize: 11, color: '#1A5FB4', textDecoration: 'none',
                 background: '#EFF6FF', padding: '4px 10px', borderRadius: 20,
               }}
             >
-              <AppIcon icon={ExternalLink} size={11} color="#2563EB" />
+              <AppIcon icon={ExternalLink} size={11} color="#1A5FB4" />
               Ouvrir
             </a>
           </div>
@@ -349,10 +349,10 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
         />
       )}
 
-      <DetailModal title="Détail Conducteur" onClose={onClose} accentColor="#7C3AED">
+      <DetailModal title="Détail Conducteur" onClose={onClose} accentColor="#1A5FB4">
 
         {/* Hero */}
-        <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
+        <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
           <HeroAvatar
             url={driver.avatar !== 'https://placehold.co/40x40' ? driver.avatar : undefined}
             name={driver.name}
@@ -457,14 +457,14 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
                   style={{
                     display: 'flex', alignItems: 'flex-start', gap: 10, userSelect: 'none',
                     cursor: isPending ? 'pointer' : 'default', padding: '10px 12px', borderRadius: 8,
-                    background: isChecked ? 'rgba(124,58,237,0.06)' : '#F9FAFB',
-                    border: `1.5px solid ${isChecked ? '#7C3AED' : '#E5E7EB'}`, transition: 'all .15s',
+                    background: isChecked ? 'rgba(26,95,180,0.06)' : '#F9FAFB',
+                    border: `1.5px solid ${isChecked ? '#1A5FB4' : '#E5E7EB'}`, transition: 'all .15s',
                   }}
                 >
                   <div style={{
                     width: 18, height: 18, borderRadius: 5, flexShrink: 0, marginTop: 1,
-                    border: `2px solid ${isChecked ? '#7C3AED' : '#D1D5DB'}`,
-                    background: isChecked ? '#7C3AED' : 'white',
+                    border: `2px solid ${isChecked ? '#1A5FB4' : '#D1D5DB'}`,
+                    background: isChecked ? '#1A5FB4' : 'white',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                   }}>
                     {isChecked && <AppIcon icon={Check} size={11} color="white" />}
@@ -477,7 +477,7 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
             })}
           </div>
           {isPending && (
-            <p style={{ fontSize: 11, color: allChecked ? '#7C3AED' : '#F59E0B', marginTop: 10 }}>
+            <p style={{ fontSize: 11, color: allChecked ? '#1A5FB4' : '#F59E0B', marginTop: 10 }}>
               {allChecked
                 ? '✓ Tous les critères sont confirmés — vous pouvez valider.'
                 : `⚠ Confirmez tous les critères (${checked.size}/${ELIGIBILITY_ITEMS.length}) pour valider.`}
@@ -488,7 +488,7 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
         {/* Performance */}
         <DetailSection title="Performance">
           <DetailRow label="Score de validation"><span>{driver.score}%</span></DetailRow>
-          <DetailBar value={driver.score} color="#7C3AED" />
+          <DetailBar value={driver.score} color="#1A5FB4" />
         </DetailSection>
 
         {/* Timeline */}
@@ -534,7 +534,7 @@ export function DriverDetailModal({ driver, detailLoading, onClose, onValidate, 
               title={!allChecked ? "Confirmez tous les critères d'éligibilité" : 'Valider le conducteur'}
               style={{
                 flex: 1, padding: '10px 0', borderRadius: 8, border: 'none',
-                background: allChecked ? '#7C3AED' : '#D1FAE5',
+                background: allChecked ? '#1A5FB4' : '#D1FAE5',
                 color: allChecked ? 'white' : '#6B7280',
                 fontWeight: 600, fontSize: 13,
                 cursor: (busy || !allChecked) ? 'not-allowed' : 'pointer', opacity: busy ? 0.5 : 1,

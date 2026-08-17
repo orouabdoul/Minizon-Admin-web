@@ -23,8 +23,8 @@ export function EditUserModal({ user, onClose, onSave }: Props) {
   });
 
   return (
-    <DetailModal title="Modifier l'Utilisateur" onClose={onClose} accentColor="#2563EB">
-      <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
+    <DetailModal title="Modifier l'Utilisateur" onClose={onClose} accentColor="#1A5FB4">
+      <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
         <img src={user.avatar} alt={user.name} className="detail-hero__avatar" />
         <div>
           <p className="detail-hero__name">{user.name}</p>

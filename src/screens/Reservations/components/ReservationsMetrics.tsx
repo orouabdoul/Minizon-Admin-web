@@ -32,7 +32,7 @@ export function ReservationsMetrics({ metrics, loading }: Props) {
     {
       id: 'confirmed', label: 'Confirmées',
       value: v(metrics?.confirmed), badge: '',
-      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#7C3AED',
+      icon: CheckCircle, iconBg: '#F0FDF4', iconColor: '#1A5FB4',
     },
     {
       id: 'cancelled', label: 'Annulées',
@@ -43,7 +43,7 @@ export function ReservationsMetrics({ metrics, loading }: Props) {
     {
       id: 'revenue', label: "Chiffre d'affaires",
       value: loading ? '…' : String(metrics?.total_revenue ?? '0 FCFA'), badge: '',
-      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#7C3AED',
+      icon: TrendingUp, iconBg: '#F0FDF4', iconColor: '#1A5FB4',
     },
     {
       id: 'rating', label: 'Note Moyenne',

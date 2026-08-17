@@ -62,8 +62,8 @@ const TYPE_OPTIONS = [
 ];
 
 const TYPE_COLORS: Record<VehicleType, { bg: string; color: string }> = {
-  Berline: { bg: '#EFF6FF', color: '#2563EB' },
-  SUV:     { bg: '#F3E8FF', color: '#7C3AED' },
+  Berline: { bg: '#EFF6FF', color: '#1A5FB4' },
+  SUV:     { bg: '#F3E8FF', color: '#1A5FB4' },
   Moto:    { bg: '#FEF9C3', color: '#854D0E' },
   Van:     { bg: '#DCFCE7', color: '#15803D' },
   Minibus: { bg: '#FEE2E2', color: '#B91C1C' },
@@ -251,7 +251,7 @@ export function VehiclesTable({
                       title="Voir le détail"
                       onClick={() => setSelectedId(v.id)}
                     >
-                      <AppIcon icon={Eye} size={15} color="#7C3AED" />
+                      <AppIcon icon={Eye} size={15} color="#1A5FB4" />
                     </button>
                     <button
                       type="button"
@@ -261,7 +261,7 @@ export function VehiclesTable({
                       style={{ opacity: v.status === 'Actif' ? 0.3 : 1 }}
                       onClick={() => onApprove(v.id)}
                     >
-                      <AppIcon icon={CheckCircle} size={15} color="#7C3AED" />
+                      <AppIcon icon={CheckCircle} size={15} color="#1A5FB4" />
                     </button>
                     <button
                       type="button"

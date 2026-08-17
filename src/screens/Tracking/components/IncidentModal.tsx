@@ -14,7 +14,7 @@ interface Props {
 const INCIDENT_TYPES: { type: IncidentType; label: string; desc: string; color: string; bg: string; icon: typeof Wrench }[] = [
   { type: 'panne',   label: 'Panne',   desc: 'Panne mécanique, crevaison, carburant…',  color: '#E53935', bg: '#FEE2E2', icon: Wrench        },
   { type: 'urgence', label: 'Urgence', desc: 'Accident, urgence médicale, sécurité…',   color: '#F59E0B', bg: '#FEF9C3', icon: AlertTriangle  },
-  { type: 'autre',   label: 'Autre',   desc: 'Embouteillage, incident routier, autre…', color: '#2563EB', bg: '#DBEAFE', icon: Info           },
+  { type: 'autre',   label: 'Autre',   desc: 'Embouteillage, incident routier, autre…', color: '#1A5FB4', bg: '#D6E8F7', icon: Info           },
 ];
 
 export function IncidentModal({ trip, isOpen, initialType, onClose, onSubmit }: Props) {

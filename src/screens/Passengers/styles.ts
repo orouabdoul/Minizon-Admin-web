@@ -12,6 +12,6 @@ export const trustTrack: CSSProperties = {
 export const trustFill = (score: number): CSSProperties => ({
   width:        `${score}%`,
   height:       8,
-  background:   '#7C3AED',
+  background:   '#1A5FB4',
   borderRadius: 9999,
 });

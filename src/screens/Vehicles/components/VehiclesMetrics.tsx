@@ -17,15 +17,15 @@ const CARDS: {
 }[] = [
   {
     key: 'total', label: 'Total véhicules',
-    icon: Truck, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
+    icon: Truck, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: (m) => `${m.actif} actifs`,
-    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'actif', label: 'Véhicules actifs',
-    icon: CheckCircle, iconBg: 'rgba(124,58,237,0.10)', iconColor: '#7C3AED',
+    icon: CheckCircle, iconBg: 'rgba(26,95,180,0.10)', iconColor: '#1A5FB4',
     badge: () => 'En service',
-    badgeBg: 'rgba(124,58,237,0.10)', badgeColor: '#7C3AED',
+    badgeBg: 'rgba(26,95,180,0.10)', badgeColor: '#1A5FB4',
   },
   {
     key: 'inspection', label: 'En inspection',

@@ -29,10 +29,10 @@ export function AddUserModal({ onClose, onSave }: Props) {
   const [form, setForm] = useState<NewUser>(INIT);
 
   return (
-    <DetailModal title="Ajouter un Utilisateur" onClose={onClose} accentColor="#7C3AED">
-      <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
-        <div className="modal-icon-bubble" style={{ background: 'rgba(124,58,237,0.12)' }}>
-          <AppIcon icon={UserPlus} size={24} color="#7C3AED" />
+    <DetailModal title="Ajouter un Utilisateur" onClose={onClose} accentColor="#1A5FB4">
+      <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
+        <div className="modal-icon-bubble" style={{ background: 'rgba(26,95,180,0.12)' }}>
+          <AppIcon icon={UserPlus} size={24} color="#1A5FB4" />
         </div>
         <div>
           <p className="detail-hero__name">Nouvel Utilisateur</p>

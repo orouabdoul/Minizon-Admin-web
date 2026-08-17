@@ -64,10 +64,10 @@ function AdminFormModal({
     <DetailModal
       title={isEdit ? "Modifier l'Administrateur" : 'Ajouter un Administrateur'}
       onClose={onClose}
-      accentColor={isEdit ? '#2563EB' : '#7C3AED'}
+      accentColor={isEdit ? '#1A5FB4' : '#1A5FB4'}
     >
       {isEdit && admin && (
-        <div className="detail-hero" style={{ background: 'rgba(37,99,235,0.06)' }}>
+        <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
           <img src={admin.avatar ?? AVATAR_FALLBACK} alt={admin.name} className="detail-hero__avatar" />
           <div>
             <p className="detail-hero__name">{admin.name}</p>
@@ -76,9 +76,9 @@ function AdminFormModal({
         </div>
       )}
       {!isEdit && (
-        <div className="detail-hero" style={{ background: 'rgba(124,58,237,0.06)' }}>
-          <div className="modal-icon-bubble" style={{ background: 'rgba(124,58,237,0.12)' }}>
-            <AppIcon icon={UserPlus} size={24} color="#7C3AED" />
+        <div className="detail-hero" style={{ background: 'rgba(26,95,180,0.06)' }}>
+          <div className="modal-icon-bubble" style={{ background: 'rgba(26,95,180,0.12)' }}>
+            <AppIcon icon={UserPlus} size={24} color="#1A5FB4" />
           </div>
           <div>
             <p className="detail-hero__name">Nouvel Administrateur</p>
@@ -247,7 +247,7 @@ export function SettingsAdminsCard({ admins, loading, onAdd, onUpdate, onRevoke 
                       title="Modifier"
                       onClick={() => setEditAdmin(admin)}
                     >
-                      <AppIcon icon={Pencil} size={14} color="#2563EB" />
+                      <AppIcon icon={Pencil} size={14} color="#1A5FB4" />
                     </button>
                     <button
                       type="button"

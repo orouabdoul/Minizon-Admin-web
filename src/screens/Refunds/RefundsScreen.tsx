@@ -9,8 +9,8 @@ import type { RefundMethod, RefundStatus } from '../../models/refund.model';
 
 const STATUS_CFG: Record<RefundStatus, { label: string; color: string; bg: string; icon: typeof Clock }> = {
   en_attente: { label: 'En attente',  color: '#D97706', bg: '#FEF3C7', icon: Clock        },
-  approuvé:   { label: 'Approuvé',    color: '#2563EB', bg: '#DBEAFE', icon: RefreshCw    },
-  remboursé:  { label: 'Remboursé',   color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
+  approuvé:   { label: 'Approuvé',    color: '#1A5FB4', bg: '#D6E8F7', icon: RefreshCw    },
+  remboursé:  { label: 'Remboursé',   color: '#1A5FB4', bg: '#D6E8F7', icon: CheckCircle  },
   rejeté:     { label: 'Rejeté',      color: '#E53935', bg: '#FEE2E2', icon: XCircle      },
 };
 
@@ -49,21 +49,21 @@ function ApproveModal({
           <div style={{ background: '#F0FDF4', borderRadius: 10, padding: 14, marginBottom: 16, border: '1px solid #BBF7D0' }}>
             <div style={{ fontSize: 12, color: '#6B7280', marginBottom: 4 }}>Passager à rembourser</div>
             <div style={{ fontSize: 15, fontWeight: 700, color: '#111827' }}>{name}</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: '#7C3AED', marginTop: 4 }}>{fmt(amount)}</div>
+            <div style={{ fontSize: 20, fontWeight: 800, color: '#1A5FB4', marginTop: 4 }}>{fmt(amount)}</div>
           </div>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#374151', marginBottom: 4 }}>Méthode de remboursement</span>
             {METHODS.map((m) => (
-              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: `2px solid ${method === m ? '#7C3AED' : '#E5E7EB'}`, cursor: 'pointer', background: method === m ? '#F5F3FF' : '#fff' }}>
-                <input type="radio" name="method" value={m} checked={method === m} onChange={() => setMethod(m)} style={{ accentColor: '#7C3AED' }} />
-                <span style={{ fontSize: 13, fontWeight: 600, color: method === m ? '#7C3AED' : '#374151' }}>{m}</span>
+              <label key={m} style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '10px 12px', borderRadius: 8, border: `2px solid ${method === m ? '#1A5FB4' : '#E5E7EB'}`, cursor: 'pointer', background: method === m ? '#EBF3FB' : '#fff' }}>
+                <input type="radio" name="method" value={m} checked={method === m} onChange={() => setMethod(m)} style={{ accentColor: '#1A5FB4' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: method === m ? '#1A5FB4' : '#374151' }}>{m}</span>
               </label>
             ))}
           </label>
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Annuler</button>
-          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#7C3AED', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Approuver</button>
+          <button type="button" onClick={() => onConfirm(method)} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1A5FB4', fontSize: 13, fontWeight: 600, color: '#fff', cursor: 'pointer' }}>Approuver</button>
         </div>
       </div>
     </div>
@@ -85,7 +85,7 @@ function ConfirmDoneModal({
         </div>
         <div style={{ padding: 20 }}>
           <div style={{ fontSize: 13, color: '#374151', marginBottom: 12 }}>
-            Confirmez que <strong>{name}</strong> a bien reçu <strong style={{ color: '#7C3AED' }}>{fmt(amount)}</strong>.
+            Confirmez que <strong>{name}</strong> a bien reçu <strong style={{ color: '#1A5FB4' }}>{fmt(amount)}</strong>.
           </div>
           <label style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontSize: 12, fontWeight: 600, color: '#374151' }}>Référence de transaction</span>
@@ -100,7 +100,7 @@ function ConfirmDoneModal({
         </div>
         <div style={{ padding: '14px 20px', borderTop: '1px solid #F3F4F6', display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
           <button type="button" onClick={onClose} style={{ padding: '8px 20px', borderRadius: 8, border: '1.5px solid #E5E7EB', background: '#fff', fontSize: 13, fontWeight: 600, color: '#374151', cursor: 'pointer' }}>Annuler</button>
-          <button type="button" disabled={!ref.trim()} onClick={() => onConfirm(ref.trim())} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: ref.trim() ? '#2563EB' : '#E5E7EB', fontSize: 13, fontWeight: 600, color: '#fff', cursor: ref.trim() ? 'pointer' : 'not-allowed' }}>Confirmer</button>
+          <button type="button" disabled={!ref.trim()} onClick={() => onConfirm(ref.trim())} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: ref.trim() ? '#1A5FB4' : '#E5E7EB', fontSize: 13, fontWeight: 600, color: '#fff', cursor: ref.trim() ? 'pointer' : 'not-allowed' }}>Confirmer</button>
         </div>
       </div>
     </div>
@@ -129,8 +129,8 @@ export function RefundsScreen() {
         {[
           { label: 'Demandes en attente', value: String(summary.totalPending),             color: '#D97706', bg: '#FEF3C7', icon: Clock        },
           { label: 'Montant en attente',  value: fmt(summary.pendingAmount),                color: '#D97706', bg: '#FEF3C7', icon: AlertCircle  },
-          { label: 'Remboursements faits',value: String(summary.totalRefunded),             color: '#7C3AED', bg: '#EDE9FE', icon: CheckCircle  },
-          { label: 'Total remboursé',     value: fmt(summary.refundedAmount),               color: '#7C3AED', bg: '#EDE9FE', icon: RefreshCw    },
+          { label: 'Remboursements faits',value: String(summary.totalRefunded),             color: '#1A5FB4', bg: '#D6E8F7', icon: CheckCircle  },
+          { label: 'Total remboursé',     value: fmt(summary.refundedAmount),               color: '#1A5FB4', bg: '#D6E8F7', icon: RefreshCw    },
         ].map((k) => (
           <div key={k.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '14px 16px', background: '#fff', borderRadius: 12, outline: '1px solid #F3F4F6' }}>
             <div style={{ width: 38, height: 38, borderRadius: 10, background: k.bg, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
@@ -175,7 +175,7 @@ export function RefundsScreen() {
         </div>
 
         {actionMsg && (
-          <div style={{ padding: '8px 16px', background: '#DBEAFE', borderTop: '1px solid #BFDBFE', fontSize: 12, fontWeight: 600, color: '#1D4ED8' }}>
+          <div style={{ padding: '8px 16px', background: '#D6E8F7', borderTop: '1px solid #B3D4F0', fontSize: 12, fontWeight: 600, color: '#0F4A9E' }}>
             ℹ️ {actionMsg}
           </div>
         )}
@@ -215,7 +215,7 @@ export function RefundsScreen() {
 
               {/* Trajet */}
               <div>
-                <div style={{ fontSize: 12, fontWeight: 700, color: '#2563EB', fontFamily: 'monospace' }}>{r.tripId}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: '#1A5FB4', fontFamily: 'monospace' }}>{r.tripId}</div>
                 <div style={{ fontSize: 11, color: '#9CA3AF' }}>{r.driverName}</div>
               </div>
 
@@ -229,7 +229,7 @@ export function RefundsScreen() {
 
               {/* Montant */}
               <div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: '#7C3AED' }}>{fmt(r.refundAmount)}</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: '#1A5FB4' }}>{fmt(r.refundAmount)}</div>
                 {r.tripAmount !== r.refundAmount && (
                   <div style={{ fontSize: 11, color: '#9CA3AF' }}>sur {fmt(r.tripAmount)}</div>
                 )}
@@ -259,7 +259,7 @@ export function RefundsScreen() {
                         type="button"
                         disabled={isProcessing}
                         onClick={() => setApproveFor(r.id)}
-                        style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#7C3AED', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                        style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#1A5FB4', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
                       >
                         {isProcessing ? <AppIcon icon={Loader} size={11} color="#fff" /> : null}
                         ✓ Approuver
@@ -278,7 +278,7 @@ export function RefundsScreen() {
                     <button
                       type="button"
                       onClick={() => setDoneFor(r.id)}
-                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#2563EB', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}
+                      style={{ padding: '4px 10px', borderRadius: 6, border: 'none', background: '#1A5FB4', fontSize: 11, fontWeight: 700, color: '#fff', cursor: 'pointer' }}
                     >
                       Confirmer envoi
                     </button>

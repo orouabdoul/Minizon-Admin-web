@@ -16,7 +16,7 @@ function DriverAvatar({ src, name }: { src: string; name: string }) {
   const initials = name.split(' ').slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('');
   if (!src) {
     return (
-      <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#2563EB', color: '#fff', fontWeight: 700, fontSize: 11 }}>
+      <div style={{ width: 32, height: 32, borderRadius: '50%', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#1A5FB4', color: '#fff', fontWeight: 700, fontSize: 11 }}>
         {initials}
       </div>
     );
@@ -88,7 +88,7 @@ export function ReportsScreen() {
             type="button"
             onClick={() => window.print()}
             disabled={!data}
-            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none', background: !data ? '#9CA3AF' : '#2563EB', fontSize: 12, fontWeight: 600, color: '#fff', cursor: !data ? 'not-allowed' : 'pointer', opacity: !data ? 0.5 : 1 }}
+            style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '7px 14px', borderRadius: 8, border: 'none', background: !data ? '#9CA3AF' : '#1A5FB4', fontSize: 12, fontWeight: 600, color: '#fff', cursor: !data ? 'not-allowed' : 'pointer', opacity: !data ? 0.5 : 1 }}
           >
             <AppIcon icon={Download} size={13} color="#fff" />
             PDF
@@ -98,7 +98,7 @@ export function ReportsScreen() {
 
       {/* Export / info message */}
       {exportMsg && (
-        <div style={{ padding: '10px 16px', background: '#DBEAFE', border: '1px solid #BFDBFE', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#1D4ED8', marginBottom: 16 }}>
+        <div style={{ padding: '10px 16px', background: '#D6E8F7', border: '1px solid #B3D4F0', borderRadius: 10, fontSize: 13, fontWeight: 600, color: '#0F4A9E', marginBottom: 16 }}>
           ℹ️ {exportMsg}
         </div>
       )}
@@ -148,7 +148,7 @@ export function ReportsScreen() {
           <button
             type="button"
             onClick={() => setPeriod(period)}
-            style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#2563EB', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
+            style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1A5FB4', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}
           >
             Réessayer
           </button>
@@ -170,8 +170,8 @@ export function ReportsScreen() {
                   {kpi.value}
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <AppIcon icon={kpi.up ? TrendingUp : TrendingDown} size={13} color={kpi.up ? '#7C3AED' : '#E53935'} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: kpi.up ? '#7C3AED' : '#E53935' }}>{kpi.trend}</span>
+                  <AppIcon icon={kpi.up ? TrendingUp : TrendingDown} size={13} color={kpi.up ? '#1A5FB4' : '#E53935'} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: kpi.up ? '#1A5FB4' : '#E53935' }}>{kpi.trend}</span>
                   <span style={{ fontSize: 11, color: '#9CA3AF' }}>vs période préc.</span>
                 </div>
               </div>
@@ -201,7 +201,7 @@ export function ReportsScreen() {
                         <div style={{ fontSize: 9, color: '#9CA3AF', fontWeight: 600 }}>{bar.trips}</div>
                         <div
                           title={`${bar.revenue.toLocaleString('fr-FR')} FCFA — ${bar.trips} trajets`}
-                          style={{ width: '100%', height: `${Math.max(pct, 2)}%`, background: 'linear-gradient(to top, #2563EB, #60A5FA)', borderRadius: '4px 4px 0 0', cursor: 'default', transition: 'height 0.3s ease' }}
+                          style={{ width: '100%', height: `${Math.max(pct, 2)}%`, background: 'linear-gradient(to top, #1A5FB4, #5B9BD5)', borderRadius: '4px 4px 0 0', cursor: 'default', transition: 'height 0.3s ease' }}
                         />
                         <div style={{ fontSize: 11, color: '#6B7280', fontWeight: 600 }}>{bar.label}</div>
                       </div>
@@ -212,7 +212,7 @@ export function ReportsScreen() {
 
               <div style={{ display: 'flex', gap: 16, justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
-                  <div style={{ width: 10, height: 10, borderRadius: 2, background: '#2563EB' }} />
+                  <div style={{ width: 10, height: 10, borderRadius: 2, background: '#1A5FB4' }} />
                   <span style={{ fontSize: 11, color: '#6B7280' }}>Revenus</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -242,7 +242,7 @@ export function ReportsScreen() {
                           </span>
                         </div>
                       </div>
-                      <div style={{ fontSize: 12, fontWeight: 700, color: '#7C3AED', flexShrink: 0 }}>{d.revenue}</div>
+                      <div style={{ fontSize: 12, fontWeight: 700, color: '#1A5FB4', flexShrink: 0 }}>{d.revenue}</div>
                     </div>
                   ))}
                 </div>
@@ -261,10 +261,10 @@ export function ReportsScreen() {
                   <div key={z.zone} className="reports-zone-row" style={{ display: 'grid', gridTemplateColumns: '110px 1fr 80px 50px', alignItems: 'center', gap: 12 }}>
                     <span style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>{z.zone}</span>
                     <div style={{ height: 10, background: '#F3F4F6', borderRadius: 999, overflow: 'hidden' }}>
-                      <div style={{ height: '100%', width: `${z.percent}%`, background: 'linear-gradient(to right, #2563EB, #60A5FA)', borderRadius: 999, transition: 'width 0.4s ease' }} />
+                      <div style={{ height: '100%', width: `${z.percent}%`, background: 'linear-gradient(to right, #1A5FB4, #5B9BD5)', borderRadius: 999, transition: 'width 0.4s ease' }} />
                     </div>
                     <span style={{ fontSize: 12, color: '#6B7280', textAlign: 'right' }}>{z.trips.toLocaleString('fr-FR')} trajets</span>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: '#2563EB', textAlign: 'right' }}>{z.percent}%</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: '#1A5FB4', textAlign: 'right' }}>{z.percent}%</span>
                   </div>
                 ))}
               </div>

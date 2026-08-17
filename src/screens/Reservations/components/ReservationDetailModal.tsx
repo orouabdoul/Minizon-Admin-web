@@ -21,7 +21,7 @@ const PAYMENT_VARIANT: Record<PaymentStatus, BadgeVariant> = {
 };
 
 const STATUS_ACTIONS: { api: ApiReservationStatus; color: string }[] = [
-  { api: 'accepted',  color: '#7C3AED' },
+  { api: 'accepted',  color: '#1A5FB4' },
   { api: 'rejected',  color: '#E53935' },
   { api: 'pending',   color: '#F4B400' },
   { api: 'cancelled', color: '#6B7280' },
@@ -37,13 +37,13 @@ interface Props {
 
 export function ReservationDetailModal({ reservation: r, onClose, detailLoading, onUpdateStatus, onDelete }: Props) {
   return (
-    <DetailModal title="Détail Réservation" onClose={onClose} accentColor="#7C3AED">
+    <DetailModal title="Détail Réservation" onClose={onClose} accentColor="#1A5FB4">
       {detailLoading && (
         <p style={{ textAlign: 'center', fontSize: 13, color: '#9CA3AF', padding: '8px 0' }}>Chargement…</p>
       )}
 
       {/* Route hero */}
-      <div className="detail-route" style={{ background: 'rgba(124,58,237,0.04)', border: '1px solid rgba(124,58,237,0.15)' }}>
+      <div className="detail-route" style={{ background: 'rgba(26,95,180,0.04)', border: '1px solid rgba(26,95,180,0.15)' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', flex: 1 }}>
           <span style={{ fontSize: 11, color: '#6B7280' }}>Départ</span>
           <span className="detail-route__city">{r.from}</span>
@@ -73,7 +73,7 @@ export function ReservationDetailModal({ reservation: r, onClose, detailLoading,
       {/* Passager */}
       <DetailSection title="Passager">
         <div className="detail-hero" style={{ padding: '10px 0', background: 'transparent' }}>
-          <img src={r.passengerAvatar} alt={r.passengerName} className="detail-hero__avatar" style={{ width: 40, height: 40, borderColor: '#7C3AED' }} />
+          <img src={r.passengerAvatar} alt={r.passengerName} className="detail-hero__avatar" style={{ width: 40, height: 40, borderColor: '#1A5FB4' }} />
           <div>
             <p className="detail-hero__name">{r.passengerName}</p>
             <div className="detail-hero__badge">
