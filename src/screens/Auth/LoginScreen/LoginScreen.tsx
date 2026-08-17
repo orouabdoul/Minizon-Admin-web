@@ -1,14 +1,27 @@
-import { AuthLayout } from '../../../components/Layout/AuthLayout/AuthLayout';
-import { LoginBanner } from './components/LoginBanner';
 import { LoginForm } from './components/LoginForm';
 import { LoginFooter } from './components/LoginFooter';
 
 export function LoginScreen() {
   return (
-    <AuthLayout
-      banner={<LoginBanner />}
-      form={<LoginForm />}
-      footer={<LoginFooter />}
-    />
+    <div style={{
+      minHeight:      '100dvh',
+      display:        'flex',
+      flexDirection:  'column',
+      background:     'var(--color-bg)',
+    }}>
+      {/* Formulaire centré */}
+      <div style={{
+        flex:           1,
+        display:        'flex',
+        alignItems:     'center',
+        justifyContent: 'center',
+        padding:        '24px 16px',
+      }}>
+        <LoginForm />
+      </div>
+
+      {/* Pied de page discret */}
+      <LoginFooter />
+    </div>
   );
 }
