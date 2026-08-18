@@ -1,5 +1,5 @@
 import {
-  Search, Eye, Pencil, Trash2, CheckCircle, XCircle, UserX, UserCheck, UserPlus,
+  Search, Eye, Pencil, Trash2, CheckCircle, XCircle, UserX, UserCheck, UserPlus, Bell,
 } from 'lucide-react';
 import { AppIcon }        from '../../../components/Common/AppIcon';
 import { Badge }          from '../../../components/DataDisplay/Badge/Badge';
@@ -94,7 +94,7 @@ function Pagination({
 
 export function UsersTable() {
   const {
-    users, total, pageSize, currentPage, setCurrentPage,
+    users, total, hiddenCount, actionMsg, pageSize, currentPage, setCurrentPage,
     loading,
     search, setSearch, statusFilter, setStatusFilter,
     roleFilter, setRoleFilter,
@@ -200,6 +200,34 @@ export function UsersTable() {
             Ajouter
           </button>
         </div>
+
+        {/* Confirmation "utilisateur notifié" */}
+        {actionMsg && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '8px 16px', background: '#DCFCE7',
+            borderBottom: '1px solid #BBF7D0',
+            fontSize: 13, color: '#14532D',
+          }}>
+            <AppIcon icon={Bell} size={14} color="#16A34A" />
+            <span>{actionMsg}</span>
+          </div>
+        )}
+
+        {/* Bandeau profils incomplets masqués */}
+        {hiddenCount > 0 && (
+          <div style={{
+            display: 'flex', alignItems: 'center', gap: 8,
+            padding: '8px 16px', background: '#FEF3C7',
+            borderBottom: '1px solid #FDE68A',
+            fontSize: 13, color: '#92400E',
+          }}>
+            <span style={{ fontSize: 15 }}>⚠️</span>
+            <span>
+              <strong>{hiddenCount}</strong> profil{hiddenCount > 1 ? 's' : ''} incomplet{hiddenCount > 1 ? 's' : ''} masqué{hiddenCount > 1 ? 's' : ''} — utilisateurs sans nom ni photo (inscription non finalisée).
+            </span>
+          </div>
+        )}
 
         {/* Table */}
         <Table>

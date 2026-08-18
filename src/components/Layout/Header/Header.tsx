@@ -15,15 +15,20 @@ interface HeaderProps {
 export function Header({ title, onMenuToggle }: HeaderProps) {
   const navigate = useNavigate();
 
-  // ── Unread badge ───────────────────────────────────────────────────────────
+  // ── Unread badge — polls every 30 s ───────────────────────────────────────
   const [unread, setUnread] = useState(0);
   useEffect(() => {
-    notificationService.getMetrics()
-      .then((res) => {
-        const raw = res.data as any;
-        setUnread(raw.body?.unread ?? raw.unread ?? 0);
-      })
-      .catch(() => {});
+    const fetchUnread = () => {
+      notificationService.getMetrics()
+        .then((res) => {
+          const raw = res.data as any;
+          setUnread(raw.body?.unread ?? raw.unread ?? 0);
+        })
+        .catch(() => {});
+    };
+    fetchUnread();
+    const id = setInterval(fetchUnread, 30_000);
+    return () => clearInterval(id);
   }, []);
 
   // ── Search ─────────────────────────────────────────────────────────────────

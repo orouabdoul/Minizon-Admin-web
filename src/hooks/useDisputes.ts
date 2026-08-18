@@ -110,34 +110,43 @@ export function useDisputes() {
   }, []);
 
   // ── Actions ───────────────────────────────────────────
-  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [loadingId,  setLoadingId]  = useState<string | null>(null);
+  const [actionMsg,  setActionMsg]  = useState<string | null>(null);
+
+  const flashMsg = useCallback((msg: string) => {
+    setActionMsg(msg);
+    setTimeout(() => setActionMsg(null), 3500);
+  }, []);
 
   const assign = useCallback(async (id: string) => {
     setLoadingId(id);
     try {
       await disputeService.assign(id);
       patchDispute(id, { status: 'En cours' });
+      flashMsg('✓ Litige pris en charge — le plaignant a été notifié automatiquement.');
     } catch { /* server error */ }
     finally { setLoadingId(null); }
-  }, [patchDispute]);
+  }, [patchDispute, flashMsg]);
 
   const refund = useCallback(async (id: string, notes: string) => {
     setLoadingId(id);
     try {
       await disputeService.refund(id, notes);
       patchDispute(id, { status: 'Résolu' });
+      flashMsg('✓ Remboursement confirmé — le plaignant a été notifié automatiquement.');
     } catch { /* server error */ }
     finally { setLoadingId(null); }
-  }, [patchDispute]);
+  }, [patchDispute, flashMsg]);
 
   const payDriver = useCallback(async (id: string, notes: string) => {
     setLoadingId(id);
     try {
       await disputeService.payDriver(id, notes);
       patchDispute(id, { status: 'Clôturé' });
+      flashMsg('✓ Paiement conducteur confirmé — le plaignant a été notifié automatiquement.');
     } catch { /* server error */ }
     finally { setLoadingId(null); }
-  }, [patchDispute]);
+  }, [patchDispute, flashMsg]);
 
   const tabCounts = {
     all:      metrics?.all      ?? 0,
@@ -162,6 +171,6 @@ export function useDisputes() {
     selectedId, selectedDispute, detailLoading,
     openDispute, closeDetail,
     // actions
-    loadingId, assign, refund, payDriver,
+    loadingId, actionMsg, assign, refund, payDriver,
   };
 }

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Tag, Plus, ToggleLeft, ToggleRight, Trash2, Loader } from 'lucide-react';
+import { Tag, Plus, ToggleLeft, ToggleRight, Trash2, Loader, Bell } from 'lucide-react';
 import { AppIcon }  from '../../../components/Common/AppIcon';
 import { Badge }    from '../../../components/DataDisplay/Badge/Badge';
 import { Table, TableHead, TableBody, TableRow, Th, Td } from '../../../components/DataDisplay/Table/Table';
@@ -15,14 +15,20 @@ export function SettingsPromosCard() {
   const [loading,  setLoading]  = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [form,     setForm]     = useState<CreatePromoPayload>(EMPTY);
-  const [saving,   setSaving]   = useState(false);
-  const [error,    setError]    = useState('');
+  const [saving,    setSaving]   = useState(false);
+  const [error,     setError]    = useState('');
+  const [promoMsg,  setPromoMsg] = useState<string | null>(null);
 
   useEffect(() => {
     pricingService.getPromos()
       .then((r) => setPromos(r.data.body?.promos ?? []))
       .catch(() => {})
       .finally(() => setLoading(false));
+  }, []);
+
+  const flashPromoMsg = useCallback(() => {
+    setPromoMsg('✓ Code promo activé — notification envoyée à tous les utilisateurs.');
+    setTimeout(() => setPromoMsg(null), 3500);
   }, []);
 
   const handleCreate = useCallback(async () => {
@@ -37,6 +43,7 @@ export function SettingsPromosCard() {
       setPromos((prev) => [r.data.body!, ...prev]);
       setForm(EMPTY);
       setShowForm(false);
+      if (form.active) flashPromoMsg();
     } catch {
       setError('Erreur lors de la création. Veuillez réessayer.');
     } finally {
@@ -45,11 +52,15 @@ export function SettingsPromosCard() {
   }, [form]);
 
   const handleToggle = useCallback(async (uuid: string) => {
+    const willActivate = promos.find((p) => p.id === uuid)?.active === false;
     setPromos((prev) => prev.map((p) => p.id === uuid ? { ...p, active: !p.active } : p));
-    try { await pricingService.togglePromo(uuid); } catch {
+    try {
+      await pricingService.togglePromo(uuid);
+      if (willActivate) flashPromoMsg();
+    } catch {
       setPromos((prev) => prev.map((p) => p.id === uuid ? { ...p, active: !p.active } : p));
     }
-  }, []);
+  }, [promos, flashPromoMsg]);
 
   const handleDelete = useCallback(async (uuid: string) => {
     setPromos((prev) => prev.filter((p) => p.id !== uuid));
@@ -63,6 +74,14 @@ export function SettingsPromosCard() {
 
   return (
     <div className="settings-card">
+      {/* Confirmation notification envoyée */}
+      {promoMsg && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '8px 12px', marginBottom: 12, background: '#DCFCE7', border: '1px solid #BBF7D0', borderRadius: 8, fontSize: 12, color: '#14532D' }}>
+          <AppIcon icon={Bell} size={13} color="#16A34A" />
+          <span>{promoMsg}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>

@@ -1,10 +1,12 @@
 import {
   AlertTriangle, UserCheck, CreditCard, AlertCircle, Car,
-  Search, X, Check, Loader2, AlertOctagon, Star, Unlock, RefreshCw, ExternalLink,
+  Search, X, Check, Loader2, AlertOctagon, Star, Unlock, RefreshCw, ExternalLink, ExternalLink as LinkOut,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useNavigate }      from 'react-router-dom';
 import { AppIcon }          from '../../../components/Common/AppIcon';
 import { NOTIF_TYPE_OPTIONS } from '../../../config/constants';
+import { ROUTES }           from '../../../navigation/routes';
 import type {
   Notification, NotifType, NotifPriority, NotifTab, NotifDateGroup,
 } from '../../../models/notification.model';
@@ -76,6 +78,7 @@ export function NotificationsFeed({
   onPaymentView, onPaymentRelease, onPaymentRefund,
   paymentActionState = {},
 }: NotificationsFeedProps) {
+  const navigate = useNavigate();
 
   const groups = DATE_ORDER.map((g) => ({
     label: g,
@@ -319,6 +322,16 @@ export function NotificationsFeed({
                       </span>
                       {n.status === 'Traitée' && (
                         <span className="notif-item__handled-chip">Traitée</span>
+                      )}
+                      {n.disputeId && (
+                        <button
+                          type="button"
+                          onClick={(e) => { e.stopPropagation(); navigate(ROUTES.DISPUTES); }}
+                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, border: 'none', background: '#FEF2F2', color: '#E53935', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                        >
+                          <AppIcon icon={LinkOut} size={11} color="#E53935" />
+                          Voir le litige
+                        </button>
                       )}
                     </div>
                   </div>

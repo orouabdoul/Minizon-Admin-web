@@ -12,6 +12,17 @@ type RoleFilter    = 0 | 2 | 3;
 
 const PAGE_SIZE = 10;
 
+// Un profil est considéré complet s'il a un vrai nom (pas vide, pas un placeholder auto-généré)
+// et un numéro de téléphone. Les comptes fantômes (OTP validé sans profil rempli) sont exclus.
+function isProfileComplete(u: PlatformUser): boolean {
+  const name = (u.name ?? '').trim();
+  if (!name)                         return false;   // nom vide
+  if (/^Utilisateur #/i.test(name))  return false;   // placeholder auto-généré
+  if (/^User #/i.test(name))         return false;   // variante anglaise
+  if (!u.phone || u.phone.trim() === '') return false; // pas de téléphone
+  return true;
+}
+
 function verificationToDriverStatus(v?: string): DriverStatus {
   if (v === 'Vérifié') return 'Vérifié';
   if (v === 'Rejeté')  return 'Rejeté';
@@ -21,6 +32,7 @@ function verificationToDriverStatus(v?: string): DriverStatus {
 export function useUsers() {
   const [users,          setUsers]          = useState<PlatformUser[]>([]);
   const [total,          setTotal]          = useState(0);
+  const [hiddenCount,    setHiddenCount]    = useState(0);
   const [loading,        setLoading]        = useState(false);
   const [search,         setSearchState]    = useState('');
   const [statusFilter,   setStatusState]    = useState<string>('all');
@@ -35,6 +47,7 @@ export function useUsers() {
   const [editingId,      setEditingId]      = useState<string | null>(null);
   const [isAdding,       setIsAdding]       = useState(false);
   const [confirmAction,  setConfirmAction]  = useState<ConfirmAction | null>(null);
+  const [actionMsg,      setActionMsg]      = useState<string | null>(null);
 
   const fetchUsers = useCallback(async (
     page: number,
@@ -49,8 +62,12 @@ export function useUsers() {
         ...(status !== 'all'? { status }          : {}),
         ...(q               ? { search: q }       : {}),
       });
-      setUsers(data.body.data.map(mapApiPlatformUser));
-      setTotal(data.body.total);
+      const all      = data.body.data.map(mapApiPlatformUser);
+      const mapped   = all.filter(isProfileComplete);
+      const excluded = all.length - mapped.length;
+      setUsers(mapped);
+      setHiddenCount(excluded);
+      setTotal(Math.max(0, data.body.total - excluded));
     } catch {
       setUsers([]);
       setTotal(0);
@@ -74,36 +91,47 @@ export function useUsers() {
     setDetailUser((prev) => (prev?.id === id ? { ...prev, ...patch } : prev));
   }, []);
 
+  const flashActionMsg = useCallback((msg: string) => {
+    setActionMsg(msg);
+    setTimeout(() => setActionMsg(null), 3500);
+  }, []);
+
   const withLoading = useCallback(async (
     id: string,
     action: () => Promise<unknown>,
     patch: Partial<PlatformUser>,
+    successMsg?: string,
   ) => {
     setLoadingId(id);
     try {
       await action();
       patchLocal(id, patch);
+      if (successMsg) flashActionMsg(successMsg);
     } catch {
       patchLocal(id, patch);
     } finally {
       setLoadingId(null);
     }
-  }, [patchLocal]);
+  }, [patchLocal, flashActionMsg]);
 
   const approveKyc = useCallback((id: string) =>
-    withLoading(id, () => platformUserService.approveKyc(id), { verification: 'Vérifié' }),
+    withLoading(id, () => platformUserService.approveKyc(id), { verification: 'Vérifié' },
+      '✓ KYC approuvé — l\'utilisateur a été notifié automatiquement.'),
   [withLoading]);
 
   const rejectKyc = useCallback((id: string) =>
-    withLoading(id, () => platformUserService.rejectKyc(id), { verification: 'Rejeté' }),
+    withLoading(id, () => platformUserService.rejectKyc(id), { verification: 'Rejeté' },
+      '✓ KYC rejeté — l\'utilisateur a été notifié automatiquement.'),
   [withLoading]);
 
   const suspend = useCallback((id: string) =>
-    withLoading(id, () => platformUserService.suspend(id), { status: 'Suspendu' }),
+    withLoading(id, () => platformUserService.suspend(id), { status: 'Suspendu' },
+      '✓ Compte suspendu — l\'utilisateur a été notifié automatiquement.'),
   [withLoading]);
 
   const unsuspend = useCallback((id: string) =>
-    withLoading(id, () => platformUserService.unsuspend(id), { status: 'Actif' }),
+    withLoading(id, () => platformUserService.unsuspend(id), { status: 'Actif' },
+      '✓ Compte réactivé — l\'utilisateur a été notifié automatiquement.'),
   [withLoading]);
 
   const deleteUser = useCallback(async (id: string) => {
@@ -218,6 +246,8 @@ export function useUsers() {
   return {
     users,
     total,
+    hiddenCount,
+    actionMsg,
     pageSize: PAGE_SIZE,
     currentPage,
     setCurrentPage,

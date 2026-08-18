@@ -47,6 +47,7 @@ export function usePayouts() {
   const [generating,    setGenerating]    = useState(false);
   const [generateMsg,   setGenerateMsg]   = useState<string | null>(null);
   const [generateError, setGenerateError] = useState<string | null>(null);
+  const [paidMsg,       setPaidMsg]       = useState<string | null>(null);
 
   // ── Load ──────────────────────────────────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -122,6 +123,8 @@ export function usePayouts() {
       if (res.data.body) {
         setAllPayouts((prev) => prev.map((p) => p.id === id ? { ...p, ...res.data.body } : p));
       }
+      setPaidMsg('✓ Virement confirmé — le conducteur a été notifié automatiquement.');
+      setTimeout(() => setPaidMsg(null), 3500);
     } catch {
       // keep optimistic
     }
@@ -190,7 +193,7 @@ export function usePayouts() {
   return {
     payouts, summary, loading, usingMock, fetchError,
     statusFilter, setStatusFilter,
-    processing, exportMsg,
+    processing, exportMsg, paidMsg,
     selected, toggleSelect, selectAll, clearSelection,
     generating, generateMsg, generateError, generatePayouts,
     processPayout, markPaid, retryPayout, batchProcess, exportCsv,

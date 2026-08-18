@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   DollarSign, Download, CheckCircle, Clock, AlertCircle, RefreshCw,
-  Loader, WifiOff, Sparkles, AlertTriangle,
+  Loader, WifiOff, Sparkles, AlertTriangle, Bell,
 } from 'lucide-react';
 import { DashboardLayout } from '../../components/Layout/DashboardLayout/DashboardLayout';
 import { AppIcon }         from '../../components/Common/AppIcon';
@@ -65,7 +65,7 @@ export function PayoutsScreen() {
   const {
     payouts, summary, loading, usingMock,
     statusFilter, setStatusFilter,
-    processing, exportMsg,
+    processing, exportMsg, paidMsg,
     selected, toggleSelect, selectAll, clearSelection,
     generating, generateMsg, generateError, generatePayouts,
     processPayout, markPaid, retryPayout, batchProcess, exportCsv,
@@ -86,6 +86,14 @@ export function PayoutsScreen() {
           <AppIcon icon={WifiOff} size={15} color="#D97706" />
           <span style={{ fontSize: 13, color: '#92400E', flex: 1 }}>Mode démo — API indisponible, données simulées.</span>
           <button type="button" onClick={refresh} style={{ fontSize: 12, fontWeight: 700, color: '#D97706', background: 'none', border: '1.5px solid #FDE68A', borderRadius: 6, padding: '3px 10px', cursor: 'pointer' }}>Réessayer</button>
+        </div>
+      )}
+
+      {/* ── Paid confirmation banner ─────────────────────────────────────────── */}
+      {paidMsg && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10, background: '#DCFCE7', border: '1px solid #BBF7D0', borderRadius: 10, padding: '10px 16px', marginBottom: 14 }}>
+          <AppIcon icon={Bell} size={15} color="#16A34A" />
+          <span style={{ fontSize: 13, color: '#14532D' }}>{paidMsg}</span>
         </div>
       )}
 
