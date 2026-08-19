@@ -39,7 +39,7 @@ export interface Conversation {
   driverStatus?: DriverStatus;
   activeTripId?: string;
   priority?:     ConvPriority;
-  lastMessage:   string;
+  lastMessage:   string | null;
   lastMessageAt: string;
   unreadCount:   number;
   messages?:     ChatMessage[];
