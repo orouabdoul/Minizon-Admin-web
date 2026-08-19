@@ -64,13 +64,11 @@ function normalizeMessage(m: any): ChatMessage {
   if (textContent && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(textContent))
     return { ...base, content: '', attachment: { url: textContent, type: 'image' as AttachmentType } };
 
-  // 6. Backend signalled audio (is_voice_message/message_type) but sent no URL at all.
-  //    This means formatAdminMessage() is not including attachment_path in its output.
-  //    Show a visible placeholder so the bubble doesn't silently disappear.
+  // 6. Backend signalled audio but sent no URL — show placeholder so bubble doesn't silently disappear.
   if (m.is_voice_message || m.message_type === 'audio') {
     // eslint-disable-next-line no-console
-    console.warn('[normalizeMessage] audio message has no URL — backend is missing attachment_path in response. Full message:', JSON.stringify(m));
-    return { ...base, content: '🎤 Message vocal' };
+    if (env.isDev) console.warn('[normalizeMessage] audio message has no URL:', JSON.stringify(m));
+    return { ...base, message_type: 'audio' as const, content: '' };
   }
 
   return base as ChatMessage;

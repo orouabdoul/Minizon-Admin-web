@@ -461,31 +461,55 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
                   </div>
                 ) : (
                   <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
-                    {msg.content && <p className="msg-bubble__text">{msg.content}</p>}
-                    {msg.attachment && (
-                      <div className="msg-bubble__attachment">
-                        {msg.attachment.type === 'audio' ? (
-                          <div style={{ marginTop: msg.content ? 8 : 0 }}>
-                            <VoiceMessage url={msg.attachment.url} isAdmin={isAdmin} />
-                          </div>
-                        ) : msg.attachment.type === 'image' ? (
-                          <img
-                            src={msg.attachment.url}
-                            alt="pièce jointe"
-                            style={{ maxWidth: 220, maxHeight: 160, borderRadius: 8, marginTop: msg.content ? 6 : 0, display: 'block' }}
-                          />
-                        ) : (
-                          <a
-                            href={msg.attachment.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{ fontSize: 12, color: isAdmin ? 'rgba(255,255,255,0.85)' : '#1A5FB4', display: 'flex', alignItems: 'center', gap: 4, marginTop: msg.content ? 6 : 0 }}
-                          >
-                            📄 Télécharger le document
-                          </a>
-                        )}
-                      </div>
-                    )}
+                    {(() => {
+                      // message_type is the primary signal; fall back to attachment.type for legacy messages
+                      const mtype = msg.message_type ??
+                        (msg.is_voice_message ? 'audio' :
+                         msg.attachment?.type === 'audio'    ? 'audio' :
+                         msg.attachment?.type === 'image'    ? 'image' :
+                         msg.attachment?.type === 'document' ? 'document' : 'text');
+
+                      const docLink = (url: string) => (
+                        <a href={url} target="_blank" rel="noopener noreferrer"
+                          style={{ fontSize: 12, color: isAdmin ? 'rgba(255,255,255,0.85)' : '#1A5FB4', display: 'flex', alignItems: 'center', gap: 4 }}>
+                          📄 Télécharger le document
+                        </a>
+                      );
+
+                      switch (mtype) {
+                        case 'audio':
+                          return msg.attachment?.url
+                            ? <VoiceMessage url={msg.attachment.url} isAdmin={isAdmin} />
+                            : <span style={{ fontSize: 13, opacity: 0.7 }}>🎤 Message vocal</span>;
+
+                        case 'image':
+                          return msg.attachment?.url
+                            ? <img src={msg.attachment.url} alt="pièce jointe" style={{ maxWidth: 220, maxHeight: 160, borderRadius: 8, display: 'block' }} />
+                            : null;
+
+                        case 'document':
+                          return msg.attachment?.url ? docLink(msg.attachment.url) : null;
+
+                        case 'mixed':
+                          return (
+                            <>
+                              {msg.content && <p className="msg-bubble__text">{msg.content}</p>}
+                              {msg.attachment?.url && (
+                                <div style={{ marginTop: 6 }}>
+                                  {msg.attachment.type === 'audio'
+                                    ? <VoiceMessage url={msg.attachment.url} isAdmin={isAdmin} />
+                                    : msg.attachment.type === 'image'
+                                      ? <img src={msg.attachment.url} alt="pièce jointe" style={{ maxWidth: 220, maxHeight: 160, borderRadius: 8, display: 'block' }} />
+                                      : docLink(msg.attachment.url)}
+                                </div>
+                              )}
+                            </>
+                          );
+
+                        default: // 'text'
+                          return msg.content ? <p className="msg-bubble__text">{msg.content}</p> : null;
+                      }
+                    })()}
                     {isAdmin && msg.is_edited === true && (
                       <p style={{ fontSize: 10, fontStyle: 'italic', opacity: 0.6, margin: '2px 0 0', lineHeight: 1.2 }}>
                         (modifié)

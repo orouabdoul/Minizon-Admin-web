@@ -1,5 +1,6 @@
 export type DriverStatus     = 'en_ligne' | 'hors_ligne' | 'en_trajet';
 export type AttachmentType   = 'image' | 'document' | 'audio';
+export type MessageType      = 'text' | 'audio' | 'image' | 'document' | 'mixed';
 
 export interface MessageAttachment {
   url:  string;
@@ -14,16 +15,18 @@ export type ConvStatusFilter = 'tous' | 'en_ligne' | 'en_trajet' | 'hors_ligne';
 export type RoleFilter       = 'all' | 'driver' | 'passenger';
 
 export interface ChatMessage {
-  id:              string;
-  conversationId?: string;
-  sender:          MessageSender;
-  content:         string | null;   // null for pure audio/image messages
-  sentAt:          string;
-  status:          MessageStatus;
-  is_read?:        boolean;
-  is_edited?:      boolean;
-  edited_at?:      string;
-  attachment?:     MessageAttachment;
+  id:               string;
+  conversationId?:  string;
+  sender:           MessageSender;
+  content:          string | null;   // null for pure audio/image messages
+  sentAt:           string;
+  status:           MessageStatus;
+  message_type?:    MessageType;
+  is_voice_message?: boolean;
+  is_read?:         boolean;
+  is_edited?:       boolean;
+  edited_at?:       string;
+  attachment?:      MessageAttachment;
 }
 
 export interface Conversation {
