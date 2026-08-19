@@ -5,22 +5,50 @@ import type {
   AttachmentType,
 } from '../models/messaging.model';
 import { messagingService } from '../services/messaging_service';
+import { env } from '../config/env';
 
-// Normalize a raw API message into ChatMessage — handles multiple backend field conventions
+// Resolve a relative storage path to a full URL
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function resolveUrl(path: any): string {
+  if (!path) return '';
+  const s = String(path);
+  if (/^https?:\/\//.test(s)) return s;
+  if (s.startsWith('/')) return `${env.baseUrl}${s}`;
+  return `${env.baseUrl}/${s}`;
+}
+
+// Normalize a raw API message into ChatMessage — handles multiple backend field conventions:
+//   1. Nested attachment object:         { attachment: { url, type } }
+//   2. Flat audio_url:                   { audio_url: '...' }
+//   3. Flat file_url + file_type:        { file_url: '...', file_type: 'audio' }
+//   4. Laravel $fillable flat fields:    { attachment_path: '...', attachment_type: 'audio' }
+//   5. Raw URL in content:               { content: 'https://.../file.webm' }
+// Also normalises content: null → '' so React never renders null as text.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeMessage(m: any): ChatMessage {
-  if (m.attachment) return m as ChatMessage;
-  // audio_url / file_url field names
+  const base = { ...m, content: m.content ?? '' };
+
+  if (m.attachment?.url)
+    return base as ChatMessage;
+
   if (m.audio_url)
-    return { ...m, content: m.content || '', attachment: { url: m.audio_url, type: 'audio' as AttachmentType } };
+    return { ...base, attachment: { url: resolveUrl(m.audio_url), type: 'audio' as AttachmentType } };
+
   if (m.file_url && m.file_type)
-    return { ...m, attachment: { url: m.file_url, type: m.file_type as AttachmentType } };
-  // content is a raw audio URL (no attachment wrapper sent by backend)
-  if (m.content && /\.(mp3|ogg|wav|webm|m4a|aac|mpeg)(\?.*)?$/i.test(m.content))
-    return { ...m, content: '', attachment: { url: m.content, type: 'audio' as AttachmentType } };
-  if (m.content && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(m.content))
-    return { ...m, content: '', attachment: { url: m.content, type: 'image' as AttachmentType } };
-  return m as ChatMessage;
+    return { ...base, attachment: { url: resolveUrl(m.file_url), type: m.file_type as AttachmentType } };
+
+  // Laravel model: attachment_path + attachment_type in $fillable
+  if (m.attachment_path && m.attachment_type)
+    return { ...base, content: m.content ?? '', attachment: { url: resolveUrl(m.attachment_path), type: m.attachment_type as AttachmentType } };
+
+  // Fallback: content is a bare URL pointing to a media file
+  const url = m.content as string | null;
+  if (url && /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(url))
+    return { ...base, content: '', attachment: { url, type: 'audio' as AttachmentType } };
+  if (url && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url))
+    return { ...base, content: '', attachment: { url, type: 'image' as AttachmentType } };
+
+  return base as ChatMessage;
 }
 
 const POLL_MS = 10_000;
@@ -43,7 +71,12 @@ function extractConversations(raw: any): { conversations: Conversation[]; totalU
 function mergeConversations(apiList: Conversation[], prev: Conversation[]): Conversation[] {
   return apiList.map((c) => {
     const cached = prev.find((p) => p.id === c.id);
-    return { ...c, messages: cached?.messages ?? c.messages };
+    return {
+      ...c,
+      // Normalise null lastMessage (audio msgs have no text body)
+      lastMessage: c.lastMessage ?? '',
+      messages:    cached?.messages ?? c.messages,
+    };
   });
 }
 

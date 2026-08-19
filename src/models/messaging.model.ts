@@ -17,7 +17,7 @@ export interface ChatMessage {
   id:              string;
   conversationId?: string;
   sender:          MessageSender;
-  content:         string;
+  content:         string | null;   // null for pure audio/image messages
   sentAt:          string;
   status:          MessageStatus;
   is_read?:        boolean;

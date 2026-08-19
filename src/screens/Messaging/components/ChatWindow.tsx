@@ -508,7 +508,7 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
                       type="button"
                       className="msg-bubble-action-btn"
                       title="Modifier"
-                      onClick={() => startEdit(msg.id, msg.content)}
+                      onClick={() => startEdit(msg.id, msg.content ?? '')}
                     >
                       <AppIcon icon={Pencil} size={11} color="#6B7280" />
                     </button>
