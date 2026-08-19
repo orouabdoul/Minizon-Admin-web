@@ -21,32 +21,44 @@ function resolveUrl(path: any): string {
 //   1. Nested attachment object:         { attachment: { url, type } }
 //   2. Flat audio_url:                   { audio_url: '...' }
 //   3. Flat file_url + file_type:        { file_url: '...', file_type: 'audio' }
-//   4. Laravel $fillable flat fields:    { attachment_path: '...', attachment_type: 'audio' }
+//   4. Laravel $fillable flat fields:    { attachment_path, attachment_type|message_type|is_voice_message }
 //   5. Raw URL in content:               { content: 'https://.../file.webm' }
-// Also normalises content: null → '' so React never renders null as text.
+// Also normalises content: null → '' and handles body/message aliases from different endpoints.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function normalizeMessage(m: any): ChatMessage {
-  const base = { ...m, content: m.content ?? '' };
+  // Backend aliases: content / body / message depending on which endpoint responded
+  const textContent: string = m.content ?? m.body ?? m.message ?? '';
+  const base = { ...m, content: textContent };
 
+  // 1. Already-normalised nested attachment object
   if (m.attachment?.url)
     return base as ChatMessage;
 
+  // 2. Flat audio_url
   if (m.audio_url)
     return { ...base, attachment: { url: resolveUrl(m.audio_url), type: 'audio' as AttachmentType } };
 
+  // 3. Flat file_url + file_type
   if (m.file_url && m.file_type)
     return { ...base, attachment: { url: resolveUrl(m.file_url), type: m.file_type as AttachmentType } };
 
-  // Laravel model: attachment_path + attachment_type in $fillable
-  if (m.attachment_path && m.attachment_type)
-    return { ...base, content: m.content ?? '', attachment: { url: resolveUrl(m.attachment_path), type: m.attachment_type as AttachmentType } };
+  // 4. Laravel $fillable: attachment_path with type from is_voice_message / attachment_type / message_type
+  if (m.attachment_path) {
+    const type: AttachmentType =
+      m.is_voice_message            ? 'audio'    :
+      m.attachment_type             ? (m.attachment_type as AttachmentType) :
+      m.message_type === 'audio'    ? 'audio'    :
+      m.message_type === 'image'    ? 'image'    :
+      m.message_type === 'document' ? 'document' :
+      'document'; // safe fallback — not 'image' to avoid silent render failure on audio
+    return { ...base, content: textContent, attachment: { url: resolveUrl(m.attachment_path), type } };
+  }
 
-  // Fallback: content is a bare URL pointing to a media file
-  const url = m.content as string | null;
-  if (url && /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(url))
-    return { ...base, content: '', attachment: { url, type: 'audio' as AttachmentType } };
-  if (url && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url))
-    return { ...base, content: '', attachment: { url, type: 'image' as AttachmentType } };
+  // 5. Fallback: content is a bare URL pointing to a media file
+  if (textContent && /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(textContent))
+    return { ...base, content: '', attachment: { url: textContent, type: 'audio' as AttachmentType } };
+  if (textContent && /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(textContent))
+    return { ...base, content: '', attachment: { url: textContent, type: 'image' as AttachmentType } };
 
   return base as ChatMessage;
 }
