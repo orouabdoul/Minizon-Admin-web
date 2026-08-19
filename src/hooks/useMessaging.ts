@@ -30,9 +30,13 @@ function normalizeMessage(m: any): ChatMessage {
   const textContent: string = m.content ?? m.body ?? m.message ?? '';
   const base = { ...m, content: textContent };
 
-  // 1. Already-normalised nested attachment object
-  if (m.attachment?.url)
-    return base as ChatMessage;
+  // 1. Nested attachment object — resolve URL in case it's relative, respect is_voice_message for type
+  if (m.attachment?.url) {
+    const type: AttachmentType =
+      (m.is_voice_message || m.message_type === 'audio') ? 'audio' :
+      (m.attachment.type as AttachmentType) ?? 'document';
+    return { ...base, attachment: { url: resolveUrl(m.attachment.url), type } };
+  }
 
   // 2. Flat audio_url
   if (m.audio_url)

@@ -68,12 +68,19 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
         ref={audioRef}
         src={url}
         preload="metadata"
-        onLoadedMetadata={() => audioRef.current && setDuration(audioRef.current.duration)}
+        onLoadedMetadata={() => {
+          const a = audioRef.current;
+          if (a && isFinite(a.duration) && a.duration > 0) setDuration(a.duration);
+        }}
+        onDurationChange={() => {
+          const a = audioRef.current;
+          if (a && isFinite(a.duration) && a.duration > 0) setDuration(a.duration);
+        }}
         onTimeUpdate={() => {
           const a = audioRef.current;
-          if (!a) return;
+          if (!a || !isFinite(a.duration)) return;
           setCurrentTime(a.currentTime);
-          setProgress(a.duration ? (a.currentTime / a.duration) * 100 : 0);
+          setProgress(a.duration > 0 ? (a.currentTime / a.duration) * 100 : 0);
         }}
         onEnded={() => { setPlaying(false); setProgress(0); setCurrentTime(0); }}
       />
@@ -95,7 +102,7 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
           ))}
         </div>
         <span style={{ fontSize: 11, color: timeColor, fontWeight: 500, lineHeight: 1 }}>
-          {currentTime > 0 ? fmt(currentTime) : (duration > 0 ? fmt(duration) : '0:00')}
+          {currentTime > 0 ? fmt(currentTime) : (duration > 0 && isFinite(duration) ? fmt(duration) : '0:00')}
         </span>
       </div>
 
