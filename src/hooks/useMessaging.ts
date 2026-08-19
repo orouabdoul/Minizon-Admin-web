@@ -209,12 +209,26 @@ export function useMessaging() {
       setConversations((prev) => prev.map((c) => {
         if (c.id !== id) return c;
         const prevMessages = c.messages ?? [];
-        // For each API message: if it has no URL but we have a cached version with a blob URL,
-        // keep the blob — avoids erasing an in-memory audio that the backend response omitted
         const merged = apiMessages.map((apiMsg) => {
+          // API gave a real URL — use it
           if (apiMsg.attachment?.url) return apiMsg;
-          const cached = prevMessages.find((p) => p.id === apiMsg.id);
-          return cached?.attachment?.url ? cached : apiMsg;
+
+          // Match by exact ID first (temp ID already updated to real ID)
+          const cachedById = prevMessages.find((p) => p.id === apiMsg.id);
+          if (cachedById?.attachment?.url) return { ...apiMsg, attachment: cachedById.attachment };
+
+          // Fallback: match by sentAt proximity for admin audio (handles temp-ID case
+          // where realMsg was null and the ID was never upgraded)
+          if (apiMsg.sender === 'admin' && (apiMsg.message_type === 'audio' || apiMsg.is_voice_message)) {
+            const apiTime = new Date(apiMsg.sentAt).getTime();
+            const cachedByTime = prevMessages.find((p) => {
+              if (!p.attachment?.url?.startsWith('blob:')) return false;
+              return Math.abs(new Date(p.sentAt).getTime() - apiTime) < 30_000;
+            });
+            if (cachedByTime) return { ...apiMsg, attachment: cachedByTime.attachment };
+          }
+
+          return apiMsg;
         });
         return { ...c, ...conv, messages: merged, unreadCount: 0 };
       }));
