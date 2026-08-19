@@ -204,11 +204,20 @@ export function useMessaging() {
       const res = await messagingService.openConversation(id);
       const raw  = res.data as any;
       const body = raw?.body ?? raw;
-      const conv     = body?.conversation ?? {};
-      const messages: ChatMessage[] = (body?.messages ?? []).map(normalizeMessage);
-      setConversations((prev) => prev.map((c) =>
-        c.id === id ? { ...c, ...conv, messages, unreadCount: 0 } : c
-      ));
+      const conv         = body?.conversation ?? {};
+      const apiMessages: ChatMessage[] = (body?.messages ?? []).map(normalizeMessage);
+      setConversations((prev) => prev.map((c) => {
+        if (c.id !== id) return c;
+        const prevMessages = c.messages ?? [];
+        // For each API message: if it has no URL but we have a cached version with a blob URL,
+        // keep the blob — avoids erasing an in-memory audio that the backend response omitted
+        const merged = apiMessages.map((apiMsg) => {
+          if (apiMsg.attachment?.url) return apiMsg;
+          const cached = prevMessages.find((p) => p.id === apiMsg.id);
+          return cached?.attachment?.url ? cached : apiMsg;
+        });
+        return { ...c, ...conv, messages: merged, unreadCount: 0 };
+      }));
     } catch { /* keep existing */ }
     finally { setLoadingMessages(false); }
   }, []);
@@ -389,12 +398,21 @@ export function useMessaging() {
       // eslint-disable-next-line no-console
       if (env.isDev) console.log('[sendAudioMessage] raw response:', JSON.stringify(raw));
       if (realMsg) {
-        setConversations((prev) => prev.map((c) =>
-          c.id !== selectedId ? c : {
+        const normalized = normalizeMessage(realMsg);
+        setConversations((prev) => prev.map((c) => {
+          if (c.id !== selectedId) return c;
+          return {
             ...c,
-            messages: (c.messages ?? []).map((m) => m.id === tempId ? normalizeMessage(realMsg) : m),
-          }
-        ));
+            messages: (c.messages ?? []).map((m) => {
+              if (m.id !== tempId) return m;
+              // Backend gave a proper URL — replace optimistic with the real message
+              if (normalized.attachment?.url) return normalized;
+              // No URL in response — keep the blob URL but upgrade to the real ID
+              // so refreshMessages can match it and avoid a duplicate
+              return { ...m, id: normalized.id ?? m.id };
+            }),
+          };
+        }));
       }
     } catch { /* keep optimistic */ }
     finally { setSending(false); }
