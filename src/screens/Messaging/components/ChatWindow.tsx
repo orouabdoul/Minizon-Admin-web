@@ -3,13 +3,26 @@ import { Phone, Send, MessageSquare, ChevronRight, RefreshCw, Pencil, Trash2, Ch
 import { AppIcon } from '../../../components/Common/AppIcon';
 import type { Conversation, DriverStatus } from '../../../models/messaging.model';
 
-// Simulated waveform bar heights (30 bars, 0-100%)
+// ── Audio utilities ──────────────────────────────────────────────────────────
+
+function getSupportedMimeType(): string {
+  const types = ['audio/webm;codecs=opus', 'audio/ogg;codecs=opus', 'audio/mp4'];
+  return types.find((t) => {
+    try { return MediaRecorder.isTypeSupported(t); } catch { return false; }
+  }) ?? 'audio/webm';
+}
+
+// Module-level audio manager — only one VoiceMessage plays at a time
+let _activeAudio:      HTMLAudioElement | null       = null;
+let _activeSetPlaying: ((v: boolean) => void) | null = null;
+
+// ── Waveform bar heights (30 bars) ───────────────────────────────────────────
 const WAVE_BARS = [40,65,80,55,72,90,62,48,78,88,52,68,95,72,58,82,60,76,92,66,52,70,86,60,77,54,82,67,73,44];
 
 function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
-  const [playing, setPlaying]       = useState(false);
-  const [progress, setProgress]     = useState(0);
-  const [duration, setDuration]     = useState(0);
+  const [playing, setPlaying]         = useState(false);
+  const [progress, setProgress]       = useState(0);
+  const [duration, setDuration]       = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const audioRef = useRef<HTMLAudioElement>(null);
 
@@ -18,8 +31,21 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
   const toggle = () => {
     const a = audioRef.current;
     if (!a) return;
-    if (playing) { a.pause(); setPlaying(false); }
-    else { a.play().catch(() => {}); setPlaying(true); }
+    if (playing) {
+      a.pause();
+      setPlaying(false);
+      if (_activeAudio === a) { _activeAudio = null; _activeSetPlaying = null; }
+    } else {
+      // Stop whatever is currently playing
+      if (_activeAudio && _activeAudio !== a) {
+        _activeAudio.pause();
+        _activeSetPlaying?.(false);
+      }
+      a.play().catch(() => {});
+      setPlaying(true);
+      _activeAudio      = a;
+      _activeSetPlaying = setPlaying;
+    }
   };
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -114,7 +140,7 @@ interface Props {
   sending:         boolean;
   loadingMessages: boolean;
   onSend:          (content: string) => void;
-  onSendAudio:     (blob: Blob) => void;
+  onSendAudio:     (blob: Blob, mimeType?: string) => void;
   onRefresh:       (id: string) => void;
   onEdit:          (msgId: string, content: string) => void;
   onDelete:        (msgId: string) => void;
@@ -132,41 +158,54 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
   const [recordSecs, setRecordSecs]     = useState(0);
   const [audioBlob, setAudioBlob]       = useState<Blob | null>(null);
   const [previewUrl, setPreviewUrl]     = useState<string | null>(null);
-  const mediaRecRef  = useRef<MediaRecorder | null>(null);
-  const timerRef     = useRef<ReturnType<typeof setInterval> | null>(null);
-  const chunksRef    = useRef<Blob[]>([]);
+  const mediaRecRef     = useRef<MediaRecorder | null>(null);
+  const timerRef        = useRef<ReturnType<typeof setInterval> | null>(null);
+  const chunksRef       = useRef<Blob[]>([]);
+  const mimeTypeRef     = useRef<string>('audio/webm');
+  // Touch hold-to-record refs
+  const touchStartXRef    = useRef<number>(0);
+  const touchCancelledRef = useRef<boolean>(false);
+  const autoSendRef       = useRef<boolean>(false);
 
   const fmtRec = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mr = new MediaRecorder(stream);
+      const stream   = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mimeType = getSupportedMimeType();
+      mimeTypeRef.current = mimeType;
+      const mr = new MediaRecorder(stream, { mimeType });
       chunksRef.current = [];
       mr.ondataavailable = (e) => { if (e.data.size > 0) chunksRef.current.push(e.data); };
       mr.onstop = () => {
-        const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
-        const url  = URL.createObjectURL(blob);
-        setAudioBlob(blob);
-        setPreviewUrl(url);
+        const blob = new Blob(chunksRef.current, { type: mimeTypeRef.current });
         stream.getTracks().forEach((t) => t.stop());
+        if (autoSendRef.current) {
+          autoSendRef.current = false;
+          onSendAudio(blob, mimeTypeRef.current);
+        } else {
+          const url = URL.createObjectURL(blob);
+          setAudioBlob(blob);
+          setPreviewUrl(url);
+        }
       };
-      mr.start();
+      mr.start(100);
       mediaRecRef.current = mr;
       setRecording(true);
       setRecordSecs(0);
       timerRef.current = setInterval(() => setRecordSecs((s) => s + 1), 1000);
-    } catch { /* microphone denied */ }
+    } catch { /* microphone denied or unsupported */ }
   };
 
   const stopRecording = () => {
-    mediaRecRef.current?.stop();
+    if (mediaRecRef.current?.state !== 'inactive') mediaRecRef.current?.stop();
     if (timerRef.current) clearInterval(timerRef.current);
     setRecording(false);
   };
 
   const cancelRecording = () => {
-    mediaRecRef.current?.stop();
+    autoSendRef.current = false;
+    if (mediaRecRef.current?.state !== 'inactive') mediaRecRef.current?.stop();
     if (timerRef.current) clearInterval(timerRef.current);
     setRecording(false);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
@@ -177,10 +216,40 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
 
   const handleSendAudio = () => {
     if (!audioBlob) return;
-    onSendAudio(audioBlob);
+    onSendAudio(audioBlob, mimeTypeRef.current);
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setAudioBlob(null);
     setPreviewUrl(null);
+  };
+
+  // ── Touch hold-to-record (mobile / tablet) ───────────────────────────────
+  const handleMicTouchStart = (e: React.TouchEvent) => {
+    e.preventDefault();
+    touchStartXRef.current    = e.touches[0].clientX;
+    touchCancelledRef.current = false;
+    autoSendRef.current       = true;
+    startRecording();
+  };
+
+  const handleMicTouchMove = (e: React.TouchEvent) => {
+    if (!recording || touchCancelledRef.current) return;
+    const dx = e.touches[0].clientX - touchStartXRef.current;
+    if (dx < -80) {
+      touchCancelledRef.current = true;
+      autoSendRef.current = false;
+      cancelRecording();
+    }
+  };
+
+  const handleMicTouchEnd = () => {
+    if (touchCancelledRef.current) return;
+    if (recordSecs < 1) {
+      autoSendRef.current = false;
+      cancelRecording();
+      return;
+    }
+    // onstop will auto-send since autoSendRef.current === true
+    stopRecording();
   };
 
   useEffect(() => () => {
@@ -563,7 +632,12 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
           ) : (
             <button type="button"
               className="msg-chat__send-btn msg-chat__send-btn--mic"
-              onClick={startRecording} title="Enregistrer un message vocal">
+              title="Cliquer pour enregistrer — Maintenir sur mobile pour envoyer directement"
+              onClick={startRecording}
+              onTouchStart={handleMicTouchStart}
+              onTouchMove={handleMicTouchMove}
+              onTouchEnd={handleMicTouchEnd}
+            >
               <AppIcon icon={Mic} size={20} color="#fff" />
             </button>
           )}

@@ -306,7 +306,7 @@ export function useMessaging() {
 
   // ── Send audio message ─────────────────────────────────────────────────────
 
-  const sendAudioMessage = useCallback(async (audioBlob: Blob) => {
+  const sendAudioMessage = useCallback(async (audioBlob: Blob, mimeType?: string) => {
     if (!selectedId) return;
     const tempId  = `temp-audio-${Date.now()}`;
     const tempUrl = URL.createObjectURL(audioBlob);
@@ -326,7 +326,7 @@ export function useMessaging() {
     ));
     setSending(true);
     try {
-      const res     = await messagingService.sendAudioMessage(selectedId, audioBlob);
+      const res     = await messagingService.sendAudioMessage(selectedId, audioBlob, mimeType);
       const raw     = res.data as any;
       const realMsg = raw?.body?.message ?? raw?.message;
       if (realMsg) {

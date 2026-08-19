@@ -42,9 +42,11 @@ export const messagingService = {
     api.delete(`/admin/messaging/messages/${messageUuid}`),
 
   // POST /admin/messaging/conversations/{uuid}/messages  (multipart — audio blob)
-  sendAudioMessage: (uuid: string, audioBlob: Blob) => {
+  sendAudioMessage: (uuid: string, audioBlob: Blob, mimeType?: string) => {
+    const ext  = mimeType?.includes('ogg') ? 'ogg' : mimeType?.includes('mp4') ? 'mp4' : 'webm';
     const form = new FormData();
-    form.append('audio', audioBlob, `voice-${Date.now()}.webm`);
+    // Backend expects field name "attachment" (not "audio")
+    form.append('attachment', audioBlob, `voice_${Date.now()}.${ext}`);
     return api.post(`/admin/messaging/conversations/${uuid}/messages`, form);
   },
 };
