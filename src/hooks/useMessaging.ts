@@ -7,11 +7,17 @@ import type {
 import { messagingService } from '../services/messaging_service';
 import { env } from '../config/env';
 
-// Resolve a relative storage path to a full URL
+// Resolve a storage path to a full URL, replacing localhost origins that the backend
+// emits when APP_URL is not set correctly in the Render environment.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function resolveUrl(path: any): string {
   if (!path) return '';
   const s = String(path);
+  // Backend returned an absolute URL with localhost — replace the origin with the real API host
+  if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/.test(s)) {
+    const pathname = s.replace(/^https?:\/\/[^/]+/, '');
+    return `${env.baseUrl}${pathname}`;
+  }
   if (/^https?:\/\//.test(s)) return s;
   if (s.startsWith('/')) return `${env.baseUrl}${s}`;
   return `${env.baseUrl}/${s}`;
