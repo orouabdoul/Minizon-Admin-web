@@ -36,12 +36,19 @@ function normalizeMessage(m: any): ChatMessage {
   const textContent: string = m.content ?? m.body ?? m.message ?? '';
   const base = { ...m, content: textContent };
 
-  // 1. Nested attachment object — resolve URL in case it's relative, respect is_voice_message for type
+  // 1. Nested attachment object — resolve URL, detect audio by signals OR by URL extension
   if (m.attachment?.url) {
-    const type: AttachmentType =
-      (m.is_voice_message || m.message_type === 'audio') ? 'audio' :
-      (m.attachment.type as AttachmentType) ?? 'document';
-    return { ...base, attachment: { url: resolveUrl(m.attachment.url), type } };
+    const url = resolveUrl(m.attachment.url);
+    const isAudio =
+      m.is_voice_message ||
+      m.message_type === 'audio' ||
+      m.attachment.type === 'audio' ||
+      /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(url);
+    const isImage =
+      m.attachment.type === 'image' ||
+      /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
+    const type: AttachmentType = isAudio ? 'audio' : isImage ? 'image' : 'document';
+    return { ...base, attachment: { url, type } };
   }
 
   // 2. Flat audio_url
@@ -52,16 +59,20 @@ function normalizeMessage(m: any): ChatMessage {
   if (m.file_url && m.file_type)
     return { ...base, attachment: { url: resolveUrl(m.file_url), type: m.file_type as AttachmentType } };
 
-  // 4. Laravel $fillable: attachment_path with type from is_voice_message / attachment_type / message_type
+  // 4. Laravel $fillable: attachment_path — detect type by signals OR by file extension
   if (m.attachment_path) {
-    const type: AttachmentType =
-      m.is_voice_message            ? 'audio'    :
-      m.attachment_type             ? (m.attachment_type as AttachmentType) :
-      m.message_type === 'audio'    ? 'audio'    :
-      m.message_type === 'image'    ? 'image'    :
-      m.message_type === 'document' ? 'document' :
-      'document'; // safe fallback — not 'image' to avoid silent render failure on audio
-    return { ...base, content: textContent, attachment: { url: resolveUrl(m.attachment_path), type } };
+    const url = resolveUrl(m.attachment_path);
+    const isAudio =
+      m.is_voice_message ||
+      m.message_type === 'audio' ||
+      m.attachment_type === 'audio' ||
+      /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(url);
+    const isImage =
+      m.attachment_type === 'image' ||
+      m.message_type === 'image' ||
+      /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(url);
+    const type: AttachmentType = isAudio ? 'audio' : isImage ? 'image' : 'document';
+    return { ...base, content: textContent, attachment: { url, type } };
   }
 
   // 5. Fallback: content is a bare URL pointing to a media file

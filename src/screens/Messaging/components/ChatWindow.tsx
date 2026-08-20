@@ -462,12 +462,14 @@ export function ChatWindow({ conversation, sending, loadingMessages, onSend, onS
                 ) : (
                   <div className={`msg-bubble${isAdmin ? ' msg-bubble--admin' : ' msg-bubble--user'}`}>
                     {(() => {
-                      // message_type is the primary signal; fall back to attachment.type for legacy messages
+                      // Determine type using all available signals + URL extension as last resort
+                      const attachUrl = msg.attachment?.url ?? '';
+                      const isAudioByUrl = /\.(mp3|ogg|wav|webm|m4a|aac|mpeg|mp4)(\?.*)?$/i.test(attachUrl);
+                      const isImageByUrl = /\.(jpg|jpeg|png|gif|webp)(\?.*)?$/i.test(attachUrl);
                       const mtype = msg.message_type ??
-                        (msg.is_voice_message ? 'audio' :
-                         msg.attachment?.type === 'audio'    ? 'audio' :
-                         msg.attachment?.type === 'image'    ? 'image' :
-                         msg.attachment?.type === 'document' ? 'document' : 'text');
+                        (msg.is_voice_message || msg.attachment?.type === 'audio' || isAudioByUrl ? 'audio' :
+                         msg.attachment?.type === 'image'    || isImageByUrl                      ? 'image' :
+                         msg.attachment?.type === 'document'                                      ? 'document' : 'text');
 
                       const docLink = (url: string) => (
                         <a href={url} target="_blank" rel="noopener noreferrer"
