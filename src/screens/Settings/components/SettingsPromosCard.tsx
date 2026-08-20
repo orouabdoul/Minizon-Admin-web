@@ -10,6 +10,21 @@ const EMPTY: CreatePromoPayload = {
   code: '', discount: 10, description: '', expires_at: '', usage_limit: 100, active: true,
 };
 
+// Backend may return snake_case or camelCase depending on the endpoint version
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function normalizePromo(p: any): PromoCode {
+  return {
+    id:          p.id         ?? p.uuid         ?? '',
+    code:        p.code       ?? '',
+    discount:    p.discount   ?? 0,
+    description: p.description ?? '',
+    expiresAt:   p.expiresAt  ?? p.expires_at   ?? '',
+    usageCount:  p.usageCount ?? p.usage_count  ?? 0,
+    usageLimit:  p.usageLimit ?? p.usage_limit  ?? 0,
+    active:      p.active     ?? false,
+  };
+}
+
 export function SettingsPromosCard() {
   const [promos,   setPromos]   = useState<PromoCode[]>([]);
   const [loading,  setLoading]  = useState(true);
@@ -21,7 +36,10 @@ export function SettingsPromosCard() {
 
   useEffect(() => {
     pricingService.getPromos()
-      .then((r) => setPromos(r.data.body?.promos ?? []))
+      .then((r) => {
+        const raw = r.data?.body?.promos ?? (r.data as any)?.promos ?? [];
+        setPromos(raw.map(normalizePromo));
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -40,7 +58,8 @@ export function SettingsPromosCard() {
     setError('');
     try {
       const r = await pricingService.createPromo(form);
-      setPromos((prev) => [r.data.body!, ...prev]);
+      const created = r.data?.body ?? (r.data as any);
+      setPromos((prev) => [normalizePromo(created), ...prev]);
       setForm(EMPTY);
       setShowForm(false);
       if (form.active) flashPromoMsg();
@@ -65,7 +84,10 @@ export function SettingsPromosCard() {
   const handleDelete = useCallback(async (uuid: string) => {
     setPromos((prev) => prev.filter((p) => p.id !== uuid));
     try { await pricingService.deletePromo(uuid); } catch {
-      pricingService.getPromos().then((r) => setPromos(r.data.body?.promos ?? [])).catch(() => {});
+      pricingService.getPromos().then((r) => {
+        const raw = r.data?.body?.promos ?? (r.data as any)?.promos ?? [];
+        setPromos(raw.map(normalizePromo));
+      }).catch(() => {});
     }
   }, []);
 
