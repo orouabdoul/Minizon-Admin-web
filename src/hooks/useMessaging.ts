@@ -221,33 +221,68 @@ export function useMessaging() {
       const res = await messagingService.openConversation(id);
       const raw  = res.data as any;
       const body = raw?.body ?? raw;
-      const conv         = body?.conversation ?? {};
+      const convMeta     = body?.conversation ?? {};
       const apiMessages: ChatMessage[] = (body?.messages ?? []).map(normalizeMessage);
+
       setConversations((prev) => prev.map((c) => {
         if (c.id !== id) return c;
         const prevMessages = c.messages ?? [];
+
+        // Track which blob URLs are already represented in the merged list
+        // so we can avoid duplicates when appending orphaned blobs below.
+        const usedBlobUrls = new Set<string>();
+
         const merged = apiMessages.map((apiMsg) => {
-          // API gave a real URL — use it
-          if (apiMsg.attachment?.url) return apiMsg;
+          if (apiMsg.attachment?.url) {
+            // Real URL present — mark any matching prev blob as consumed
+            const t = new Date(apiMsg.sentAt).getTime();
+            for (const p of prevMessages) {
+              if (p.attachment?.url?.startsWith('blob:') &&
+                  (p.id === apiMsg.id || Math.abs(new Date(p.sentAt).getTime() - t) < 30_000)) {
+                usedBlobUrls.add(p.attachment.url);
+              }
+            }
+            return apiMsg;
+          }
 
-          // Match by exact ID first (temp ID already updated to real ID)
-          const cachedById = prevMessages.find((p) => p.id === apiMsg.id);
-          if (cachedById?.attachment?.url) return { ...apiMsg, attachment: cachedById.attachment };
+          // No real URL — recover blob from cache by ID
+          const byId = prevMessages.find((p) => p.id === apiMsg.id);
+          if (byId?.attachment?.url) {
+            usedBlobUrls.add(byId.attachment.url);
+            return { ...apiMsg, attachment: byId.attachment };
+          }
 
-          // Fallback: match by sentAt proximity for admin audio (handles temp-ID case
-          // where realMsg was null and the ID was never upgraded)
-          if (apiMsg.sender === 'admin' && (apiMsg.message_type === 'audio' || apiMsg.is_voice_message)) {
-            const apiTime = new Date(apiMsg.sentAt).getTime();
-            const cachedByTime = prevMessages.find((p) => {
-              if (!p.attachment?.url?.startsWith('blob:')) return false;
-              return Math.abs(new Date(p.sentAt).getTime() - apiTime) < 30_000;
-            });
-            if (cachedByTime) return { ...apiMsg, attachment: cachedByTime.attachment };
+          // Recover blob by sentAt proximity (handles temp-ID case)
+          if (apiMsg.sender === 'admin') {
+            const t = new Date(apiMsg.sentAt).getTime();
+            const byTime = prevMessages.find(
+              (p) => p.attachment?.url?.startsWith('blob:') &&
+                     Math.abs(new Date(p.sentAt).getTime() - t) < 30_000
+            );
+            if (byTime) {
+              usedBlobUrls.add(byTime.attachment!.url);
+              return { ...apiMsg, attachment: byTime.attachment };
+            }
           }
 
           return apiMsg;
         });
-        return { ...c, ...conv, messages: merged, unreadCount: 0 };
+
+        // Append any blob-URL message not yet in the API list.
+        // This covers two cases:
+        //   • upload still in progress when refreshMessages fired (race condition)
+        //   • upload failed silently — keep audio visible so user can see it
+        const orphans = prevMessages.filter(
+          (p) => p.attachment?.url?.startsWith('blob:') && !usedBlobUrls.has(p.attachment.url)
+        );
+
+        const messages = orphans.length > 0
+          ? [...merged, ...orphans].sort(
+              (a, b) => new Date(a.sentAt).getTime() - new Date(b.sentAt).getTime()
+            )
+          : merged;
+
+        return { ...c, ...convMeta, messages, unreadCount: 0 };
       }));
     } catch { /* keep existing */ }
     finally { setLoadingMessages(false); }
@@ -439,8 +474,10 @@ export function useMessaging() {
               // Backend gave a proper URL — replace optimistic with the real message
               if (normalized.attachment?.url) return normalized;
               // No URL in response — keep the blob URL but upgrade to the real ID
-              // so refreshMessages can match it and avoid a duplicate
-              return { ...m, id: normalized.id ?? m.id };
+              // so refreshMessages can match it and avoid a duplicate.
+              // Backend may use 'uuid' instead of 'id' as the primary key field.
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              return { ...m, id: normalized.id ?? (realMsg as any).uuid ?? m.id };
             }),
           };
         }));

@@ -47,6 +47,11 @@ export const messagingService = {
     const form = new FormData();
     // Backend expects field name "attachment" (not "audio")
     form.append('attachment', audioBlob, `voice_${Date.now()}.${ext}`);
-    return api.post(`/admin/messaging/conversations/${uuid}/messages`, form);
+    // Explicitly unset Content-Type so the browser can set multipart/form-data with the boundary.
+    // Without this, the global 'application/json' default header prevents the server from
+    // parsing the multipart body, causing attachment to be null on the backend.
+    return api.post(`/admin/messaging/conversations/${uuid}/messages`, form, {
+      headers: { 'Content-Type': undefined },
+    });
   },
 };
