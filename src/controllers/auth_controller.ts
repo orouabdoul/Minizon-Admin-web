@@ -16,13 +16,29 @@ export function useAuthController() {
     setState((s) => ({ ...s, loading: true, error: null }));
     try {
       const { data } = await authService.login(credentials);
-      storageService.set('access_token', data.body.token);
-      setState({ isAuthenticated: true, user: data.body.user, loading: false, error: null });
+      // Handle multiple response envelope formats from the backend
+      const raw   = data as any;
+      const token = raw?.body?.token ?? raw?.token ?? raw?.access_token ?? raw?.data?.token;
+      const user  = raw?.body?.user  ?? raw?.user  ?? raw?.data?.user  ?? null;
+      if (!token) throw new Error('Token manquant dans la réponse du serveur');
+      storageService.set('access_token', token);
+      setState({ isAuthenticated: true, user, loading: false, error: null });
       return true;
     } catch (err) {
-      const message = axios.isAxiosError(err)
-        ? (err.response?.data?.message ?? 'Erreur de connexion')
-        : 'Erreur de connexion';
+      let message = 'Erreur de connexion';
+      if (axios.isAxiosError(err)) {
+        if (err.code === 'ECONNABORTED' || err.message?.includes('timeout')) {
+          message = 'Le serveur met du temps à répondre (démarrage Render). Réessayez dans 30 secondes.';
+        } else if (err.response?.status === 401 || err.response?.status === 403) {
+          message = err.response?.data?.message ?? 'Email ou mot de passe incorrect';
+        } else if (err.response?.status === 422) {
+          message = err.response?.data?.message ?? 'Données invalides';
+        } else if (err.response?.data?.message) {
+          message = err.response.data.message;
+        }
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       setState({ isAuthenticated: false, user: null, loading: false, error: message });
       return false;
     }
