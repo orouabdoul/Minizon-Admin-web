@@ -24,13 +24,14 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
   const [progress, setProgress]       = useState(0);
   const [duration, setDuration]       = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
+  const [loadError, setLoadError]     = useState(false);
   const audioRef = useRef<HTMLAudioElement>(null);
 
   const fmt = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`;
 
   const toggle = () => {
     const a = audioRef.current;
-    if (!a) return;
+    if (!a || loadError) return;
     if (playing) {
       a.pause();
       setPlaying(false);
@@ -50,7 +51,7 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
 
   const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
     const a = audioRef.current;
-    if (!a || !a.duration) return;
+    if (!a || !a.duration || loadError) return;
     const rect = e.currentTarget.getBoundingClientRect();
     a.currentTime = ((e.clientX - rect.left) / rect.width) * a.duration;
   };
@@ -58,7 +59,9 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
   const accent     = isAdmin ? '#fff' : '#1A5FB4';
   const accentFade = isAdmin ? 'rgba(255,255,255,0.30)' : 'rgba(26,95,180,0.25)';
   const bg         = isAdmin ? 'rgba(255,255,255,0.12)' : 'rgba(26,95,180,0.07)';
-  const btnBg      = isAdmin ? 'rgba(255,255,255,0.90)' : '#1A5FB4';
+  const btnBg      = loadError
+    ? (isAdmin ? 'rgba(255,255,255,0.25)' : 'rgba(156,163,175,0.25)')
+    : (isAdmin ? 'rgba(255,255,255,0.90)' : '#1A5FB4');
   const btnIcon    = isAdmin ? '#1A5FB4' : '#fff';
   const timeColor  = isAdmin ? 'rgba(255,255,255,0.65)' : '#9CA3AF';
 
@@ -69,6 +72,7 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
         src={url}
         preload="metadata"
         onLoadedMetadata={() => {
+          setLoadError(false);
           const a = audioRef.current;
           if (a && isFinite(a.duration) && a.duration > 0) setDuration(a.duration);
         }}
@@ -83,26 +87,37 @@ function VoiceMessage({ url, isAdmin }: { url: string; isAdmin: boolean }) {
           setProgress(a.duration > 0 ? (a.currentTime / a.duration) * 100 : 0);
         }}
         onEnded={() => { setPlaying(false); setProgress(0); setCurrentTime(0); }}
+        onError={() => {
+          setLoadError(true);
+          setPlaying(false);
+          // eslint-disable-next-line no-console
+          console.warn('[VoiceMessage] audio failed to load:', url);
+        }}
       />
 
       {/* Play / Pause button */}
       <button
         type="button"
         onClick={toggle}
-        style={{ width: 38, height: 38, borderRadius: '50%', border: 'none', background: btnBg, cursor: 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        disabled={loadError}
+        style={{ width: 38, height: 38, borderRadius: '50%', border: 'none', background: btnBg, cursor: loadError ? 'not-allowed' : 'pointer', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: loadError ? 0.5 : 1 }}
       >
         <AppIcon icon={playing ? Pause : Play} size={16} color={btnIcon} />
       </button>
 
       {/* Waveform + time */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 5 }}>
-        <div onClick={handleSeek} style={{ display: 'flex', alignItems: 'center', gap: 2, height: 26, cursor: 'pointer' }}>
+        <div onClick={handleSeek} style={{ display: 'flex', alignItems: 'center', gap: 2, height: 26, cursor: loadError ? 'default' : 'pointer', opacity: loadError ? 0.35 : 1 }}>
           {WAVE_BARS.map((h, i) => (
-            <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 2, background: (i / WAVE_BARS.length) * 100 <= progress ? accent : accentFade, transition: 'background 0.08s' }} />
+            <div key={i} style={{ flex: 1, height: `${h}%`, borderRadius: 2, background: (!loadError && (i / WAVE_BARS.length) * 100 <= progress) ? accent : accentFade, transition: 'background 0.08s' }} />
           ))}
         </div>
         <span style={{ fontSize: 11, color: timeColor, fontWeight: 500, lineHeight: 1 }}>
-          {currentTime > 0 ? fmt(currentTime) : (duration > 0 && isFinite(duration) ? fmt(duration) : '0:00')}
+          {loadError
+            ? 'Non disponible'
+            : currentTime > 0
+              ? fmt(currentTime)
+              : (duration > 0 && isFinite(duration) ? fmt(duration) : '0:00')}
         </span>
       </div>
 
