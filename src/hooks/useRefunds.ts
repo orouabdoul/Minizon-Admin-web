@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import axios from 'axios';
 import { refundService } from '../services/refund_service';
 import type { PassengerRefund, RefundStatus, RefundMethod, RefundSummary } from '../models/refund.model';
 
@@ -47,8 +48,22 @@ export function useRefunds() {
       const raw  = res.data as any;
       const list = raw?.body?.refunds ?? raw?.body ?? raw?.refunds ?? raw ?? [];
       setRefunds(Array.isArray(list) ? list.map(normalizeRefund) : []);
-    } catch {
-      setError('Impossible de charger les remboursements. Vérifiez votre connexion.');
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[useRefunds] fetchRefunds error:', err);
+      let msg = 'Impossible de charger les remboursements.';
+      if (axios.isAxiosError(err)) {
+        const status = err.response?.status;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const serverMsg = (err.response?.data as any)?.message ?? (err.response?.data as any)?.body?.message;
+        if (status === 401 || status === 403) msg = `Accès refusé (${status}) — vérifiez votre session.`;
+        else if (status === 404) msg = 'Endpoint introuvable (404) — vérifiez la route backend /admin/refunds.';
+        else if (status === 500) msg = `Erreur serveur (500)${serverMsg ? ` : ${serverMsg}` : ''}.`;
+        else if (status) msg = `Erreur ${status}${serverMsg ? ` : ${serverMsg}` : ''}.`;
+        else if (err.code === 'ECONNABORTED') msg = 'Délai d\'attente dépassé — le serveur ne répond pas.';
+        else msg = `Erreur réseau : ${err.message}`;
+      }
+      setError(msg);
     } finally {
       setLoading(false);
     }
