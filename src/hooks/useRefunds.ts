@@ -57,7 +57,7 @@ export function useRefunds() {
           reason:          'autre' as const,
           requestedAt:     p.createdAt,
           status:          toRefundStatus(p.status, p.canRefund),
-          method:          p.method   || undefined,
+          method:          (p.method || undefined) as PassengerRefund['method'],
           reference:       p.reference || undefined,
         }));
 
