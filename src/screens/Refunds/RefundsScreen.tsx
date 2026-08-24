@@ -111,8 +111,8 @@ function ConfirmDoneModal({
 
 export function RefundsScreen() {
   const {
-    refunds, loading, processing, summary, statusFilter, search, actionMsg,
-    setStatusFilter, setSearch, approve, reject, markDone,
+    refunds, loading, error, processing, summary, statusFilter, search, actionMsg,
+    setStatusFilter, setSearch, approve, reject, markDone, reload,
   } = useRefunds();
 
   const [approveFor, setApproveFor] = useState<string | null>(null);
@@ -194,6 +194,13 @@ export function RefundsScreen() {
 
         {loading ? (
           <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>Chargement…</div>
+        ) : error ? (
+          <div style={{ padding: 40, textAlign: 'center' }}>
+            <div style={{ color: '#E53935', fontSize: 13, fontWeight: 600, marginBottom: 12 }}>{error}</div>
+            <button type="button" onClick={reload} style={{ padding: '8px 20px', borderRadius: 8, border: 'none', background: '#1A5FB4', color: '#fff', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>
+              Réessayer
+            </button>
+          </div>
         ) : refunds.length === 0 ? (
           <div style={{ padding: 40, textAlign: 'center', color: '#9CA3AF' }}>Aucune demande de remboursement</div>
         ) : refunds.map((r, i) => {
