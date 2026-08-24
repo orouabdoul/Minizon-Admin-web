@@ -1,28 +1,20 @@
 import { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
-import { refundService } from '../services/refund_service';
-import type { PassengerRefund, RefundStatus, RefundMethod, RefundSummary } from '../models/refund.model';
+import { paymentService }          from '../services/payment_service';
+import { mapApiPaymentToPayment }   from '../models/payment.model';
+import type { PassengerRefund, RefundStatus, RefundSummary } from '../models/refund.model';
 
-// Backend returns snake_case; normalize to the camelCase model used in the UI
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function normalizeRefund(r: any): PassengerRefund {
-  return {
-    id:              r.id              ?? r.uuid             ?? '',
-    tripId:          r.tripId          ?? r.trip_id          ?? '',
-    passengerName:   r.passengerName   ?? r.passenger_name   ?? '',
-    passengerAvatar: r.passengerAvatar ?? r.passenger_avatar ?? '',
-    passengerPhone:  r.passengerPhone  ?? r.passenger_phone  ?? '',
-    driverName:      r.driverName      ?? r.driver_name      ?? '',
-    tripAmount:      r.tripAmount      ?? r.trip_amount      ?? 0,
-    refundAmount:    r.refundAmount    ?? r.refund_amount     ?? 0,
-    reason:          r.reason          ?? 'autre',
-    reasonDetail:    r.reasonDetail    ?? r.reason_detail    ?? undefined,
-    requestedAt:     r.requestedAt     ?? r.requested_at     ?? '',
-    status:          r.status          ?? 'en_attente',
-    processedAt:     r.processedAt     ?? r.processed_at     ?? undefined,
-    method:          r.method          ?? undefined,
-    reference:       r.reference       ?? undefined,
-  };
+// Payment amounts come as formatted strings ("8 500 FCFA") — extract the integer
+function parseAmount(s: string): number {
+  return parseInt(String(s ?? '0').replace(/[^\d]/g, ''), 10) || 0;
+}
+
+// Map payment status + canRefund flag → RefundStatus used by the UI
+function toRefundStatus(paymentStatus: string, canRefund: boolean): RefundStatus {
+  if (paymentStatus === 'Remboursé') return 'remboursé';
+  if (paymentStatus === 'Échoué')    return 'rejeté';
+  if (canRefund)                     return 'en_attente';
+  return 'en_attente';
 }
 
 export function useRefunds() {
@@ -43,25 +35,47 @@ export function useRefunds() {
     setLoading(true);
     setError(null);
     try {
-      const res = await refundService.getAll();
+      // Fetch all payments — the API doesn't have a dedicated refunds endpoint.
+      // We show only payments that are refundable (canRefund=true) or already refunded.
+      const res = await paymentService.getAll(1, 200);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const raw  = res.data as any;
-      const list = raw?.body?.refunds ?? raw?.body ?? raw?.refunds ?? raw ?? [];
-      setRefunds(Array.isArray(list) ? list.map(normalizeRefund) : []);
+      const list = raw?.body?.data ?? raw?.body ?? raw?.data ?? [];
+
+      const mapped: PassengerRefund[] = (Array.isArray(list) ? list : [])
+        .map(mapApiPaymentToPayment)
+        .filter((p) => p.canRefund || p.status === 'Remboursé')
+        .map((p) => ({
+          id:              p.id,
+          tripId:          p.reservationId,
+          passengerName:   p.passengerName,
+          passengerAvatar: p.passengerAvatar,
+          passengerPhone:  p.passengerPhone,
+          driverName:      p.driverName,
+          tripAmount:      parseAmount(p.amount),
+          refundAmount:    parseAmount(p.amount),
+          reason:          'autre' as const,
+          requestedAt:     p.createdAt,
+          status:          toRefundStatus(p.status, p.canRefund),
+          method:          p.method   || undefined,
+          reference:       p.reference || undefined,
+        }));
+
+      setRefunds(mapped);
     } catch (err) {
       // eslint-disable-next-line no-console
-      console.error('[useRefunds] fetchRefunds error:', err);
+      console.error('[useRefunds] error:', err);
       let msg = 'Impossible de charger les remboursements.';
       if (axios.isAxiosError(err)) {
-        const status = err.response?.status;
+        const status    = err.response?.status;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const serverMsg = (err.response?.data as any)?.message ?? (err.response?.data as any)?.body?.message;
         if (status === 401 || status === 403) msg = `Accès refusé (${status}) — vérifiez votre session.`;
-        else if (status === 404) msg = 'Endpoint introuvable (404) — vérifiez la route backend /admin/refunds.';
-        else if (status === 500) msg = `Erreur serveur (500)${serverMsg ? ` : ${serverMsg}` : ''}.`;
-        else if (status) msg = `Erreur ${status}${serverMsg ? ` : ${serverMsg}` : ''}.`;
-        else if (err.code === 'ECONNABORTED') msg = 'Délai d\'attente dépassé — le serveur ne répond pas.';
-        else msg = `Erreur réseau : ${err.message}`;
+        else if (status === 404)              msg = `Endpoint introuvable (${status}).`;
+        else if (status === 500)              msg = `Erreur serveur (500)${serverMsg ? ` : ${serverMsg}` : ''}.`;
+        else if (status)                      msg = `Erreur ${status}${serverMsg ? ` : ${serverMsg}` : ''}.`;
+        else if (err.code === 'ECONNABORTED') msg = 'Délai dépassé — le serveur ne répond pas.';
+        else                                  msg = `Erreur réseau : ${err.message}`;
       }
       setError(msg);
     } finally {
@@ -71,33 +85,25 @@ export function useRefunds() {
 
   useEffect(() => { fetchRefunds(); }, [fetchRefunds]);
 
-  const approve = useCallback(async (id: string, method: RefundMethod) => {
+  // Single refund action — POST /admin/payments/{id}/refund
+  const doRefund = useCallback(async (id: string) => {
     setProcessing(id);
+    // Optimistic update
     setRefunds((prev) => prev.map((r) =>
-      r.id === id ? { ...r, status: 'approuvé' as const, method } : r
+      r.id === id ? { ...r, status: 'remboursé' as const, processedAt: new Date().toISOString() } : r
     ));
-    try { await refundService.approve(id, method); } catch { /* keep optimistic */ }
-    finally { setProcessing(null); flash('Remboursement approuvé — en attente d\'exécution'); }
-  }, []);
-
-  const reject = useCallback(async (id: string) => {
-    setProcessing(id);
-    setRefunds((prev) => prev.map((r) =>
-      r.id === id ? { ...r, status: 'rejeté' as const, processedAt: new Date().toISOString() } : r
-    ));
-    try { await refundService.reject(id, 'Décision administrative'); } catch { /* keep optimistic */ }
-    finally { setProcessing(null); flash('Demande de remboursement rejetée'); }
-  }, []);
-
-  const markDone = useCallback(async (id: string, reference: string) => {
-    setProcessing(id);
-    setRefunds((prev) => prev.map((r) =>
-      r.id === id
-        ? { ...r, status: 'remboursé' as const, reference, processedAt: new Date().toISOString() }
-        : r
-    ));
-    try { await refundService.markDone(id, reference); } catch { /* keep optimistic */ }
-    finally { setProcessing(null); flash(`Remboursement confirmé · Réf. ${reference}`); }
+    try {
+      await paymentService.refund(id);
+      flash('Remboursement effectué avec succès');
+    } catch {
+      // Rollback on failure
+      setRefunds((prev) => prev.map((r) =>
+        r.id === id ? { ...r, status: 'en_attente' as const, processedAt: undefined } : r
+      ));
+      flash('Erreur lors du remboursement. Veuillez réessayer.');
+    } finally {
+      setProcessing(null);
+    }
   }, []);
 
   const visible = refunds.filter((r) => {
@@ -110,7 +116,7 @@ export function useRefunds() {
     return matchStatus && matchSearch;
   });
 
-  // Summary computed from the full unfiltered list so KPI cards are always accurate
+  // Summary from unfiltered list so KPI cards stay accurate regardless of active filter
   const summary: RefundSummary = {
     totalPending:   refunds.filter((r) => r.status === 'en_attente').length,
     pendingAmount:  refunds.filter((r) => r.status === 'en_attente').reduce((s, r) => s + r.refundAmount, 0),
@@ -121,7 +127,6 @@ export function useRefunds() {
   return {
     refunds: visible, loading, error, processing, summary,
     statusFilter, search, actionMsg,
-    setStatusFilter, setSearch, approve, reject, markDone,
-    reload: fetchRefunds,
+    setStatusFilter, setSearch, doRefund, reload: fetchRefunds,
   };
 }
