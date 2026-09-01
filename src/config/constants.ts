@@ -685,6 +685,8 @@ export const NOTIF_TYPE_OPTIONS = [
   { value: 'payment', label: 'Paiement'       },
   { value: 'dispute', label: 'Litige'         },
   { value: 'driver',  label: 'Conducteur'     },
+  { value: 'vehicle', label: 'Véhicule'       },
+  { value: 'support', label: 'Support'        },
 ] as const;
 
 // ── Notifications page — mock notifications ───────────────

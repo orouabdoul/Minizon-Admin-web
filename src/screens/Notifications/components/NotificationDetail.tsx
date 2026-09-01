@@ -1,12 +1,14 @@
 import {
   AlertTriangle, UserCheck, CreditCard, AlertCircle, Car,
-  CheckCircle, ExternalLink, Bell,
+  CheckCircle, ExternalLink, Bell, Truck, Headphones,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useNavigate }   from 'react-router-dom';
 import { AppIcon }  from '../../../components/Common/AppIcon';
 import { Badge }    from '../../../components/DataDisplay/Badge/Badge';
 import type { BadgeVariant } from '../../../components/DataDisplay/Badge/Badge';
 import type { Notification, NotifType, NotifPriority, NotifStatus } from '../../../models/notification.model';
+import { ROUTES }   from '../../../navigation/routes';
 
 interface NotificationDetailProps {
   notification: Notification | null;
@@ -20,6 +22,8 @@ const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: stri
   payment:        { icon: CreditCard,    color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Paiement'       },
   dispute:        { icon: AlertCircle,   color: '#F4B400', bg: 'rgba(244,180,0,0.10)',   label: 'Litige'         },
   driver:         { icon: Car,           color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  label: 'Conducteur'     },
+  vehicle:        { icon: Truck,         color: '#059669', bg: 'rgba(5,150,105,0.10)',   label: 'Véhicule'       },
+  support:        { icon: Headphones,    color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  label: 'Support'        },
   critical_review:{ icon: AlertCircle,   color: '#DC2626', bg: 'rgba(220,38,38,0.10)',   label: 'Avis critique'  },
 };
 
@@ -45,7 +49,23 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   );
 }
 
+function getNotifRoute(type: NotifType, refEntity?: string): string | null {
+  const hl = refEntity ? `?highlight=${encodeURIComponent(refEntity)}` : '';
+  switch (type) {
+    case 'dispute':  return `${ROUTES.DISPUTES}${hl}`;
+    case 'vehicle':  return `${ROUTES.VEHICLES}${hl}`;
+    case 'payment':  return `${ROUTES.PAYMENTS}${hl}`;
+    case 'user':     return `${ROUTES.USERS}${hl}`;
+    case 'driver':   return `${ROUTES.TRIPS}${hl}`;
+    case 'system':
+    case 'support':  return `${ROUTES.SUPPORT}${hl}`;
+    default:         return null;
+  }
+}
+
 export function NotificationDetail({ notification, loadingId, onHandle }: NotificationDetailProps) {
+  const navigate = useNavigate();
+
   if (!notification) {
     return (
       <div className="notif-detail-panel notif-detail-panel--empty">
@@ -119,12 +139,20 @@ export function NotificationDetail({ notification, loadingId, onHandle }: Notifi
 
       {/* ── Actions ── */}
       <div className="notif-detail__footer">
-        {notification.refEntity && (
-          <button type="button" className="notif-action-btn notif-action-btn--link">
-            <AppIcon icon={ExternalLink} size={14} color="#fff" />
-            {notification.refLabel ?? 'Voir le détail'}
-          </button>
-        )}
+        {notification.refEntity && (() => {
+          const route = getNotifRoute(notification.type, notification.refEntity);
+          if (!route) return null;
+          return (
+            <button
+              type="button"
+              className="notif-action-btn notif-action-btn--link"
+              onClick={() => navigate(route)}
+            >
+              <AppIcon icon={ExternalLink} size={14} color="#fff" />
+              {notification.refLabel ?? 'Voir le détail'}
+            </button>
+          );
+        })()}
         {notification.status !== 'Traitée' && (
           <button
             type="button"

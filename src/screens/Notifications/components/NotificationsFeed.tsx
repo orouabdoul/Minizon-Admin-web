@@ -1,6 +1,7 @@
 import {
   AlertTriangle, UserCheck, CreditCard, AlertCircle, Car,
   Search, X, Check, Loader2, AlertOctagon, Star, Unlock, RefreshCw, ExternalLink, ExternalLink as LinkOut,
+  Truck, Headphones,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useNavigate }      from 'react-router-dom';
@@ -40,6 +41,8 @@ const TYPE_CONFIG: Record<NotifType, { icon: LucideIcon; color: string; bg: stri
   payment:        { icon: CreditCard,    color: '#1A5FB4', bg: 'rgba(26,95,180,0.10)',   label: 'Paiement'        },
   dispute:        { icon: AlertCircle,   color: '#F4B400', bg: 'rgba(244,180,0,0.10)',   label: 'Litige'          },
   driver:         { icon: Car,           color: '#8B5CF6', bg: 'rgba(139,92,246,0.10)',  label: 'Conducteur'      },
+  vehicle:        { icon: Truck,         color: '#059669', bg: 'rgba(5,150,105,0.10)',   label: 'Véhicule'        },
+  support:        { icon: Headphones,    color: '#0EA5E9', bg: 'rgba(14,165,233,0.10)',  label: 'Support'         },
   critical_review:{ icon: AlertOctagon,  color: '#DC2626', bg: 'rgba(220,38,38,0.10)',   label: 'Avis critique'   },
 };
 
@@ -49,6 +52,20 @@ const PRIORITY_BORDER: Record<NotifPriority, string> = {
   Normale: '#1A5FB4',
   Basse:   '#E5E7EB',
 };
+
+function getNotifRoute(type: NotifType, refEntity?: string): string | null {
+  const hl = refEntity ? `?highlight=${encodeURIComponent(refEntity)}` : '';
+  switch (type) {
+    case 'dispute':  return `${ROUTES.DISPUTES}${hl}`;
+    case 'vehicle':  return `${ROUTES.VEHICLES}${hl}`;
+    case 'payment':  return `${ROUTES.PAYMENTS}${hl}`;
+    case 'user':     return `${ROUTES.USERS}${hl}`;
+    case 'driver':   return `${ROUTES.TRIPS}${hl}`;
+    case 'system':
+    case 'support':  return `${ROUTES.SUPPORT}${hl}`;
+    default:         return null;
+  }
+}
 
 const DATE_ORDER: NotifDateGroup[] = ["Aujourd'hui", 'Hier', 'Cette semaine'];
 
@@ -323,16 +340,20 @@ export function NotificationsFeed({
                       {n.status === 'Traitée' && (
                         <span className="notif-item__handled-chip">Traitée</span>
                       )}
-                      {n.disputeId && (
-                        <button
-                          type="button"
-                          onClick={(e) => { e.stopPropagation(); navigate(ROUTES.DISPUTES); }}
-                          style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, border: 'none', background: '#FEF2F2', color: '#E53935', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
-                        >
-                          <AppIcon icon={LinkOut} size={11} color="#E53935" />
-                          Voir le litige
-                        </button>
-                      )}
+                      {n.refEntity && n.refLabel && (() => {
+                        const route = getNotifRoute(n.type, n.refEntity);
+                        if (!route) return null;
+                        return (
+                          <button
+                            type="button"
+                            onClick={(e) => { e.stopPropagation(); navigate(route); onMarkRead(n.id); }}
+                            style={{ display: 'inline-flex', alignItems: 'center', gap: 4, padding: '3px 8px', borderRadius: 6, border: 'none', background: '#EFF6FF', color: '#1A5FB4', fontSize: 11, fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            <AppIcon icon={LinkOut} size={11} color="#1A5FB4" />
+                            {n.refLabel}
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
                 </div>

@@ -1,4 +1,4 @@
-export type NotifType      = 'system' | 'user' | 'payment' | 'dispute' | 'driver' | 'critical_review';
+export type NotifType      = 'system' | 'user' | 'payment' | 'dispute' | 'driver' | 'vehicle' | 'support' | 'critical_review';
 export type NotifPriority  = 'Urgente' | 'Haute' | 'Normale' | 'Basse';
 export type NotifStatus    = 'Non lue' | 'Lue' | 'Traitée';
 export type NotifTab       = 'all' | 'unread' | 'urgent' | 'system';
@@ -90,7 +90,9 @@ function mapType(raw: string): NotifType {
   if (raw.includes('KycApproved') || raw.includes('KycRejected') || raw.includes('AccountSuspend') || raw.includes('AccountRestore') || raw.includes('AccountActivat')) return 'user';
   if (raw.includes('Payout') || raw.includes('Virement')) return 'driver';
   if (raw.includes('Promo') || raw.includes('PromoCode')) return 'system';
-  const valid: NotifType[] = ['system', 'user', 'payment', 'dispute', 'driver', 'critical_review'];
+  if (raw.includes('Vehicle') || raw.includes('vehicle')) return 'vehicle';
+  if (raw.includes('Support') || raw.includes('Ticket') || raw === 'support') return 'support';
+  const valid: NotifType[] = ['system', 'user', 'payment', 'dispute', 'driver', 'vehicle', 'support', 'critical_review'];
   return valid.includes(raw as NotifType) ? (raw as NotifType) : 'system';
 }
 
